@@ -1,5 +1,18 @@
 # Spec 2 — Allenes (axial chirality of cumulated double bonds)
 
+| | |
+|---|---|
+| **Doc version** | 0.1 |
+| **Date** | 2026-07-09 |
+| **Status** | draft |
+| **Author** | C. Müller |
+| **Reviewers** | TBD (InChI Trust / project 2019-017-2-800 TG) |
+| **Requirement prefix** | `AL-` |
+| **Change history** | 0.1 (2026-07-09) — initial spec; verified against `dev` |
+
+> Normative keywords (MUST/SHOULD/MAY) per [RFC 2119](../README.md#requirement-conventions-normative);
+> shared glossary and conventions in the [README](../README.md).
+
 - **Feature:** recognise and encode the axial chirality of allenes (`X=C=C=Y`) and odd
   cumulenes, including the two enhancement asks: (a) accept a **single** stereobond, and
   (b) support **enhanced OR/AND** mixtures on the allene axis.
@@ -120,3 +133,54 @@ via the bundled `INCHI_API/bin/Linux/InChI_TestSet_ext.sdf` (`Allene`, `Allene1`
   as a group member and the `/t`+`/m` normaliser (`strutil.c:5053`) must handle it.
 - **Cumulene length.** `MAX_CUMULENE_LEN=2` and a hard loop cap of 20
   (`ichister.c:4874`) bound support; confirm the project's intended maximum.
+
+## 7. Normative encoding
+
+Allenes reuse the **tetrahedral encoding**, not a new layer: the axial parity is emitted as a
+`/t` entry on the **central `sp` atom**, and enhanced OR/AND grouping reuses the `/s` grammar
+of [Spec 1 §7](../enhanced-stereo/SPEC.md#7-normative-grammar-s-layer). Requirements (each **MUST**):
+- An allene/odd-cumulene axis with defined geometry **MUST** contribute exactly one `/t` entry
+  on its central atom; an even cumulene / plain double bond **MUST NOT**.
+- Absolute axial configuration **MUST** produce output identical to standard InChI (no `1B`
+  divergence for the pure-absolute case).
+- Enhanced OR/AND **MUST** place the central atom in an `/s2`/`/s3` group per Spec 1 rules.
+- A geometrically undefined axis (`|triple_prod| < MIN_DOT_PROD`) **MUST** render as `?`
+  (undefined), never as a guessed parity.
+
+## 8. Assumptions & dependencies
+
+- **A-1** Handedness comes from 2D wedge codes or 3D coordinates via `half_stereo_bond_parity`.
+- **A-2** "Single stereobond" support (AL-R3) assumes IUPAC accepts a one-wedge allene as
+  configuration-defining; confirm against the recommendation before implementing.
+- **D-1** Depends on the allene parity primitives (`half_stereo_bond_parity`,
+  `triple_prod_char`) — reuse verbatim; **no new vector maths** (also an atropisomer dep).
+- **D-2** Enhanced OR/AND depends on Spec 1's `/s` grouping (`ES-R2..R5`) and on the STEREL/
+  STERAC parser tolerating an allene central/terminal atom as a group member.
+
+## 9. Non-functional requirements
+
+- **AL-N1 (numbering invariance, MUST):** axial parity is computed via a triple product and
+  MUST be independent of input atom order (already true — `triple_prod_char`).
+- **AL-N2 (backward compatibility, MUST):** classic allene InChIs MUST NOT change; enhancement
+  work is additive.
+- **AL-N3 (no false positives, MUST):** a lone decorative wedge MUST NOT fabricate an axis;
+  single-stereobond support (AL-R3) MUST preserve this (`MIN_DOT_PROD` discipline).
+- **AL-N4 (rotamer invariance, MUST):** two conformers of one enantiomer MUST yield identical
+  InChI (gate A2).
+
+## 10. Requirement traceability
+
+| ID | Requirement | Priority | Gate | Source | Status |
+|----|-------------|----------|------|--------|--------|
+| AL-R1 | Classic allene/odd-cumulene detection + parity | Must | A1 | existing | `ichister.c:3116-3583` ✅ |
+| AL-R2 | Emit on central atom in `/t`; `/m` inversion | Must | A1 | [DECK] s15 | `ichimak2.c:451-546` ✅ |
+| AL-R3 | Single-stereobond recognition | Should | A3 | [ATROP], IUPAC | ❌ not done |
+| AL-R4 | Enhanced OR (`/s2`) on allene axis | Should | A4 | [DECK] s19 | ❌ not done |
+| AL-R5 | Enhanced AND (`/s3`) on allene axis | Should | A5 | [DECK] s20 | ❌ not done |
+| AL-R6 | Combined allene + tetrahedral grouping | Should | A6 | [DECK] s22 | ❌ not done |
+| AL-R7 | Dedicated allene test suite (parity, rotamer, round-trip) | Must | A1,A2 | — | ❌ none exist |
+| AL-R8 | Cumulene length beyond 2 (if in scope) | Could | — | [CHARTER] | capped ❌ |
+
+**Prioritisation (MoSCoW):** Must — AL-R7 (tests for the *already-working* classic path are a
+release blocker: behaviour is untested). Should — AL-R3..R6 (the enhancement asks). Could —
+AL-R8. Won't (this spec) — spiranes/other axial classes.

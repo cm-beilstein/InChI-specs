@@ -51,6 +51,46 @@ Authored project documents (not in this repo) live in the user's `Downloads`:
 - **Sign normalisation:** the lowest-numbered centre in each group is normalised to `-`;
   if flipping is needed the whole group's signs flip (and for ABS groups `/m` toggles).
 
+## Requirement conventions (normative)
+
+The key words **MUST**, **MUST NOT**, **REQUIRED**, **SHALL**, **SHOULD**, **SHOULD NOT**,
+**MAY**, and **OPTIONAL** in these specifications are to be interpreted as described in
+[RFC 2119](https://www.rfc-editor.org/rfc/rfc2119) / [RFC 8174](https://www.rfc-editor.org/rfc/rfc8174),
+and **only when in UPPERCASE**. Lowercase "must"/"should" in prose is explanatory, not normative.
+
+- **Requirement IDs** are per-spec prefixed and stable: `ES-` enhanced stereo, `AL-` allenes,
+  `EZ-` double-bond E/Z, `AT-` atropisomers (e.g. `ES-R3`). Each spec's §Traceability maps
+  `requirement → gate → source → code`.
+- **Gate IDs** (`G#`/`A#`/`Z#`/`T#`) are the verifiable acceptance criteria: a named dataset
+  + expected result + observed pass/fail.
+- **Prioritisation** uses MoSCoW: **Must** (blocks the feature), **Should** (needed for a
+  complete release), **Could** (desirable/deferrable), **Won't** (explicitly out of scope).
+
+## Document control
+
+Each `SPEC.md` opens with a control block: **version · date · status · author · reviewers ·
+change history**. Status values: `draft` → `in review` → `approved` → `superseded`. Bump the
+version and append a change-history row on every material edit. These specs are `v0.1 (draft)`
+as of 2026-07-09.
+
+## Glossary
+
+| Term | Meaning |
+|------|---------|
+| **ESR** | Enhanced Stereochemical Representation (MDL/BIOVIA V3000 ABS/OR/AND groups). |
+| **ABS / OR / AND** | Absolute / relative (one-of-two) / racemic (both) stereo-group types; molfile `STEABS`/`STERELn`/`STERACn`; labels `abs`/`orn`/`&n`. |
+| **`/t` layer** | Tetrahedral (and allene-central, atropisomer-axis) parity list: `atom±`. |
+| **`/m` layer** | Enantiomer/mirror flag (`m0`/`m1`); accompanies **absolute** centres only. |
+| **`/s` layer** | Stereo-type/grouping layer; `1`/`2`/`3` = ABS/OR/AND, grouped `/s1(…)2(…)3(…)`. |
+| **`/b` layer** | Double-bond (cis/trans, E/Z) parity layer; proposed grouped form `/b2(2-1-)`. |
+| **parity** | InChI canonical odd/even handedness (`AB_PARITY_ODD`/`EVEN`/`UNDF`), **not** CIP R/S. |
+| **axial chirality** | Handedness of an axis (allene, atropisomer bond) rather than a point centre. |
+| **dissymmetry** | The substituent inequivalence at each end that makes an axis genuinely stereogenic. |
+| **cumulene** | Chain of consecutive double bonds `=C=C=…`; odd-length → axial centre on the middle atom. |
+| **canonical rank / number** | InChI's invariant atom ordering; the basis for all layer atom numbers. |
+| **candidate axis** | A bond passing the topological predicate before dissymmetry pruning (atropisomers). |
+| **1B** | Beta/experimental InChI version prefix used for all enhanced-stereo output. |
+
 ## How gate status was determined
 
 Enhanced-stereo (dev) and atropisomer (branch) test suites were **built and run** in this

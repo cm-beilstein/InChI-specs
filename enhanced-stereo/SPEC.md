@@ -1,5 +1,18 @@
 # Spec 1 — Enhanced Stereochemistry (V3000 ABS/OR/AND, tetrahedral centres)
 
+| | |
+|---|---|
+| **Doc version** | 0.1 |
+| **Date** | 2026-07-09 |
+| **Status** | draft |
+| **Author** | C. Müller |
+| **Reviewers** | TBD (InChI Trust / project 2019-017-2-800 TG) |
+| **Requirement prefix** | `ES-` |
+| **Change history** | 0.1 (2026-07-09) — initial spec; verified against `dev`, incl. [BIOVIA] |
+
+> Normative keywords (MUST/SHOULD/MAY) per [RFC 2119](../README.md#requirement-conventions-normative);
+> shared glossary and conventions in the [README](../README.md).
+
 - **Feature:** recognise MDL V3000 enhanced-stereo collections (STEABS / STEREL# / STERAC#)
   on sp³ tetrahedral centres and encode them in an extended, grouped InChI `/s` layer.
 - **Branch:** `dev` (implemented) · **Option:** `-EnhancedStereochemistry` · **Prefix:** `InChI=1B/…`
@@ -126,3 +139,75 @@ per-molecule detail.
 - **F. Nomenclature scope out of band.** [ESR]/[BNF] discuss name-level `rac`/`rel` and
   independent-centre superscripts; these are IUPAC nomenclature recommendations, not InChI
   code, and are out of scope for this spec.
+
+## 7. Normative grammar (`/s` layer)
+
+The extended stereo-type layer, in ABNF ([RFC 5234]); it is appended to the existing
+`<stereo-layer>` after `/t` and `/m`.
+
+```abnf
+s-layer      = "/s" 1*s-group
+s-group      = s-type 1*atom-group
+s-type       = "1" / "2" / "3"          ; 1 = ABS, 2 = OR/relative, 3 = AND/racemic
+atom-group   = "(" atom *("," atom) ")" ; canonical atom numbers, ascending within a group
+atom         = 1*DIGIT                  ; canonical (final) atom rank
+```
+
+Rules (each **MUST** hold):
+- Within an `atom-group`, atoms **MUST** be in ascending canonical order; `atom-group`s within
+  an `s-type` **MUST** be ordered by their smallest atom.
+- `/m` **MUST** be present iff at least one ABS centre exists; it **MUST NOT** appear when the
+  component has only OR/AND centres.
+- A component whose centres are all ABS **MUST** reduce to the standard `/s1` (identical to
+  `SAbs`); a single OR group **MUST** reduce to `/s2`; a single AND group to `/s3`.
+- The lowest-numbered centre of each group **MUST** be normalised to `-` (whole-group sign
+  flip; ABS groups additionally toggle `/m`).
+- Multi-component output uses the existing `count*substring` / `;` composition (extension).
+
+## 8. Assumptions & dependencies
+
+- **A-1** Input is MDL V3000 with `STEABS`/`STERELn`/`STERACn` `ATOMS=()` collections; V2000
+  has no ESR channel, so a V2000 file yields standard output (no `/s` grouping).
+- **A-2** Each stereocentre belongs to **exactly one** collection ([BIOVIA]); the reader
+  MUST reject/diagnose violations (see §6, `ES-R12`).
+- **D-1** Depends on final **canonical ranks** (grouping/ordering use canonical atom numbers).
+- **D-2** Depends on the existing `/t`+`/m` sp³ parity pipeline; enhanced grouping is layered
+  on top, not a replacement.
+- **D-3** Reuses the `is_beta` mechanism for the `1B` prefix.
+
+## 9. Non-functional requirements
+
+- **ES-N1 (backward compatibility, MUST):** with `-EnhancedStereochemistry` off, output is
+  byte-identical to standard InChI. With it on, an all-absolute structure MUST equal the
+  standard string except the `1B` prefix. *(gap: §6.C — currently untested/possibly divergent.)*
+- **ES-N2 (determinism, MUST):** identical input ⇒ identical output; order-independent of
+  input atom order.
+- **ES-N3 (robustness, MUST):** malformed/empty/out-of-range collections MUST NOT crash and
+  MUST degrade gracefully (covered by G1 cases). The `ENH_STEREO_DICT_SIZE=100` cap MUST
+  raise an overflow diagnostic rather than silently truncate *(gap: §6.A)*.
+- **ES-N4 (performance, SHOULD):** `/s` construction SHOULD be ≤ O(n·log n) in centres; the
+  current O(n²) canonical-number scans are acceptable for typical inputs but SHOULD be
+  addressed for large structures *(§6.E)*.
+- **ES-N5 (portability, MUST):** builds and passes on the InChI-supported toolchains; tests
+  MUST resolve fixtures independent of build layout *(§6.B)*.
+
+## 10. Requirement traceability
+
+| ID | Requirement | Priority | Gate | Source | Code / status |
+|----|-------------|----------|------|--------|---------------|
+| ES-R1 | Parse STEABS/STEREL#/STERAC# `ATOMS=()` | Must | G1,G2 | [BIOVIA], [DECK] | `mol_fmt3.c:647` ✅ |
+| ES-R2 | Grouped `/s1(…)2(…)3(…)` emission | Must | G1,G4 | [STRING-ALG] | `ichiprt2.c:2213/2327` ✅ |
+| ES-R3 | Within-/inter-group ordering | Must | G1,G4 | [STRING-ALG] | `ichiprt2.c:2268-2275` ✅ |
+| ES-R4 | Sign normalisation + `/m` coupling to ABS | Must | G1,G2 | [STRING-ALG] | `strutil.c:4968-5089` ✅ |
+| ES-R5 | Reductions (only-ABS/OR/AND) | Must | G2 | [DECK] s10 | partial — explicit-STEABS-only untested (ES-R11) |
+| ES-R6 | `-EnhancedStereochemistry` + `1B` | Must | G1 | [DECK] | `ichiparm.c:273` ✅ |
+| ES-R7 | Multi-component composition | Should | G1 | [DECK] s9 | `ichiprt2.c:2415` ✅ |
+| ES-R11 | Explicit-STEABS-only ⇒ bare `/s1` | Should | G6 | [STRING-ALG] | untested ❌ |
+| ES-R12 | Enforce one-group-per-centre | Should | — (new) | [BIOVIA] | not implemented ❌ |
+| ES-R13 | Wire `enh_stereo_test_file_2.sdf` gate | Should | G5 | dataset | dormant ❌ |
+
+**Prioritisation (MoSCoW) of open items:** Must — none outstanding (core works). Should —
+ES-R11, ES-R12, ES-R13, ES-N3 overflow guard, ES-N5 fixture-path. Could — ES-N4 O(n²),
+return-propagation (§6.D). Won't (this spec) — name-level nomenclature (§6.F).
+
+[RFC 5234]: https://www.rfc-editor.org/rfc/rfc5234
