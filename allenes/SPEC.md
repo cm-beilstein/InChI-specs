@@ -2,13 +2,13 @@
 
 | | |
 |---|---|
-| **Doc version** | 0.1 |
-| **Date** | 2026-07-09 |
+| **Doc version** | 0.2 |
+| **Date** | 2026-07-10 |
 | **Status** | draft |
 | **Author** | C. Müller |
 | **Reviewers** | TBD (InChI Trust / project 2019-017-2-800 TG) |
 | **Requirement prefix** | `AL-` |
-| **Change history** | 0.1 (2026-07-09) — initial spec; verified against `dev` |
+| **Change history** | 0.1 (2026-07-09) — initial spec; verified against `dev`. 0.2 (2026-07-10) — consolidated: merged normative MUSTs into §2, requirements/gates/NFRs into one table (§4). |
 
 > Normative keywords (MUST/SHOULD/MAY) per [RFC 2119](../README.md#requirement-conventions-normative);
 > shared glossary and conventions in the [README](../README.md).
@@ -36,22 +36,38 @@ so the axis carries a handedness. InChI already models this. Two gaps remain per
    but unknown axial configuration (`/s2`) or a racemic axis (`/s3`), grouped like tetrahedral
    centres.
 
-## 2. Target behaviour
+## 2. Target behaviour & normative rules
 
-From [DECK] slides 15–22:
+From [DECK] slides 15–22. Allenes reuse the **tetrahedral encoding** — no new layer: the axial
+parity is emitted as a `/t` entry on the central `sp` atom, and enhanced OR/AND grouping reuses
+the `/s` grammar of [Spec 1 §7](../enhanced-stereo/SPEC.md#7-normative-grammar-s-layer). The
+rules below are normative (each **MUST**).
 
-- The allene axis is encoded on the **central `sp` carbon** in the `/t` layer, exactly as
-  today: `InChI=1B/C4H3BrClF/c1-3(6)2-4(5)7/h1H3/t2-/m1/s1` (slide 15).
-- **Absolute axis** (pure known): identical to the standard InChI — "in case of *abs axial
-  enhanced stereochemistry* use the standard InChI representation" (slide 18).
-- **Pure-but-unknown (OR):** `…/t2-/s2` — analogous to tetrahedral OR#; multiple OR axes
-  ordered ascending, grouped `2(…)` when combined with other classes (slide 19).
-- **Racemic (AND):** `…/t2-/s3` — analogous to tetrahedral AND# (slide 20).
-- **Combined allene + tetrahedral:** follow the tetrahedral-centre grouping, the allene's
-  central atom participating as an ordinary `/t` centre, e.g.
-  `…/t2-,3-/m1/s1(3)2(2)` (slide 22).
-- **Single stereobond:** a wedge at one terminal (other end flat) must define the axis, per
+- **`/t` on the central atom.** An allene/odd-cumulene axis with defined geometry **MUST**
+  contribute exactly one `/t` entry on its central `sp` atom; an even cumulene / plain double
+  bond **MUST NOT**. Example: `InChI=1B/C4H3BrClF/c1-3(6)2-4(5)7/h1H3/t2-/m1/s1` (slide 15).
+- **Absolute axis (pure known).** Output **MUST** be identical to standard InChI — "in case of
+  *abs axial enhanced stereochemistry* use the standard InChI representation" (slide 18); no
+  `1B` divergence for the pure-absolute case.
+- **Pure-but-unknown (OR).** `…/t2-/s2`, analogous to tetrahedral OR#; multiple OR axes ordered
+  ascending, grouped `2(…)` when combined with other classes (slide 19). The central atom
+  **MUST** be placed in an `/s2` group per Spec 1 rules.
+- **Racemic (AND).** `…/t2-/s3`, analogous to tetrahedral AND# (slide 20); central atom in an
+  `/s3` group.
+- **Combined allene + tetrahedral.** Follow the tetrahedral-centre grouping, the allene's
+  central atom participating as an ordinary `/t` centre, e.g. `…/t2-,3-/m1/s1(3)2(2)` (slide 22).
+- **Single stereobond.** A wedge at one terminal (other end flat) **MUST** define the axis, per
   IUPAC — currently unrecognised (slide 15 states only up/up and down/down are handled).
+- **Undefined geometry.** An axis with `|triple_prod| < MIN_DOT_PROD` **MUST** render as `?`
+  (undefined), never a guessed parity.
+
+**Invariants (all MUST, mostly already met — see §3):**
+- *Numbering invariance* — axial parity computed via triple product, independent of input atom
+  order (met: `triple_prod_char`).
+- *Backward compatibility* — classic allene InChIs MUST NOT change; enhancement is additive.
+- *No false positives* — a lone decorative wedge MUST NOT fabricate an axis; single-stereobond
+  support (AL-R3) MUST preserve this via the `MIN_DOT_PROD` discipline.
+- *Rotamer invariance* — two conformers of one enantiomer MUST yield identical InChI (gate A2).
 
 ## 3. Current implementation (branch `dev`)
 
@@ -68,6 +84,7 @@ Constants: `extr_ct.h:242` `MAX_CUMULENE_LEN=2`, `:249` `BOND_CHAIN_LEN`, `:250`
 | Enantiomer inversion (`/m`) | `ichicans.c:2063-2114` (`if (cumulene_len % 2)` invert smaller-numbered atom) | ✅ |
 | Cumulene canonical ranking | `ichicans.c:871-960`, `1181-1253` | ✅ |
 | 0D (molfile parity) + isotopic paths | `ichister.c:3534-3539` `FixSb0DParities`, `save_a_stereo_bond` `:3595-3662` | ✅ |
+| Historical FClC=C=CFCl parity bug | fixed `ichister.c:4412` | ✅ |
 
 **Single stereobond:** there is *no explicit reject* — well-definedness is purely the
 `|triple_prod| >= MIN_DOT_PROD` threshold (`ichister.c:3579`). With both terminals flat the
@@ -83,46 +100,27 @@ tetrahedral-only). Because the allene is injected as an ordinary `/t` centre
 (`INCHI_FLAG_REL/RAC_STEREO`, `ichimak2.c:1226-1230`). True per-axis grouping would reuse the
 tetrahedral `/t`+`/s` grouping path (spec 1), keyed on the allene's central atom.
 
-## 4. Dataset gates
+## 4. Requirements & gates
 
-There are **no dedicated allene unit tests** — coverage today is only end-to-end regression
-via the bundled `INCHI_API/bin/Linux/InChI_TestSet_ext.sdf` (`Allene`, `Allene1`,
-`D4h-allene`, `cumulenes-c.#001..#006`), which assert nothing about `/t`/`/s`. See
-[datasets/DATASETS.md](datasets/DATASETS.md) for the gate molecules seeded from [DECK].
+No dedicated allene unit tests exist today — coverage is only end-to-end regression via the
+bundled `INCHI_API/bin/Linux/InChI_TestSet_ext.sdf` (`Allene`, `Allene1`, `D4h-allene`,
+`cumulenes-c.#001..#006`), which assert nothing about `/t`/`/s`. Gate molecules seeded from
+[DECK] are in [datasets/DATASETS.md](datasets/DATASETS.md).
 
-| Gate | Content | Status |
-|------|---------|--------|
-| A1 Classic axial parity | Ra/Sa allene pair → `/t2-/m0` vs `/t2-/m1` (slide 17) | ⚠️ behaviour present; **no unit test asserting it** |
-| A2 Rotamer invariance | two draws of one enantiomer → identical InChI | ⚠️ no test |
-| A3 Single stereobond | one-wedge allene → defined `/t` (currently `?`/absent) | ❌ **fails / unsupported** |
-| A4 Enhanced OR | `MDLV30/STEREL1 ATOMS=(central)` → `…/t2-/s2` (slide 19) | ❌ not implemented |
-| A5 Enhanced AND | `MDLV30/STERAC1 ATOMS=(central)` → `…/t2-/s3` (slide 20) | ❌ not implemented |
-| A6 Combined allene+tetrahedral | slide 22 examples → `…/t2-,3-/m1/s1(3)2(2)` | ❌ not implemented |
+| ID | Requirement | Priority | Gate — expected | Source | Status / code |
+|----|-------------|----------|-----------------|--------|---------------|
+| AL-R1 | Classic allene/odd-cumulene detection + parity | Must | A1: Ra/Sa pair → `/t2-/m0` vs `/t2-/m1` (slide 17) | existing | `ichister.c:3116-3583` — behaviour ✅, **no unit test asserting it** |
+| AL-R2 | Emit on central atom in `/t`; `/m` inversion | Must | A1 | [DECK] s15 | `ichimak2.c:451-546` ✅ |
+| AL-R7 | Dedicated allene test suite (parity, rotamer, round-trip) | **Must** | A1, A2: rotamer invariance — two draws → identical InChI | — | ❌ none exist (release blocker: classic path is untested) |
+| AL-R3 | Single-stereobond recognition (shared with atropisomers AT-R9) | Should | A3: one-wedge allene → defined `/t` (currently `?`/absent) | [ATROP], IUPAC | ❌ not done — adjust geometry/threshold logic |
+| AL-R4 | Enhanced OR (`/s2`) on allene axis | Should | A4: `STEREL1 ATOMS=(central)` → `…/t2-/s2` (slide 19) | [DECK] s19 | ❌ not done |
+| AL-R5 | Enhanced AND (`/s3`) on allene axis | Should | A5: `STERAC1 ATOMS=(central)` → `…/t2-/s3` (slide 20) | [DECK] s20 | ❌ not done |
+| AL-R6 | Combined allene + tetrahedral grouping (reuse `/t`+`/s` path) | Should | A6: slide 22 → `…/t2-,3-/m1/s1(3)2(2)` | [DECK] s22 | ❌ not done |
+| AL-R8 | Cumulene length beyond `MAX_CUMULENE_LEN=2` (if in scope) | Could | — | [CHARTER] | capped ❌ (`ichister.c:3352` "short chains for now") |
 
-## 5. Deliverables checklist
+**Won't (this spec):** spiranes and other axial-chirality classes.
 
-**Done**
-- [x] Allene/odd-cumulene detection (element + valence + chain-length rules)
-- [x] Geometric axial parity (triple product), numbering-invariant, with `MIN_DOT_PROD` cut
-- [x] Encoding on central atom in `/t`; enantiomer `/m` inversion
-- [x] 0D, isotopic, and cumulene-canonicalisation paths
-- [x] Historical FClC=C=CFCl parity bug fixed (`ichister.c:4412`)
-
-**Missing / to do**
-- [ ] **Single-stereobond recognition** (A3): make a lone terminal wedge define the axis, per
-      IUPAC — adjust the geometry/threshold logic; add fixtures for one-wedge Ra/Sa
-- [ ] **Enhanced OR (`/s2`) on allene axes** (A4) — allow `STEREL#` collection to reference
-      the allene's terminal/central atom; group it in the `/s` layer
-- [ ] **Enhanced AND (`/s3`) on allene axes** (A5)
-- [ ] **Combined allene + tetrahedral grouping** (A6) — reuse the tetrahedral `/t`+`/s` path
-- [ ] **Dedicated allene test suite** (A1–A2): assert `/t`, `/m`, rotamer invariance,
-      round-trip reparse — none exist today
-- [ ] Build a curated allene dataset with expected `1B` InChIs (from [DECK] slides 15–22) and
-      wire it as a gate
-- [ ] Decide/encode longer cumulenes beyond `MAX_CUMULENE_LEN=2` if in scope ([CHARTER]
-      "longer allenes") — currently capped (`ichister.c:3352` "short chains for now")
-
-## 6. Open issues / risks
+## 5. Open issues / risks
 
 - **Single-bond threshold interplay.** Lowering the effective threshold for one wedge risks
   false positives on decorative wedges; needs the same "ignore decorative stereobonds"
@@ -134,20 +132,7 @@ via the bundled `INCHI_API/bin/Linux/InChI_TestSet_ext.sdf` (`Allene`, `Allene1`
 - **Cumulene length.** `MAX_CUMULENE_LEN=2` and a hard loop cap of 20
   (`ichister.c:4874`) bound support; confirm the project's intended maximum.
 
-## 7. Normative encoding
-
-Allenes reuse the **tetrahedral encoding**, not a new layer: the axial parity is emitted as a
-`/t` entry on the **central `sp` atom**, and enhanced OR/AND grouping reuses the `/s` grammar
-of [Spec 1 §7](../enhanced-stereo/SPEC.md#7-normative-grammar-s-layer). Requirements (each **MUST**):
-- An allene/odd-cumulene axis with defined geometry **MUST** contribute exactly one `/t` entry
-  on its central atom; an even cumulene / plain double bond **MUST NOT**.
-- Absolute axial configuration **MUST** produce output identical to standard InChI (no `1B`
-  divergence for the pure-absolute case).
-- Enhanced OR/AND **MUST** place the central atom in an `/s2`/`/s3` group per Spec 1 rules.
-- A geometrically undefined axis (`|triple_prod| < MIN_DOT_PROD`) **MUST** render as `?`
-  (undefined), never as a guessed parity.
-
-## 8. Assumptions & dependencies
+## 6. Assumptions & dependencies
 
 - **A-1** Handedness comes from 2D wedge codes or 3D coordinates via `half_stereo_bond_parity`.
 - **A-2** "Single stereobond" support (AL-R3) assumes IUPAC accepts a one-wedge allene as
@@ -156,31 +141,3 @@ of [Spec 1 §7](../enhanced-stereo/SPEC.md#7-normative-grammar-s-layer). Require
   `triple_prod_char`) — reuse verbatim; **no new vector maths** (also an atropisomer dep).
 - **D-2** Enhanced OR/AND depends on Spec 1's `/s` grouping (`ES-R2..R5`) and on the STEREL/
   STERAC parser tolerating an allene central/terminal atom as a group member.
-
-## 9. Non-functional requirements
-
-- **AL-N1 (numbering invariance, MUST):** axial parity is computed via a triple product and
-  MUST be independent of input atom order (already true — `triple_prod_char`).
-- **AL-N2 (backward compatibility, MUST):** classic allene InChIs MUST NOT change; enhancement
-  work is additive.
-- **AL-N3 (no false positives, MUST):** a lone decorative wedge MUST NOT fabricate an axis;
-  single-stereobond support (AL-R3) MUST preserve this (`MIN_DOT_PROD` discipline).
-- **AL-N4 (rotamer invariance, MUST):** two conformers of one enantiomer MUST yield identical
-  InChI (gate A2).
-
-## 10. Requirement traceability
-
-| ID | Requirement | Priority | Gate | Source | Status |
-|----|-------------|----------|------|--------|--------|
-| AL-R1 | Classic allene/odd-cumulene detection + parity | Must | A1 | existing | `ichister.c:3116-3583` ✅ |
-| AL-R2 | Emit on central atom in `/t`; `/m` inversion | Must | A1 | [DECK] s15 | `ichimak2.c:451-546` ✅ |
-| AL-R3 | Single-stereobond recognition | Should | A3 | [ATROP], IUPAC | ❌ not done |
-| AL-R4 | Enhanced OR (`/s2`) on allene axis | Should | A4 | [DECK] s19 | ❌ not done |
-| AL-R5 | Enhanced AND (`/s3`) on allene axis | Should | A5 | [DECK] s20 | ❌ not done |
-| AL-R6 | Combined allene + tetrahedral grouping | Should | A6 | [DECK] s22 | ❌ not done |
-| AL-R7 | Dedicated allene test suite (parity, rotamer, round-trip) | Must | A1,A2 | — | ❌ none exist |
-| AL-R8 | Cumulene length beyond 2 (if in scope) | Could | — | [CHARTER] | capped ❌ |
-
-**Prioritisation (MoSCoW):** Must — AL-R7 (tests for the *already-working* classic path are a
-release blocker: behaviour is untested). Should — AL-R3..R6 (the enhancement asks). Could —
-AL-R8. Won't (this spec) — spiranes/other axial classes.

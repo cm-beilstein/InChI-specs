@@ -16,27 +16,28 @@ of what is done vs. missing.
 
 ## Source documents
 
-Authored project documents (not in this repo) live in the user's `Downloads`:
+Authored project documents are vendored in [`docs/`](docs/):
 
-- `enh stereo/2026-07-22 Enhanced stereochemistry V00.pptx` — the current consolidated deck
-  (presented 2026-06-25); authoritative for the proposed InChI-string encodings of all four
-  features. Referenced below as **[DECK]** with slide numbers.
-- `enh stereo/Enhanced stereochemistry InChI string creation.docx` — the tetrahedral
-  grouped-`/s` algorithm with worked examples and expected strings. **[STRING-ALG]**
-- `enh stereo/Enhanced Stereoc.docx` — ESR concepts + nomenclature (Yerin, 2023). **[ESR]**
-- `enh stereo/Inchi New Stereoisomer Layer Issues YQ.docx` — BNF for the revised stereo
-  layer + the atropisomer-in-`/t` parsing-ambiguity analysis. **[BNF]**
-- `enh stereo/IUPAC prject - …docx` — project charter/scope. **[CHARTER]**
-- `enh stereo/biovia-enhanced-stereochemical-representation-white-paper.pdf` — third-party
-  BIOVIA ESR reference; **the authoritative source for ESR semantics** (ABS/OR/AND
+- [`docs/2026-07-22 Enhanced stereochemistry V00.pptx`](docs/2026-07-22%20Enhanced%20stereochemistry%20V00.pptx)
+  — the current consolidated deck; authoritative for the proposed InChI-string encodings of all
+  four features. Referenced below as **[DECK]** with slide numbers.
+- [`docs/Enhanced stereochemistry InChI string creation.docx`](docs/Enhanced%20stereochemistry%20InChI%20string%20creation.docx)
+  — the tetrahedral grouped-`/s` algorithm with worked examples and expected strings. **[STRING-ALG]**
+- [`docs/Enhanced Stereoc.docx`](docs/Enhanced%20Stereoc.docx) — ESR concepts + nomenclature (Yerin, 2023). **[ESR]**
+- [`docs/Inchi New Stereoisomer Layer Issues YQ.docx`](docs/Inchi%20New%20Stereoisomer%20Layer%20Issues%20YQ.docx)
+  — BNF for the revised stereo layer + the atropisomer-in-`/t` parsing-ambiguity analysis. **[BNF]**
+- [`docs/IUPAC prject - Enhanced recognition and encoding of stereoconfiguration by InChI tools.docx`](docs/IUPAC%20prject%20-%20Enhanced%20recognition%20and%20encoding%20of%20stereoconfiguration%20by%20InChI%20tools.docx)
+  — project charter/scope. **[CHARTER]**
+- [`docs/biovia-enhanced-stereochemical-representation-white-paper.pdf`](docs/biovia-enhanced-stereochemical-representation-white-paper.pdf)
+  — third-party BIOVIA ESR reference; **the authoritative source for ESR semantics** (ABS/OR/AND
   definitions, STEABS/STERELn/STERACn, display labels `abs`/`orn`/`&n`, the "one group per
   centre" rule, an Appendix-B example V3000 molfile). Referenced as **[BIOVIA]**.
-- `atropisomers/InChI encoding of atropisomers.docx` — atropisomer recognition +
-  encoding proposal (Yerin). **[ATROP]**
-- `atropisomers/2018-06-09-AJM_Atropisomerism_GM_website.pdf` — academic literature-review
-  deck (Metrano, Princeton, 2018): atropisomer fundamentals, scaffold taxonomy, descriptors
-  (CIP `aR`/`aS` vs helical `M`/`P`), rotational barriers. **Background only** — no InChI
-  encoding content. Referenced as **[ATROP-BG]**.
+- [`docs/InChI encoding of atropisomers.docx`](docs/InChI%20encoding%20of%20atropisomers.docx)
+  — atropisomer recognition + encoding proposal (Yerin). **[ATROP]**
+- `2018-06-09-AJM_Atropisomerism_GM_website.pdf` — academic literature-review deck (Metrano,
+  Princeton, 2018): atropisomer fundamentals, scaffold taxonomy, descriptors (CIP `aR`/`aS` vs
+  helical `M`/`P`), rotational barriers. **Background only** — no InChI encoding content, **not
+  vendored**. Referenced as **[ATROP-BG]**.
 
 ## Common encoding conventions (from [DECK]/[STRING-ALG])
 

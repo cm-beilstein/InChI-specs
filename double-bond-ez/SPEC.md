@@ -2,13 +2,13 @@
 
 | | |
 |---|---|
-| **Doc version** | 0.1 |
-| **Date** | 2026-07-09 |
+| **Doc version** | 0.2 |
+| **Date** | 2026-07-10 |
 | **Status** | draft |
 | **Author** | C. Müller |
 | **Reviewers** | TBD (InChI Trust / project 2019-017-2-800 TG) |
 | **Requirement prefix** | `EZ-` |
-| **Change history** | 0.1 (2026-07-09) — initial spec; verified against `dev` |
+| **Change history** | 0.1 (2026-07-09) — initial spec; verified against `dev`. 0.2 (2026-07-10) — consolidated: requirements/gates/deliverables/NFRs merged into one table (§4); ABNF grammar retained (§6). |
 
 > Normative keywords (MUST/SHOULD/MAY) per [RFC 2119](../README.md#requirement-conventions-normative);
 > shared glossary and conventions in the [README](../README.md).
@@ -31,7 +31,7 @@ bonds beyond collapsing them to "no `/b`".
 
 ## 2. Target behaviour
 
-From [DECK] slides 23–30:
+From [DECK] slides 23–30. The normative encoding grammar is in §6; the behavioural rules:
 
 - **Absolute** geometry: unchanged standard `/b` layer, e.g.
   `InChI=1B/C2BrCl2F/c3-1(4)2(5)6/b2-1+` (slide 25). Proposal: "for abs geometries use the
@@ -48,6 +48,15 @@ From [DECK] slides 23–30:
 - **Input:** V3000 `MDLV30/STEBABS`, `MDLV30/STEBREL#`, `MDLV30/STEBRAC#` over `BONDS=(…)`.
 - **Combined with tetrahedral/allene:** double bonds handled **separately** in `/b`; sp³ in
   `/t`+`/s` (slide 30), e.g. `…/b4-3-/t2-/m1/s1`, `…/b2(4-3-)/t2-/m1/s1`, `…/b4-3-/t2-/s3`.
+
+**Invariants (all MUST):**
+- *Backward compatibility* — classic `/b` output MUST be unchanged; enhancement is purely
+  additive.
+- *Grammar injectivity* — the grouped `/b` MUST parse unambiguously vs the flat `/b` and MUST
+  round-trip (parse an emitted `/b2(…)`/`/b3(…)` and reproduce it).
+- *Determinism* — identical input ⇒ identical output; group/tuple ordering fully determined by
+  canonical numbers.
+- *Either ≠ OR* — unknown/either (crossed/wavy) bonds MUST NOT be conflated with OR groups.
 
 ## 3. Current implementation (branch `dev`)
 
@@ -75,51 +84,38 @@ From [DECK] slides 23–30:
   grouped `/b` from `INChI_Stereo.{nBondAtom1,nBondAtom2,b_parity}`.
 - **Gating/prefix:** reuse `ip->bEnhancedStereo` + `is_beta` `1B` (`ichiprt1.c:1713,3132`).
 
-## 4. Dataset gates
+## 4. Requirements & gates
 
-**No double-bond stereo tests exist at all** (no `/b`, cis, trans, or `STEB*` coverage in
+No double-bond stereo tests exist at all (no `/b`, cis, trans, or `STEB*` coverage in
 `test_unit/`). All gates below are new; expected strings seeded from [DECK] slides 25–30 in
 [datasets/DATASETS.md](datasets/DATASETS.md).
 
-| Gate | Content | Status |
-|------|---------|--------|
-| Z1 Classic absolute `/b` | `C2BrCl2F` E draw → `/b2-1+` (slide 25) | ⚠️ works in pipeline; **no unit test** |
-| Z2 Unknown/either | crossed & wavy draws → **no `/b`** (slide 26) | ⚠️ works; no unit test |
-| Z3 Enhanced OR | `STEBREL1 BONDS=(1 3)` → `/b2(2-1-)` (slide 27) | ❌ not implemented |
-| Z4 Enhanced AND | `STEBRAC1 BONDS=(1 3)` → `/b3(2-1-)` (slide 28) | ❌ not implemented |
-| Z5 Multi-group | slide 29 `C18…` → `/b12-5+,2(16-14-),3(1(15-10-)(17-11-),2(18-13-))` | ❌ not implemented |
-| Z6 Combined with `/t` | slide 30 → `/b2(4-3-)/t2-/m1/s1`, `/b4-3-/t2-/s3` | ❌ not implemented |
+| ID | Requirement | Priority | Gate — expected | Source | Status / code |
+|----|-------------|----------|-----------------|--------|---------------|
+| EZ-R1 | Classic absolute `/b` E/Z | Must | Z1: `C2BrCl2F` E draw → `/b2-1+` (slide 25) | existing | `ichiprt2.c:2075` ✅ works in pipeline; **no unit test** |
+| EZ-R2 | Either/unknown bonds → `u`/`?` or omitted | Must | Z2: crossed & wavy → **no `/b`** (slide 26) | existing | `ichister.c:3090` ✅ works; no unit test |
+| EZ-R3 | Parse `STEBABS`/`STEBREL#`/`STEBRAC#` `BONDS=()` | Must | Z3: `STEBREL1 BONDS=(1 3)` → `/b2(2-1-)` (s27); Z4: `STEBRAC1` → `/b3(2-1-)` (s28) | [DECK] s27-30 | ❌ not done |
+| EZ-R4 | Bond-collection data model (`OAD_V3000` lists + transfer/split/free) | Must | Z3–Z6 | [DECK] | ❌ not done — mirror `mol2atom.c:1646-1712`, `runichi3.c:359-395` |
+| EZ-R5 | Grouped `/b2(…)`/`/b3(…)` emitter (§6 grammar) | Must | Z3–Z5; Z5 multi-group `C18…` → `/b12-5+,2(16-14-),3(1(15-10-)(17-11-),2(18-13-))` (s29) | [DECK] s27-29 | ❌ not done |
+| EZ-R6 | Reductions (absolute-only ⇒ flat `/b`; only-OR/only-AND) | Must | Z1 | [DECK] s25 | ❌ not done |
+| EZ-R8 | Fix type-marker convention (`2`/`3` vs `o`/`&` alternative) | Must | — | [DECK] | ❌ open decision *(§5)* |
+| EZ-R7 | Combined `/b` + `/t`+`/s` independence | Should | Z6: s30 → `/b2(4-3-)/t2-/m1/s1`, `/b4-3-/t2-/s3` | [DECK] s30 | ❌ not done |
+| EZ-R9 | Classic `/b` unit tests (none exist) | Should | Z1, Z2 | — | ❌ none |
+| — | Confirm grouped-`/b` grammar vs [BNF] injectivity | Must | — | [BNF] | ❌ *(§5)* |
+| — | Document grouped `/b` grammar in the technical manual | Should | — | — | ❌ (grammar in §6) |
 
-## 5. Deliverables checklist
+**Prioritisation (MoSCoW):** Must — EZ-R3..R6, R8 (the whole enhanced feature + the marker
+decision). Should — EZ-R7, EZ-R9. Could — a curated large stress dataset (Z5). Won't (this
+spec) — allene/atropisomer bonds (those are `/t`, Specs 2 & 4).
 
-**Done**
-- [x] Classic absolute `/b` E/Z detection, canonicalisation, emission (incl. isotopic)
-- [x] Either/crossed/wavy unknown bonds → `u`/`?` (or omitted `/b`)
-- [x] `SLUUD` option controlling `u` vs `?`
-
-**Missing / to do**
-- [ ] **Input:** parse `MDLV30/STEBABS|STEBREL#|STEBRAC#` with `BONDS=(…)`; add `STEB*`
-      keywords and a `BONDS=` branch to the V3000 collection parser
-- [ ] **Model:** extend `OAD_V3000` with bond-collection lists (+ transfer, component-split,
-      free — mirror `mol2atom.c:1646-1712`, `runichi3.c:359-395`)
-- [ ] **Output:** grouped `/b` emitter — `/b2(2-1-)`, `/b3(2-1-)`; canonical atom-pair,
-      higher number first, both `-`; ascending tuple order; bracketed OR#/AND# blocks `,`-sep
-- [ ] **Reductions/edge cases:** absolute-only ⇒ standard `/b`; only-OR / only-AND groups
-      (analogous to `/s2`/`/s3` reductions)
-- [ ] **Combined handling:** double bonds in `/b`, sp³/allene in `/t`+`/s`, one InChI
-- [ ] **Gates Z1–Z6:** build `double_bond_ez_test_file_1.sdf` + `test_doubleBondEZ.cpp`
-      (including the slide-29 multi-group stress case)
-- [ ] Confirm the grouped-`/b` grammar with the [BNF] injectivity concerns (see §6)
-- [ ] Document the grouped `/b` grammar in the technical manual
-
-## 6. Open issues / risks
+## 5. Open issues / risks
 
 - **Grammar injectivity.** [BNF] flags that overloading existing layers can create ambiguous
   parses. The `/b2(2-1-)` form is unambiguous *because* it always parenthesises and signs
   both atoms of each pair — the spec must keep that invariant (never emit a bare grouped `/b`
   that could be read as a flat `/b`).
 - **Alternative markers.** [DECK] notes possible alternative type markers (`o` for OR, `&`
-  for AND) instead of `2`/`3`; decide and fix one convention before implementation.
+  for AND) instead of `2`/`3`; decide and fix one convention before implementation (EZ-R8).
 - **"Either" vs OR.** A crossed/wavy bond (unknown, no `/b`) is semantically different from an
   OR mixture (`/b2(…)`); the input path must not conflate `STEREO_*_EITHER` bond flags with
   `STEBREL` collections.
@@ -127,7 +123,7 @@ From [DECK] slides 23–30:
   (available in `INChI_Stereo.nBondAtom1/2`); confirm they are final canonical ranks at the
   emission point, matching how `MakeStereoString` already orders `atom2-atom1`.
 
-## 7. Normative grammar (enhanced `/b` layer)
+## 6. Normative grammar (enhanced `/b` layer)
 
 ABNF ([RFC 5234]). The **absolute** `/b` layer is unchanged; the grammar below defines the
 **grouped OR/AND** extension. `b-pair` is a stereo bond as its two canonical atoms, **higher
@@ -150,13 +146,13 @@ Rules (each **MUST** hold):
   signed `-`. `b-pair`s within a block, and blocks within a `b-type`, **MUST** be ordered
   ascending by atom-number tuple.
 - The grammar **MUST** remain unambiguous vs the flat `/b`: a grouped `/b` **MUST** always
-  parenthesise ([BNF] injectivity requirement §6).
+  parenthesise ([BNF] injectivity requirement §5).
 - An "either"/crossed/wavy (unknown) bond is **not** OR: it **MUST** be omitted from `/b`
   (or rendered `u`/`?`), **never** encoded as a `b-group`.
 - The type-marker convention (`2`/`3` vs the `o`/`&` alternative) **MUST** be fixed before
-  implementation (§6).
+  implementation (§5, EZ-R8).
 
-## 8. Assumptions & dependencies
+## 7. Assumptions & dependencies
 
 - **A-1** Enhanced double-bond input arrives as V3000 `STEBABS`/`STEBREL#`/`STEBRAC#`
   `BONDS=()` collections — a channel that does **not** exist in V2000.
@@ -165,32 +161,6 @@ Rules (each **MUST** hold):
   b_parity}`, `MakeStereoString`) as the parity source of truth.
 - **D-2** Input model depends on extending `OAD_V3000` with bond-collection lists (mirrors the
   atom-collection path); output depends on the Spec 1 grouped-emitter pattern.
-- **D-3** Assumes bond-end canonical ranks are final at the emission point (see §6).
+- **D-3** Assumes bond-end canonical ranks are final at the emission point (see §5).
 
-## 9. Non-functional requirements
-
-- **EZ-N1 (backward compatibility, MUST):** classic `/b` output MUST be unchanged; enhancement
-  is purely additive.
-- **EZ-N2 (grammar injectivity, MUST):** the grouped `/b` MUST parse unambiguously and MUST
-  round-trip (parse an emitted `/b2(…)`/`/b3(…)` and reproduce it).
-- **EZ-N3 (determinism, MUST):** identical input ⇒ identical output; group/tuple ordering
-  fully determined by canonical numbers.
-- **EZ-N4 (either ≠ OR, MUST):** unknown/either bonds MUST NOT be conflated with OR groups.
-
-## 10. Requirement traceability
-
-| ID | Requirement | Priority | Gate | Source | Status |
-|----|-------------|----------|------|--------|--------|
-| EZ-R1 | Classic absolute `/b` E/Z | Must | Z1 | existing | `ichiprt2.c:2075` ✅ |
-| EZ-R2 | Either/unknown bonds → `u`/`?` or omitted | Must | Z2 | existing | `ichister.c:3090` ✅ |
-| EZ-R3 | Parse `STEBABS`/`STEBREL#`/`STEBRAC#` `BONDS=()` | Must | Z3–Z6 | [DECK] s27-30 | ❌ not done |
-| EZ-R4 | Bond-collection data model (`OAD_V3000`) | Must | Z3–Z6 | [DECK] | ❌ not done |
-| EZ-R5 | Grouped `/b2(…)`/`/b3(…)` emitter (§7 grammar) | Must | Z3–Z5 | [DECK] s27-28 | ❌ not done |
-| EZ-R6 | Reductions (absolute-only ⇒ flat `/b`) | Must | Z1 | [DECK] s25 | ❌ not done |
-| EZ-R7 | Combined `/b` + `/t`+`/s` independence | Should | Z6 | [DECK] s30 | ❌ not done |
-| EZ-R8 | Fix type-marker convention (`2`/`3` vs `o`/`&`) | Must | — | [DECK] | open decision ❌ |
-| EZ-R9 | Classic `/b` unit tests (none exist) | Should | Z1,Z2 | — | ❌ none |
-
-**Prioritisation (MoSCoW):** Must — EZ-R3..R6, R8 (the whole enhanced feature + the marker
-decision). Should — EZ-R7, EZ-R9. Could — a curated large stress dataset (Z5). Won't (this
-spec) — allene/atropisomer bonds (those are `/t`, Specs 2 & 4).
+[RFC 5234]: https://www.rfc-editor.org/rfc/rfc5234
