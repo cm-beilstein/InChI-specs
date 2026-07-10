@@ -8,29 +8,35 @@
 | **Author** | C. Müller |
 | **Reviewers** | TBD (InChI Trust / project 2019-017-2-800 TG) |
 | **Requirement prefix** | `ES-` |
-| **Change history** | 0.1 (2026-07-09) — initial spec; verified against `dev`, incl. [BIOVIA]. 0.2 (2026-07-10) — consolidated: requirements/gates/deliverables/NFRs merged into one table (§4); ABNF grammar retained (§6). |
+| **Change history** | 0.1 (2026-07-09) — initial spec; verified against `dev`, incl. [BIOVIA]. 0.2 (2026-07-10) — consolidated: requirements/gates/deliverables/NFRs merged into one table (§4); ABNF grammar retained (§6). 0.3 (2026-07-10) — readability pass: added At-a-glance, split requirements from gates, tightened prose. |
 
 > Normative keywords (MUST/SHOULD/MAY) per [RFC 2119](../README.md#requirement-conventions-normative);
 > shared glossary and conventions in the [README](../README.md).
 
-- **Feature:** recognise MDL V3000 enhanced-stereo collections (STEABS / STEREL# / STERAC#)
-  on sp³ tetrahedral centres and encode them in an extended, grouped InChI `/s` layer.
-- **Branch:** `dev` (implemented) · **Option:** `-EnhancedStereochemistry` · **Prefix:** `InChI=1B/…`
-- **Status:** **Mostly implemented end-to-end.** Parse → transfer → `/t`+`/m` normalisation →
-  grouped `/s` emission all present and tested. Remaining work is edge-case completion,
-  robustness, and closing dataset gaps — enumerated in §4/§5.
-- **Sources:** [STRING-ALG], [DECK] slides 6–12, [BIOVIA] (authoritative ESR semantics), [BNF], [ESR].
+## At a glance
+
+- ✅ **Works (end-to-end):** parse V3000 STEABS/STEREL#/STERAC# → `/t`+`/m` normalisation →
+  grouped `/s1(…)2(…)3(…)` emission, incl. reductions and multi-component. Tested (G1–G4 pass).
+- ❌ **Missing:** explicit-STEABS-only reduction (ES-R11), one-group-per-centre enforcement
+  (ES-R12), the dormant 35-molecule gate (ES-R13), and a group-count overflow guard.
+- ▶ **Next:** wire the dormant `enh_stereo_test_file_2.sdf` gate and settle the STEABS-only
+  reduction — the two open correctness questions.
+
+**Feature:** recognise MDL V3000 enhanced-stereo collections (STEABS / STEREL# / STERAC#) on
+sp³ tetrahedral centres and encode them in an extended, grouped `/s` layer. · **Branch:** `dev`
+· **Option:** `-EnhancedStereochemistry` · **Prefix:** `InChI=1B/…` · **Sources:** [STRING-ALG],
+[DECK] slides 6–12, [BIOVIA] (authoritative ESR semantics), [BNF], [ESR].
 
 ---
 
 ## 1. Problem
 
 Industrial structure files use MDL V3000 *enhanced stereochemical representation* (ESR) to
-express mixtures / partially-known stereochemistry: each stereocentre is tagged **abs**
-(absolute), **or#** (one of two enantiomers — relative), or **and#** (both enantiomers —
-racemic), with a group index tying dependent centres together. Standard InChI ignores these
-collections and treats every centre as absolute, so distinct substances (e.g. the
-cypermethrin family, [ESR]) collapse to one identifier.
+express partially-known stereochemistry: each stereocentre is tagged **abs** (absolute),
+**or#** (one of two enantiomers — relative), or **and#** (both — racemic), with a group index
+tying dependent centres together. Standard InChI ignores these collections and treats every
+centre as absolute — so distinct substances (e.g. the cypermethrin family, [ESR]) collapse to
+one identifier.
 
 ## 2. Target behaviour
 
@@ -90,32 +96,40 @@ From [STRING-ALG] and [DECK]. The normative encoding grammar is in §6; the beha
 Applies to **sp³ tetrahedral `/t` centres only**; E/Z, allene and atropisomer centres are
 not grouped (see specs 2–4).
 
-## 4. Requirements & gates
+## 4. Requirements
+
+Priority is MoSCoW; all Must-haves are already met (core works end-to-end). **Won't (this
+spec):** name-level `rac`/`rel` nomenclature and independent-centre superscripts ([ESR]/[BNF])
+— IUPAC nomenclature recommendations, not InChI code.
+
+| ID | Requirement | Priority | Status |
+|----|-------------|----------|--------|
+| ES-R1 | Parse STEABS/STEREL#/STERAC# `ATOMS=()` | Must | ✅ `mol_fmt3.c:647` |
+| ES-R2 | Grouped `/s1(…)2(…)3(…)` emission | Must | ✅ `ichiprt2.c:2213/2327` |
+| ES-R3 | Within-/inter-group ordering | Must | ✅ `ichiprt2.c:2268-2275` |
+| ES-R4 | Sign normalisation + `/m` coupling to ABS | Must | ✅ `strutil.c:4968-5089` |
+| ES-R5 | Reductions (only-ABS ⇒ `/s1`, only-OR ⇒ `/s2`, only-AND ⇒ `/s3`) | Must | ✅ *partial* — explicit-STEABS-only untested (→ ES-R11) |
+| ES-R6 | `-EnhancedStereochemistry` + `1B` prefix | Must | ✅ `ichiparm.c:273` |
+| ES-R7 | Multi-component `count*substring` / `;` composition | Should | ✅ `ichiprt2.c:2415` |
+| ES-R11 | Explicit-STEABS-only ⇒ bare `/s1` (== `SAbs`) | Should | ❌ untested *(§5.C)* |
+| ES-R12 | Enforce one-group-per-centre / at-most-one-ABS; reject conflicts | Should | ❌ not implemented |
+| ES-R13 | Wire `enh_stereo_test_file_2.sdf` gate (35 mol) | Should | ❌ dormant |
+| ES-R14 | Overflow diagnostic for `ENH_STEREO_DICT_SIZE=100` cap | Should | ❌ silent truncation *(§5.A)* |
+| ES-R15 | Fixture-path robustness (`FIXTURES_DIR` CMake define) | Should | ❌ port from `atropisomers` *(§5.B)* |
+| ES-R16 | Propagate `set_EnhancedStereo_t_m_layers` sub-call failures | Could | ❌ returns `0` always *(§5.D)* |
+
+### Gates
 
 Datasets live in the repo test tree; see [datasets/DATASETS.md](datasets/DATASETS.md) for
 per-molecule detail.
 
-| ID | Requirement | Priority | Gate — assertion | Source | Status / code |
-|----|-------------|----------|------------------|--------|---------------|
-| ES-R1 | Parse STEABS/STEREL#/STERAC# `ATOMS=()` | Must | G1 (13 inline cases), G2 (33-mol `enh_stereo_test_file_1.sdf`) | [BIOVIA], [DECK] | `mol_fmt3.c:647` ✅ **G1 13/13, G2 pass** |
-| ES-R2 | Grouped `/s1(…)2(…)3(…)` emission | Must | G1; G4 `MakeSlayerString` → `/s1(1,2)2(6,7)(8)3(3)(4,5)` | [STRING-ALG] | `ichiprt2.c:2213/2327` ✅ **G4 pass** |
-| ES-R3 | Within-/inter-group ordering | Must | G1, G4 | [STRING-ALG] | `ichiprt2.c:2268-2275` ✅ |
-| ES-R4 | Sign normalisation + `/m` coupling to ABS | Must | G1, G2; G3 `strutil` units (4) | [STRING-ALG] | `strutil.c:4968-5089` ✅ **G3 4/4** |
-| ES-R5 | Reductions (only-ABS ⇒ `/s1`, only-OR ⇒ `/s2`, only-AND ⇒ `/s3`) | Must | G2 | [DECK] s10 | ✅ *partial* — explicit-STEABS-only untested (→ ES-R11) |
-| ES-R6 | `-EnhancedStereochemistry` + `1B` prefix | Must | G1 | [DECK] | `ichiparm.c:273` ✅ |
-| ES-R7 | Multi-component `count*substring` / `;` composition | Should | G1 | [DECK] s9 | `ichiprt2.c:2415` ✅ |
-| ES-R11 | Explicit-STEABS-only ⇒ bare `/s1` (== `SAbs`) | Should | G6 [STRING-ALG] edge tables | [STRING-ALG] | ❌ untested *(§5.C)* |
-| ES-R12 | Enforce one-group-per-centre / at-most-one-ABS; reject conflicts | Should | — (new) | [BIOVIA] | ❌ not implemented |
-| ES-R13 | Wire `enh_stereo_test_file_2.sdf` gate (35 mol, embedded `<InChI_new>`) | Should | G5 | dataset | ❌ dormant |
-| — | Overflow diagnostic for `ENH_STEREO_DICT_SIZE=100` cap | Should | — | design | ❌ silent truncation *(§5.A)* |
-| — | Fixture-path robustness (`FIXTURES_DIR` CMake define) | Should | — | — | ❌ port from `atropisomers` *(§5.B)* |
-| — | Propagate `set_EnhancedStereo_t_m_layers` sub-call failures | Could | — | — | ❌ returns `0` always *(§5.D)* |
-| — | `/s` grammar in the InChI technical manual | Should | — | — | ❌ (grammar in §6) |
-
-**Prioritisation (MoSCoW):** Must — none outstanding (core works). Should — ES-R11, ES-R12,
-ES-R13, overflow guard, fixture-path. Could — O(n²) scans, return-propagation (§5.D). Won't
-(this spec) — name-level `rac`/`rel` nomenclature and independent-centre superscripts
-([ESR]/[BNF]): IUPAC nomenclature recommendations, not InChI code.
+- **G1** — 13 inline ABS/OR/AND cases in `test_enhancedStereo.cpp`. ✅ **13/13 pass**.
+- **G2** — 33-molecule `enh_stereo_test_file_1.sdf` (m0/m1 flips, `?` passthrough, reductions).
+  ✅ **passes** (when fixture path resolves — §5.B).
+- **G3** — `strutil` units (4): sign normalisation, `invert_parities`, canon lookups. ✅ **4/4**.
+- **G4** — `MakeSlayerString` → `/s1(1,2)2(6,7)(8)3(3)(4,5)`. ✅ **passes**.
+- **G5** — dormant 35-molecule `enh_stereo_test_file_2.sdf` (embedded `<InChI_new>`). ❌ *no gate wired* (ES-R13).
+- **G6** — [STRING-ALG] "only ABS/OR/AND" edge tables: explicit STEABS-only ⇒ bare `/s1`. ⚠️ *untested* (ES-R11).
 
 ## 5. Open issues / risks
 

@@ -8,24 +8,30 @@
 | **Author** | C. Müller |
 | **Reviewers** | TBD (InChI Trust / project 2019-017-2-800 TG) |
 | **Requirement prefix** | `AT-` |
-| **Change history** | 0.1 (2026-07-09) — initial; consolidates the former `.planning` design + plan; verified against branch `atropisomers`. 0.2 (2026-07-10) — consolidated: merged normative MUSTs into §2, requirements/gates/NFRs into one table (§4). |
+| **Change history** | 0.1 (2026-07-09) — initial; consolidates the former `.planning` design + plan; verified against branch `atropisomers`. 0.2 (2026-07-10) — consolidated: merged normative MUSTs into §2, requirements/gates/NFRs into one table (§4). 0.3 (2026-07-10) — readability pass: added At-a-glance, split requirements from gates, tightened prose. |
 
 > Normative keywords (MUST/SHOULD/MAY) per [RFC 2119](../README.md#requirement-conventions-normative);
 > shared glossary and conventions in the [README](../README.md).
 
-- **Feature:** recognise a stereogenic single-bond axis (biaryl / aryl-amide type), compute
-  its axial configuration, and encode it in the InChI `/t`+`/m` layers (allene-analogous).
-- **Branch:** `atropisomers` · **Prefix:** `InChI=1B/…` (beta)
-- **Status:** **Partly implemented.** *Sub-project A* (deterministic detection + geometric
-  axial parity + per-axis record, string-neutral) is **done and verified**. *Sub-project B*
-  (native stereo-element registration, dissymmetry pruning, `/t`/`/m` emission) is **not
-  started**.
-- **Sources:** [ATROP] (`InChI encoding of atropisomers.docx`, authoritative for
-  recognition + encoding), [DECK] slides 3/13, [BNF] (atropisomer-in-`/t` parsing ambiguity),
-  [ATROP-BG] (Metrano 2018 review — background: scaffold taxonomy, descriptors, barriers).
-- **Consolidates:** the former `.planning/specs/2026-07-06-atropisomer-deterministic-detection-design.md`
-  and `.planning/plans/2026-07-06-atropisomer-deterministic-detection.md` — this document is
-  now the single source of truth; those may be retired.
+## At a glance
+
+Split into two sub-projects:
+
+- ✅ **Sub-project A — done & verified:** deterministic candidate detection, geometric axial
+  parity (reusing allene primitives), per-axis record, and *string-neutral* (emits nothing yet).
+  Tests: 24/25 pass (the 1 fail is unrelated). Gates T1–T5 pass.
+- ❌ **Sub-project B — not started:** dissymmetry pruning, native stereo-element registration,
+  and the real `/t`+`/m` emission. Gates T6–T7 blocked on it.
+- ▶ **Next:** start B with dissymmetry pruning (**AT-R5**) — the prerequisite for emission,
+  and the reason A over-flags candidates on purpose.
+
+**Feature:** recognise a stereogenic single-bond axis (biaryl / aryl-amide type), compute its
+axial configuration, and encode it in the `/t`+`/m` layers (allene-analogous). · **Branch:**
+`atropisomers` · **Prefix:** `InChI=1B/…` (beta) · **v1 scope:** carbon–carbon axes only.
+**Sources:** [ATROP] (authoritative for recognition + encoding), [DECK] slides 3/13, [BNF]
+(atropisomer-in-`/t` parsing ambiguity), [ATROP-BG] (Metrano 2018 — background). ·
+**Consolidates** the former `.planning` design + plan (now retired; this is the single source
+of truth).
 
 ---
 
@@ -131,33 +137,42 @@ Call site: detector runs on `inp_ATOM` (`out_at`) at `ichimake.c:3914`, before
 - **Single-stereobond support** — shared with allenes (spec 2 A3).
 - **Enhanced OR/AND** — if in scope, group axes into `/s2`/`/s3` like tetrahedral centres.
 
-## 4. Requirements & gates
+## 4. Requirements
 
-Dataset: `INCHI-1-TEST/tests/test_unit/fixtures/atropisomers_test_file_1_v2.sdf` (+
-`_orig.sdf`); see [datasets/DATASETS.md](datasets/DATASETS.md).
+Priority is MoSCoW; the **A/B** column marks which sub-project owns each. **Won't (this spec):**
+spiranes and other axial-chirality classes; name-level `aR`/`aS`/`M`/`P` descriptors (InChI
+uses parity, not CIP names).
 
-| ID | Requirement | Priority | Gate — content | Source | Status / code |
-|----|-------------|----------|----------------|--------|---------------|
-| AT-R1 | Deterministic candidate-axis predicate | Must | T1 detection recall (mol 1–4, 12 8-ring bridged biaryl, 13, 14, 43 fully acyclic, 44 aryl amide); T2 negative guards (≤6-ring not flagged, no "must touch a ring" rule) | [ATROP] §1 | `atropisomers.c` (be4d41a) ✅ **T1,T2 pass** |
-| AT-R2 | Geometric axial parity (allene primitives) | Must | T4: hand-built Ra/Sa → opposite parity; flat/no-wedge → `AB_PARITY_UNDF` (mol 44) | [ATROP] §2 | (dc441f2) ✅ **T4 pass** |
-| AT-R3 | Per-axis `ATROP_AXIS` record | Must | T4 | design | (dc441f2) ✅ |
-| AT-R4 | String neutrality (A emits nothing vs baseline) | Must | T5 | design | (f4289f7) ✅ **T5 pass** |
-| — | Determinism / order-independence | Must | T3: permuted input → identical candidate set + parities | design | ✅ **T3 pass** |
-| AT-R5 | Dissymmetry pruning via canonical ranks (drop symmetric, e.g. mol 44 amide `C7–N8`; keep `C3–C7`) | Must | T6, T7 | [ATROP] §1 | ❌ **B not started** |
-| AT-R6 | Register axis as native pseudo-allene stereo element (`set_stereo_parity`) | Must | T6, T7 | design | ❌ B |
-| AT-R7 | Emit `/t` on lower-numbered atom + real `/m` | Must | T7: `C12H6Br2Cl2` biaryl → `…/t11-/m0/s1` and enantiomer `…/t11-/m1/s1` ([ATROP] §3) | [ATROP] §3 | ❌ B |
-| AT-R8 | Enantiomer/rotamer/round-trip invariants | Must | T6: Ra/Sa same skeleton + `/t`, opposite `/m`; rotamers → identical InChI; reparse reproduces | design | ❌ B |
-| AT-R12 | `/t` disambiguation decision ([BNF]) | Must | — | [BNF] | ✅ resolved by single-atom form |
-| AT-R9 | Single-stereobond axis (shared with allenes AL-R3) | Should | — | [ATROP], IUPAC | ❌ B |
-| AT-R10 | Cyclic-axis handling (ring ≥7 candidate vs ≤6 excluded) end-to-end | Should | T1 | [ATROP] §1 | detection ✅ / emission ❌ |
-| AT-R11 | Enhanced OR/AND + non-C axis classes (C–N/C–O/C–S; Si/N⁺/P⁺ ends) | Could | — | [DECK], [ATROP-BG] | ❌ deferred |
-| — | Baseline expected-InChI strings re-baked once axial layer lands | Must | — | — | ❌ B |
-| — | Fix unrelated `test_dummy_14` return-code (separate cleanup) | — | end-to-end (return 0 vs 1) | — | ❌ pre-existing, unrelated to detection |
+| ID | Requirement | Priority | A/B | Status |
+|----|-------------|----------|-----|--------|
+| AT-R1 | Deterministic candidate-axis predicate | Must | A | ✅ `atropisomers.c` (be4d41a) |
+| AT-R2 | Geometric axial parity (allene primitives) | Must | A | ✅ (dc441f2) |
+| AT-R3 | Per-axis `ATROP_AXIS` record | Must | A | ✅ (dc441f2) |
+| AT-R4 | String neutrality (A emits nothing vs baseline) | Must | A | ✅ (f4289f7) |
+| AT-R12 | `/t` disambiguation decision ([BNF]) | Must | A | ✅ resolved by single-atom form |
+| AT-R5 | Dissymmetry pruning via canonical ranks | Must | B | ❌ **not started** |
+| AT-R6 | Register axis as native pseudo-allene stereo element | Must | B | ❌ |
+| AT-R7 | Emit `/t` on lower-numbered atom + real `/m` | Must | B | ❌ |
+| AT-R8 | Enantiomer/rotamer/round-trip invariants | Must | B | ❌ |
+| AT-R13 | Re-bake baseline expected-InChI strings once layer lands | Must | B | ❌ |
+| AT-R9 | Single-stereobond axis (shared with allenes AL-R3) | Should | B | ❌ |
+| AT-R10 | Cyclic-axis handling (ring ≥7 vs ≤6) end-to-end | Should | B | detection ✅ / emission ❌ |
+| AT-R11 | Enhanced OR/AND + non-C axis classes (C–N/C–O/C–S; Si/N⁺/P⁺) | Could | — | ❌ deferred |
 
-**Prioritisation (MoSCoW):** Must — AT-R5..R8 (Sub-project B: pruning, native element,
-emission, invariants). Should — AT-R9, AT-R10. Could — AT-R11 (enhanced/non-C classes).
-Won't (this spec) — spiranes and other axial-chirality classes; name-level `aR`/`aS`/`M`/`P`
-descriptors (InChI uses parity, not CIP names).
+### Gates
+
+Dataset: `atropisomers_test_file_1_v2.sdf` (+ `_orig.sdf`); see
+[datasets/DATASETS.md](datasets/DATASETS.md). Test run this session: **24/25 pass** — the one
+failure (`test_dummy_14`, a return-code quirk) is unrelated to detection and is a separate
+cleanup.
+
+- **T1** detection recall — every true axis (mol 1–4, 12 bridged biaryl, 13, 14, 43 acyclic, 44 amide) is a candidate. ✅ (A)
+- **T2** negative guards — benzene / ≤6-ring bonds not flagged; no "must touch a ring" rule (mol 43 has zero rings). ✅ (A)
+- **T3** determinism — permuted input → identical candidate set + parities. ✅ (A)
+- **T4** parity unit — hand-built Ra/Sa → opposite parity; flat/no-wedge → `AB_PARITY_UNDF` (mol 44). ✅ (A)
+- **T5** string neutrality — A changes no emitted InChI vs baseline. ✅ (A)
+- **T6** enantiomer invariants — Ra/Sa share skeleton + `/t`, opposite `/m`; rotamers → one InChI; reparse reproduces. ❌ needs B.
+- **T7** encoding — `C12H6Br2Cl2` biaryl → `…/t11-/m0/s1` and enantiomer `…/t11-/m1/s1` ([ATROP] §3). ❌ needs B.
 
 ## 5. Open issues / risks
 

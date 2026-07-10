@@ -8,26 +8,32 @@
 | **Author** | C. Müller |
 | **Reviewers** | TBD (InChI Trust / project 2019-017-2-800 TG) |
 | **Requirement prefix** | `EZ-` |
-| **Change history** | 0.1 (2026-07-09) — initial spec; verified against `dev`. 0.2 (2026-07-10) — consolidated: requirements/gates/deliverables/NFRs merged into one table (§4); ABNF grammar retained (§6). |
+| **Change history** | 0.1 (2026-07-09) — initial spec; verified against `dev`. 0.2 (2026-07-10) — consolidated: requirements/gates/deliverables/NFRs merged into one table (§4); ABNF grammar retained (§6). 0.3 (2026-07-10) — readability pass: added At-a-glance, split requirements from gates, tightened prose. |
 
 > Normative keywords (MUST/SHOULD/MAY) per [RFC 2119](../README.md#requirement-conventions-normative);
 > shared glossary and conventions in the [README](../README.md).
 
-- **Feature:** recognise MDL V3000 **bond** stereo collections (STEBABS / STEBREL# /
-  STEBRAC#) on C=C double bonds and encode OR/AND mixtures in a new **grouped `/b` layer**.
-- **Branch:** `dev`
-- **Status:** **Classic absolute `/b` (cis/trans E/Z) is complete and mature. Enhanced
-  OR/AND for double bonds is not done at all** — no input parsing, no data model, no output.
-- **Sources:** [DECK] slides 23–30.
+## At a glance
+
+- ✅ **Works:** classic absolute `/b` (cis/trans E/Z) — detection, canonicalisation, emission,
+  isotopic, and either/crossed/wavy → `u`/`?`. Mature (but has *no unit tests*).
+- ❌ **Missing — the whole enhanced feature:** no input parsing, no data model, no output for
+  OR/AND double bonds (`grep STEB` → 0 hits).
+- ▶ **Next:** fix the type-marker convention (`2`/`3` vs `o`/`&`, **EZ-R8**) — an open decision
+  that blocks the encoding — then build input parsing → data model → grouped emitter.
+
+**Feature:** recognise MDL V3000 **bond** stereo collections (STEBABS / STEBREL# / STEBRAC#) on
+C=C double bonds and encode OR/AND mixtures in a new **grouped `/b` layer**. · **Branch:** `dev`
+· **Sources:** [DECK] slides 23–30.
 
 ---
 
 ## 1. Problem
 
-Just as tetrahedral centres can be abs/or/and, a C=C double bond can be an absolute geometry,
-a *pure-but-unknown* geometry (OR), or a *racemic* mixture of E and Z (AND). Standard InChI
-encodes only the absolute case (`/b`); it has no representation for unknown/mixture double
-bonds beyond collapsing them to "no `/b`".
+Just as a tetrahedral centre can be abs/or/and, a C=C double bond can be an absolute geometry,
+a *pure-but-unknown* geometry (OR), or a *racemic* E/Z mixture (AND). Standard InChI encodes
+only the absolute case (`/b`) — it has no representation for unknown/mixture double bonds
+beyond collapsing them to "no `/b`".
 
 ## 2. Target behaviour
 
@@ -84,29 +90,35 @@ From [DECK] slides 23–30. The normative encoding grammar is in §6; the behavi
   grouped `/b` from `INChI_Stereo.{nBondAtom1,nBondAtom2,b_parity}`.
 - **Gating/prefix:** reuse `ip->bEnhancedStereo` + `is_beta` `1B` (`ichiprt1.c:1713,3132`).
 
-## 4. Requirements & gates
+## 4. Requirements
+
+Priority is MoSCoW. **Won't (this spec):** allene/atropisomer bonds (those are `/t`, Specs 2 & 4).
+
+| ID | Requirement | Priority | Status |
+|----|-------------|----------|--------|
+| EZ-R1 | Classic absolute `/b` E/Z | Must | ✅ `ichiprt2.c:2075` (works; *no unit test*) |
+| EZ-R2 | Either/unknown bonds → `u`/`?` or omitted | Must | ✅ `ichister.c:3090` (works; *no unit test*) |
+| EZ-R3 | Parse `STEBABS`/`STEBREL#`/`STEBRAC#` `BONDS=()` | Must | ❌ not done |
+| EZ-R4 | Bond-collection data model (`OAD_V3000` lists + transfer/split/free) | Must | ❌ mirror `mol2atom.c:1646-1712`, `runichi3.c:359-395` |
+| EZ-R5 | Grouped `/b2(…)`/`/b3(…)` emitter (§6 grammar) | Must | ❌ not done |
+| EZ-R6 | Reductions (absolute-only ⇒ flat `/b`; only-OR/only-AND) | Must | ❌ not done |
+| EZ-R8 | Fix type-marker convention (`2`/`3` vs `o`/`&`) | Must | ❌ **open decision** *(§5)* |
+| EZ-R10 | Confirm grouped-`/b` grammar vs [BNF] injectivity | Must | ❌ *(§5)* |
+| EZ-R7 | Combined `/b` + `/t`+`/s` independence | Should | ❌ not done |
+| EZ-R9 | Classic `/b` unit tests (none exist) | Should | ❌ none |
+
+### Gates
 
 No double-bond stereo tests exist at all (no `/b`, cis, trans, or `STEB*` coverage in
-`test_unit/`). All gates below are new; expected strings seeded from [DECK] slides 25–30 in
+`test_unit/`). All gates are new; expected strings seeded from [DECK] slides 25–30 in
 [datasets/DATASETS.md](datasets/DATASETS.md).
 
-| ID | Requirement | Priority | Gate — expected | Source | Status / code |
-|----|-------------|----------|-----------------|--------|---------------|
-| EZ-R1 | Classic absolute `/b` E/Z | Must | Z1: `C2BrCl2F` E draw → `/b2-1+` (slide 25) | existing | `ichiprt2.c:2075` ✅ works in pipeline; **no unit test** |
-| EZ-R2 | Either/unknown bonds → `u`/`?` or omitted | Must | Z2: crossed & wavy → **no `/b`** (slide 26) | existing | `ichister.c:3090` ✅ works; no unit test |
-| EZ-R3 | Parse `STEBABS`/`STEBREL#`/`STEBRAC#` `BONDS=()` | Must | Z3: `STEBREL1 BONDS=(1 3)` → `/b2(2-1-)` (s27); Z4: `STEBRAC1` → `/b3(2-1-)` (s28) | [DECK] s27-30 | ❌ not done |
-| EZ-R4 | Bond-collection data model (`OAD_V3000` lists + transfer/split/free) | Must | Z3–Z6 | [DECK] | ❌ not done — mirror `mol2atom.c:1646-1712`, `runichi3.c:359-395` |
-| EZ-R5 | Grouped `/b2(…)`/`/b3(…)` emitter (§6 grammar) | Must | Z3–Z5; Z5 multi-group `C18…` → `/b12-5+,2(16-14-),3(1(15-10-)(17-11-),2(18-13-))` (s29) | [DECK] s27-29 | ❌ not done |
-| EZ-R6 | Reductions (absolute-only ⇒ flat `/b`; only-OR/only-AND) | Must | Z1 | [DECK] s25 | ❌ not done |
-| EZ-R8 | Fix type-marker convention (`2`/`3` vs `o`/`&` alternative) | Must | — | [DECK] | ❌ open decision *(§5)* |
-| EZ-R7 | Combined `/b` + `/t`+`/s` independence | Should | Z6: s30 → `/b2(4-3-)/t2-/m1/s1`, `/b4-3-/t2-/s3` | [DECK] s30 | ❌ not done |
-| EZ-R9 | Classic `/b` unit tests (none exist) | Should | Z1, Z2 | — | ❌ none |
-| — | Confirm grouped-`/b` grammar vs [BNF] injectivity | Must | — | [BNF] | ❌ *(§5)* |
-| — | Document grouped `/b` grammar in the technical manual | Should | — | — | ❌ (grammar in §6) |
-
-**Prioritisation (MoSCoW):** Must — EZ-R3..R6, R8 (the whole enhanced feature + the marker
-decision). Should — EZ-R7, EZ-R9. Could — a curated large stress dataset (Z5). Won't (this
-spec) — allene/atropisomer bonds (those are `/t`, Specs 2 & 4).
+- **Z1** — classic absolute: `C2BrCl2F` E draw → `/b2-1+` (slide 25). ⚠️ works in pipeline, *no test*.
+- **Z2** — unknown/either: crossed & wavy draws → **no `/b`** (slide 26). ⚠️ works, *no test*.
+- **Z3** — enhanced OR: `STEBREL1 BONDS=(1 3)` → `/b2(2-1-)` (slide 27). ❌
+- **Z4** — enhanced AND: `STEBRAC1 BONDS=(1 3)` → `/b3(2-1-)` (slide 28). ❌
+- **Z5** — multi-group stress: `C18…` → `/b12-5+,2(16-14-),3(1(15-10-)(17-11-),2(18-13-))` (slide 29). ❌
+- **Z6** — combined with `/t`: `/b2(4-3-)/t2-/m1/s1`, `/b4-3-/t2-/s3` (slide 30). ❌
 
 ## 5. Open issues / risks
 

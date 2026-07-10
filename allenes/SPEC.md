@@ -8,39 +8,43 @@
 | **Author** | C. Müller |
 | **Reviewers** | TBD (InChI Trust / project 2019-017-2-800 TG) |
 | **Requirement prefix** | `AL-` |
-| **Change history** | 0.1 (2026-07-09) — initial spec; verified against `dev`. 0.2 (2026-07-10) — consolidated: merged normative MUSTs into §2, requirements/gates/NFRs into one table (§4). |
+| **Change history** | 0.1 (2026-07-09) — initial spec; verified against `dev`. 0.2 (2026-07-10) — consolidated: merged normative MUSTs into §2, requirements/gates/NFRs into one table (§4). 0.3 (2026-07-10) — readability pass: added At-a-glance, split requirements from gates, tightened prose. |
 
 > Normative keywords (MUST/SHOULD/MAY) per [RFC 2119](../README.md#requirement-conventions-normative);
 > shared glossary and conventions in the [README](../README.md).
 
-- **Feature:** recognise and encode the axial chirality of allenes (`X=C=C=Y`) and odd
-  cumulenes, including the two enhancement asks: (a) accept a **single** stereobond, and
-  (b) support **enhanced OR/AND** mixtures on the allene axis.
-- **Branch:** `dev`
-- **Status:** **Classic allene axial chirality is complete and mature.** Single-stereobond
-  recognition and enhanced OR/AND grouping are **not done**.
-- **Sources:** [DECK] slides 13–22, [ATROP] (allene analogy), [CHARTER] ("support of longer
-  allenes").
+## At a glance
+
+- ✅ **Works:** classic allene & odd-cumulene axial chirality — geometric parity, `/t` emission,
+  `/m` enantiomer inversion, isotopic/0D paths. Mature.
+- ❌ **Missing:** single-stereobond recognition; enhanced OR/AND grouping on the axis; any
+  dedicated unit tests.
+- ▶ **Next:** add an allene test suite (**AL-R7**) — the working classic path is currently
+  untested, which blocks release.
+
+**Feature:** recognise and encode the axial chirality of allenes (`X=C=C=Y`) and odd cumulenes,
+plus two enhancement asks — (a) accept a **single** stereobond, and (b) support **enhanced
+OR/AND** mixtures on the allene axis. · **Branch:** `dev` · **Sources:** [DECK] slides 13–22,
+[ATROP] (allene analogy), [CHARTER] ("support of longer allenes").
 
 ---
 
 ## 1. Problem
 
-An allene `abC=C=Ccd` is axially chiral: the two end substituent planes are perpendicular,
-so the axis carries a handedness. InChI already models this. Two gaps remain per [DECK]:
+An allene (`abC=C=Ccd`) is axially chiral — its two ends sit in perpendicular planes, so the
+axis carries a handedness. InChI already models this. **Two gaps remain** ([DECK]):
 
-1. **Single stereobond.** IUPAC recommendations accept an allene drawn with a wedge on only
-   *one* terminal. [ATROP] notes InChI currently does **not** recognise such single-stereobond
-   allenes (e.g. `InChI=1S/C3H2Br2/c4-2-1-3-5/h2-3H` for what should be a chiral draw).
-2. **Enhanced OR/AND.** The ESR "or"/"and" mixture concept extends to allene axes — a pure
-   but unknown axial configuration (`/s2`) or a racemic axis (`/s3`), grouped like tetrahedral
-   centres.
+1. **Single stereobond.** IUPAC accepts an allene drawn with a wedge on only *one* terminal.
+   Per [ATROP], InChI does **not** recognise these today (e.g. `InChI=1S/C3H2Br2/c4-2-1-3-5/h2-3H`
+   for what should be a chiral draw).
+2. **Enhanced OR/AND.** The ESR "or"/"and" mixture concept extends to allene axes — a
+   pure-but-unknown axis (`/s2`) or a racemic axis (`/s3`), grouped like tetrahedral centres.
 
 ## 2. Target behaviour & normative rules
 
 From [DECK] slides 15–22. Allenes reuse the **tetrahedral encoding** — no new layer: the axial
 parity is emitted as a `/t` entry on the central `sp` atom, and enhanced OR/AND grouping reuses
-the `/s` grammar of [Spec 1 §7](../enhanced-stereo/SPEC.md#7-normative-grammar-s-layer). The
+the `/s` grammar of [Spec 1 §6](../enhanced-stereo/SPEC.md#6-normative-grammar-s-layer). The
 rules below are normative (each **MUST**).
 
 - **`/t` on the central atom.** An allene/odd-cumulene axis with defined geometry **MUST**
@@ -100,25 +104,34 @@ tetrahedral-only). Because the allene is injected as an ordinary `/t` centre
 (`INCHI_FLAG_REL/RAC_STEREO`, `ichimak2.c:1226-1230`). True per-axis grouping would reuse the
 tetrahedral `/t`+`/s` grouping path (spec 1), keyed on the allene's central atom.
 
-## 4. Requirements & gates
+## 4. Requirements
+
+Priority is MoSCoW. **Won't (this spec):** spiranes and other axial-chirality classes.
+
+| ID | Requirement | Priority | Status |
+|----|-------------|----------|--------|
+| AL-R1 | Classic allene/odd-cumulene detection + parity | Must | ✅ `ichister.c:3116-3583` (behaviour only — no test) |
+| AL-R2 | Emit on central atom in `/t`; `/m` inversion | Must | ✅ `ichimak2.c:451-546` |
+| AL-R7 | Dedicated allene test suite (parity, rotamer, round-trip) | Must | ❌ **release blocker** — classic path is untested |
+| AL-R3 | Single-stereobond recognition (shared: atropisomers AT-R9) | Should | ❌ adjust geometry/threshold logic |
+| AL-R4 | Enhanced OR (`/s2`) on allene axis | Should | ❌ |
+| AL-R5 | Enhanced AND (`/s3`) on allene axis | Should | ❌ |
+| AL-R6 | Combined allene + tetrahedral grouping (reuse `/t`+`/s`) | Should | ❌ |
+| AL-R8 | Cumulene length beyond `MAX_CUMULENE_LEN=2` (if in scope) | Could | ❌ capped (`ichister.c:3352` "short chains for now") |
+
+### Gates
 
 No dedicated allene unit tests exist today — coverage is only end-to-end regression via the
-bundled `INCHI_API/bin/Linux/InChI_TestSet_ext.sdf` (`Allene`, `Allene1`, `D4h-allene`,
-`cumulenes-c.#001..#006`), which assert nothing about `/t`/`/s`. Gate molecules seeded from
-[DECK] are in [datasets/DATASETS.md](datasets/DATASETS.md).
+bundled `InChI_TestSet_ext.sdf` (`Allene`, `D4h-allene`, `cumulenes-c.#001..#006`), which
+assert nothing about `/t`/`/s`. Gate molecules seeded from [DECK] are in
+[datasets/DATASETS.md](datasets/DATASETS.md).
 
-| ID | Requirement | Priority | Gate — expected | Source | Status / code |
-|----|-------------|----------|-----------------|--------|---------------|
-| AL-R1 | Classic allene/odd-cumulene detection + parity | Must | A1: Ra/Sa pair → `/t2-/m0` vs `/t2-/m1` (slide 17) | existing | `ichister.c:3116-3583` — behaviour ✅, **no unit test asserting it** |
-| AL-R2 | Emit on central atom in `/t`; `/m` inversion | Must | A1 | [DECK] s15 | `ichimak2.c:451-546` ✅ |
-| AL-R7 | Dedicated allene test suite (parity, rotamer, round-trip) | **Must** | A1, A2: rotamer invariance — two draws → identical InChI | — | ❌ none exist (release blocker: classic path is untested) |
-| AL-R3 | Single-stereobond recognition (shared with atropisomers AT-R9) | Should | A3: one-wedge allene → defined `/t` (currently `?`/absent) | [ATROP], IUPAC | ❌ not done — adjust geometry/threshold logic |
-| AL-R4 | Enhanced OR (`/s2`) on allene axis | Should | A4: `STEREL1 ATOMS=(central)` → `…/t2-/s2` (slide 19) | [DECK] s19 | ❌ not done |
-| AL-R5 | Enhanced AND (`/s3`) on allene axis | Should | A5: `STERAC1 ATOMS=(central)` → `…/t2-/s3` (slide 20) | [DECK] s20 | ❌ not done |
-| AL-R6 | Combined allene + tetrahedral grouping (reuse `/t`+`/s` path) | Should | A6: slide 22 → `…/t2-,3-/m1/s1(3)2(2)` | [DECK] s22 | ❌ not done |
-| AL-R8 | Cumulene length beyond `MAX_CUMULENE_LEN=2` (if in scope) | Could | — | [CHARTER] | capped ❌ (`ichister.c:3352` "short chains for now") |
-
-**Won't (this spec):** spiranes and other axial-chirality classes.
+- **A1** — classic Ra/Sa pair → `/t2-/m0` vs `/t2-/m1` (slide 17). ⚠️ behaviour present, *no test*.
+- **A2** — rotamer invariance: two draws of one enantiomer → identical InChI. ⚠️ *no test*.
+- **A3** — single stereobond: one-wedge allene → defined `/t`. ❌ currently `?`/absent.
+- **A4** — enhanced OR: `STEREL1 ATOMS=(central)` → `…/t2-/s2` (slide 19). ❌
+- **A5** — enhanced AND: `STERAC1 ATOMS=(central)` → `…/t2-/s3` (slide 20). ❌
+- **A6** — combined allene+tetrahedral → `…/t2-,3-/m1/s1(3)2(2)` (slide 22). ❌
 
 ## 5. Open issues / risks
 
