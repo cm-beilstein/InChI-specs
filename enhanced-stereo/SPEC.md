@@ -152,17 +152,18 @@ per-molecule detail.
   ❌ *fails* — measured output is `/m0/s2(3,4,…,10)` and `/m0/s3(3,4,…,10)`
   (ES-R17, ES-R18). No gate wired yet; wire it with the fix.
 
-All 16 unit suites (172 tests) pass, and the enhanced-stereo suites are clean under an ASAN
-Debug build. Note that plain `ctest` still reports `test_enhancedStereo` and `test_ichimain`
-as failures because it runs from the build directory — see §5.B.
+All 16 unit suites (172 tests) pass — `ctest` in `CMake_build/full_build` is green — and the
+enhanced-stereo suites are clean under an ASAN Debug build. Out-of-tree build directories still
+fail `test_enhancedStereo` and `test_ichimain` on fixture paths; see §5.B.
 
 ## 5. Open issues / risks
 
 - **B. Fixture path fragility.** `test_EnhancedStereochemistry_test_file_1`
   (`test_enhancedStereo.cpp`) opens `../../../../../…/enh_stereo_test_file_1.sdf`; fails
-  `ASSERT_TRUE(is_open())` unless run from one specific depth, which is why `ctest` cannot
-  currently gate this feature. Logic is correct (verified by running from a resolvable cwd —
-  G2 passes). Fix = CMake `FIXTURES_DIR` define (ES-R15).
+  `ASSERT_TRUE(is_open())` unless run from one specific depth. It happens to resolve for the
+  documented in-tree layout (`ctest` in `CMake_build/full_build` passes 16/16, because the test
+  cwd is then five levels below the repo root), and breaks for any out-of-tree build directory.
+  Logic is correct. Fix = CMake `FIXTURES_DIR` define (ES-R15).
 - **D. Return value not propagated.** `set_EnhancedStereo_t_m_layers` returns its initial `0`
   regardless of the three `invert_parities` results (ES-R16).
 - **F. OR-only / AND-only do not reduce (ES-R17).** Measured with the option on: a single
