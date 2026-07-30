@@ -1,7 +1,26 @@
 # Enhanced-stereo dataset gates
 
-Canonical datasets live in the InChI repo test tree (not duplicated here to avoid drift).
-Paths are relative to the repo root `INCHI-1-TEST/tests/test_unit/`.
+Canonical datasets live in the InChI repo test tree; copies are kept in this directory
+(alongside independently-sourced molfiles) so validation runs here don't depend on the
+repo checkout layout. Paths below are relative to the repo root
+`INCHI-1-TEST/tests/test_unit/` unless noted otherwise.
+
+## 2026-07-30 validation run
+
+See [VALIDATION_RESULTS.md](VALIDATION_RESULTS.md) for the full writeup (73-molecule
+old-vs-new comparison, a crash bug found + fixed, and an audit of the dormant G5 fixture's
+embedded expectations) and [comparison_table.csv](comparison_table.csv) for the raw
+per-molecule table. Files added to this directory for that run:
+
+- `enh_stereo_test_file_1.sdf`, `enh_stereo_test_file_2.sdf` — copies of the repo fixtures
+  below, used directly (not duplicated logic, just co-located for the run).
+- `EOS49757_steabs_only.mol` — real screening compound (EU-OPENSCREEN ECBD), STEABS-only.
+- `rdkit_two_centers_and.mol`, `rdkit_two_centers_or.mol` — real RDKit test fixtures,
+  STEABS + one STERAC/STEREL group each.
+- `rdkit_two_and_groups.mol` — real BIOVIA/SciTegic vendor export (via RDKit issue #5165),
+  two independent STERAC groups, no STEABS.
+- `synthetic_sterel_only.mol` — hand-built (no real STEREL-only V3000 file could be found
+  publicly), single STEREL1 group, no STEABS.
 
 ## Active gates
 
