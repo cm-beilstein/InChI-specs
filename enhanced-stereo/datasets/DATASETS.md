@@ -19,8 +19,52 @@ per-molecule table. Files added to this directory for that run:
   STEABS + one STERAC/STEREL group each.
 - `rdkit_two_and_groups.mol` — real BIOVIA/SciTegic vendor export (via RDKit issue #5165),
   two independent STERAC groups, no STEABS.
-- `synthetic_sterel_only.mol` — hand-built (no real STEREL-only V3000 file could be found
-  publicly), single STEREL1 group, no STEABS.
+- `synthetic_sterel_only.mol` — hand-built, single STEREL1 group, no STEABS. Kept as the
+  smallest OR-only case; the "no real STEREL-only file could be found publicly" caveat that
+  motivated it no longer holds, see the 2026-08-07 additions below.
+
+## 2026-08-07 additions (ES-R18 verification, third-party sources)
+
+Collected while implementing ES-R18 (no `/m` for OR/AND-only components). All were fetched
+from public repositories and re-measured against this build; provenance URLs are given so the
+originals can be re-fetched. The five ABS-free files are the independent evidence for ES-R18 —
+each is byte-identical to its `-SRel` / `-SRac` counterpart apart from the version prefix
+(except `indigo_rel_and_rac.mol`, which carries two classes and so keeps its grouping).
+
+| File | Source | Collections | Enhanced output |
+|------|--------|-------------|-----------------|
+| `indigo_sterel_only.mol` | [epam/Indigo] `data/molecules/stereo/enhanced_stereo2.mol` | `STEREL1(3)` | `/t8-/s2`, == `-SRel` |
+| `indigo_rel_and_rac.mol` | [epam/Indigo] `data/molecules/stereo/enhanced_stereo3.mol` | `STEREL1(3)` + `STERAC1(4)` | `/t7-,9-/s2(9)3(7)` |
+| `ketcher_or_enantiomer.mol` | [epam/ketcher] `ketcher-autotests/tests/test-data/Molfiles-V3000/or-enantiomer.mol` | `STEREL1(5)` | `/t4-/s2`, == `-SRel` |
+| `openchemlib_cyclosporin_rac.mol` | [cheminfo/openchemlib-utils] `benchmark/data/cyclosporin.mol` | `STERAC1` over **12** atoms | `/t40-,41+,…,52-/s3`, == `-SRac` |
+| `cdpkit_chembl_sterel_only.mol` | [molinfo-vienna/CDPKit] `Data/Testing/ChEMBLStandardizerTestData.sdf` (the one record carrying a collection) | `STEREL1(1,2)` | `/t13-,15-/s2`, == `-SRel` |
+| `indigo_stereogroups_abs_rac.mol` | [epam/lifescience] `rst/indigo/release-notes/1.1.x/data/stereogroups.mol` | `STEABS` + `STERAC1` + `STERAC2` | `/t10-,11-,12-/m1/s1(11)3(10)(12)` |
+| `biovia_white_paper_fig22.mol` | [mn-am/corina-classic-python] `python/MDL_white_paper_fig22.v3000.sdf` | all five types | see **gate G9** below |
+
+Why these matter beyond ES-R18:
+- `openchemlib_cyclosporin_rac.mol` is a real drug with **12 stereocentres in one AND group**,
+  reducing to the bare `/s3` — the ES-R17 reduction at a scale nothing else here reaches.
+- `indigo_rel_and_rac.mol` is the only real file with **two classes and no ABS**.
+- `ketcher_or_enantiomer.mol`, `indigo_sterel_only.mol` and `cdpkit_chembl_sterel_only.mol` are
+  three independent **real** STEREL-only files.
+- Sanity contrast: `epam/Indigo` `api/tests/integration/tests/formats/molecules/non_atrop.mol`
+  puts `STEREL1` on a non-stereogenic atom and correctly yields no `/t` and no `/s` at all
+  (not persisted; noted because it bounds the orphan-`/s`-group defect, see SPEC §5).
+
+Extraction notes (both are upstream transcription artefacts, not InChI bugs):
+- `biovia_white_paper_fig22.mol` — the upstream file terminates with `M END` (one space)
+  instead of `M  END`, which InChI rejects with `Error 64 (no InChI; Unknown error)`. Corrected
+  here, and the trailing SDF `$$$$` dropped so the `.mol` extension is honest.
+- `cdpkit_chembl_sterel_only.mol` — extracted from a multi-record SDF; the record's empty title
+  line must be preserved or the 4-line molfile header is short and the counts line is
+  misparsed (`Fatal Error 3 ... Cannot interpret counts line`).
+
+[epam/Indigo]: https://github.com/epam/Indigo
+[epam/ketcher]: https://github.com/epam/ketcher
+[epam/lifescience]: https://github.com/epam/lifescience
+[cheminfo/openchemlib-utils]: https://github.com/cheminfo/openchemlib-utils
+[molinfo-vienna/CDPKit]: https://github.com/molinfo-vienna/CDPKit
+[mn-am/corina-classic-python]: https://github.com/mn-am/corina-classic-python
 
 ## Active gates
 
@@ -60,7 +104,7 @@ Key expected strings (option `-EnhancedStereochemistry`):
   `-EnhancedStereochemistry` and asserts the emitted string equals the `<InChI_new>` column
   (and the plain run equals `<InChI>`). This turns 35 curated molecules into a live gate.
 
-## Reference molfile from [BIOVIA] Appendix B (materialisable gate)
+## Reference molfile from [BIOVIA] Appendix B — **gate G9, wired**
 
 The BIOVIA white paper Appendix B contains a complete 29-atom V3000 molfile mixing all group
 types in one structure:
@@ -71,9 +115,23 @@ M V30 MDLV30/STEREL1 ATOMS=(2 22 23)
 M V30 MDLV30/STERAC2 ATOMS=(1 2)
 M V30 MDLV30/STERAC1 ATOMS=(1 21)
 ```
-Full molblock is in the extracted `pdf_biovia.txt` (Appendix B). Materialise it as a gate,
-compute its expected `1B` InChI once, and pin it — a good independent cross-check of the
-grouping/ordering logic against a third-party authority.
+This is no longer a to-do. The same molfile was located in the wild as
+`MDL_white_paper_fig22.v3000.sdf` ([mn-am/corina-classic-python], fig. 22 of the white paper) —
+29 atoms, 32 bonds, collection block matching the listing above line for line. It is persisted
+here as `biovia_white_paper_fig22.mol` and pinned as a gate:
+
+- Driven by `test_enhancedStereo.cpp::test_EnhancedStereochemistry_biovia_appendix_b`
+  (molblock inline, so it does not depend on the fragile fixture path — ES-R15).
+- Measured and pinned:
+  ```
+  InChI=1B/C24H34N2O3/…/t13-,14-,15-,17-,18-,21-,23+/m1/s1(15)2(13,14)(21,23)3(17)(18)
+  ```
+- What it independently cross-checks against a third-party authority, in one structure:
+  ABS `(15)` from `STEABS(17)`; two OR groups `(13,14)` and `(21,23)`; two AND groups `(17)`
+  and `(18)`; `/m1` **present** because an ABS collection exists (ES-R18 negative control);
+  neither the two OR nor the two AND groups reduced (ES-R17 over-reduction guard); and every
+  one of the five groups with its lowest-numbered centre normalised to `-`.
+- See the extraction note above: the upstream `M END` must be corrected to `M  END`.
 
 ## Build & run
 

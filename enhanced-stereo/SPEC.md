@@ -2,13 +2,13 @@
 
 | | |
 |---|---|
-| **Doc version** | 0.5 |
-| **Date** | 2026-08-03 |
+| **Doc version** | 0.6 |
+| **Date** | 2026-08-07 |
 | **Status** | draft |
 | **Author** | C. Müller |
 | **Reviewers** | TBD (InChI Trust / project 2019-017-2-800 TG) |
 | **Requirement prefix** | `ES-` |
-| **Change history** | 0.1 (2026-07-09) — initial spec; verified against `dev`, incl. [BIOVIA]. 0.2 (2026-07-10) — consolidated: requirements/gates/deliverables/NFRs merged into one table (§4); ABNF grammar retained (§6). 0.3 (2026-07-10) — readability pass: added At-a-glance, split requirements from gates, tightened prose. 0.4 (2026-07-28) — ES-R11, ES-R14 and §5.E implemented on `feature/enh-stereo-hardening`; measurement of OR-only/AND-only output added two grammar-conformance gaps (ES-R17, ES-R18). 0.5 (2026-08-03) — full re-audit of `feature/enh-stereo-hardening` by reading + measuring: ES-R17 is implemented and gated (G7 half-satisfied); two defects the spec did not know about found, reproduced and fixed (ES-R19 V2000 crash, ES-R20 collection atom-remap off-by-two, commit `f4268f6`); test counts refreshed to 17 suites / 179 tests. |
+| **Change history** | 0.1 (2026-07-09) — initial spec; verified against `dev`, incl. [BIOVIA]. 0.2 (2026-07-10) — consolidated: requirements/gates/deliverables/NFRs merged into one table (§4); ABNF grammar retained (§6). 0.3 (2026-07-10) — readability pass: added At-a-glance, split requirements from gates, tightened prose. 0.4 (2026-07-28) — ES-R11, ES-R14 and §5.E implemented on `feature/enh-stereo-hardening`; measurement of OR-only/AND-only output added two grammar-conformance gaps (ES-R17, ES-R18). 0.5 (2026-08-03) — full re-audit of `feature/enh-stereo-hardening` by reading + measuring: ES-R17 is implemented and gated (G7 half-satisfied); two defects the spec did not know about found, reproduced and fixed (ES-R19 V2000 crash, ES-R20 collection atom-remap off-by-two, commit `f4268f6`); test counts refreshed to 17 suites / 179 tests. 0.6 (2026-08-07) — **ES-R18 resolved and implemented.** [DECK] slide 10 settles the §3-vs-§6 contradiction explicitly ("/m0 and /m1 are only used in the context of absolute centers"; "In case that the structure only contains OR# and/or AND# centers /m# is obsolete a[n]d must not be used"), with worked examples on slides 11-12 showing no /m for OR/AND-only including the multi-group cases. Implemented per component (an ABS collection on a sibling component no longer keeps /m alive on an OR/AND-only one); G7 wired end-to-end and G9 ([BIOVIA] Appendix B) materialised from a file located in the wild. `dev` merged into `feature/enh-stereo-hardening`. Two further pre-existing defects recorded but not fixed (§5.I orphan /s groups, §5.J isotopic-only centres ignored). Test counts: 17 suites / 188 tests. |
 
 > Normative keywords (MUST/SHOULD/MAY) per [RFC 2119](../README.md#requirement-conventions-normative);
 > shared glossary and conventions in the [README](../README.md).
@@ -17,11 +17,13 @@
 
 - ✅ **Works (end-to-end):** parse V3000 STEABS/STEREL#/STERAC# → `/t`+`/m` normalisation →
   grouped `/s1(…)2(…)3(…)` emission, incl. **all three** single-class reductions
-  (`/s1`, `/s2`, `/s3`) and multi-component. Tested (G1–G4, G6, G8 pass; G7 half).
-- ❌ **Missing:** the `/m`-with-only-OR/AND rule (ES-R18) — the last §6 MUST the code does not
-  meet; one-group-per-centre enforcement (ES-R12); the dormant 35-molecule gate (ES-R13).
-- ▶ **Next:** settle ES-R18 — the last open §6 conformance question — then ES-R12 (malformed
-  input currently corrupts `/t` and `/s`, §5.H) and the dormant `enh_stereo_test_file_2.sdf` gate.
+  (`/s1`, `/s2`, `/s3`), the `/m`-only-with-ABS rule (per component) and multi-component.
+  **Every §6 MUST is now met.** Tested (G1–G4, G6–G9 pass).
+- ❌ **Missing:** one-group-per-centre enforcement (ES-R12) — malformed input silently corrupts
+  `/s` (§5.H); the dormant 35-molecule gate (ES-R13); fixture-path robustness (ES-R15).
+- ▶ **Next:** ES-R12, the only remaining Must. Then ES-R13 — note its 8 OR/AND-only records
+  carry a stale `/m0` and must be re-pinned against [DECK] slide 10 when the gate is wired.
+  Two pre-existing defects found in 0.6 are recorded and unfixed: §5.I, §5.J.
 
 **Feature:** recognise MDL V3000 enhanced-stereo collections (STEABS / STEREL# / STERAC#) on
 sp³ tetrahedral centres and encode them in an extended, grouped `/s` layer. · **Branch:** `dev`
@@ -82,9 +84,11 @@ From [STRING-ALG] and [DECK]. The normative encoding grammar is in §6; the beha
   block MUST NOT crash either ✅ *(ES-R19)*.
 - *Performance (SHOULD)* — `/s` construction SHOULD be ≤ O(n·log n) in centres ✅ *(orig→canon
   reverse map replaced the linear scans; §5 resolved-E)*.
+- *`/m` only with ABS* — a component with only OR/AND centres MUST NOT carry `/m` ✅ *(held
+  since ES-R18; per component, and the segment disappears when no component has ABS)*.
 - *Portability* — tests MUST resolve fixtures independent of build layout *(gap: §5.B)*.
 
-## 3. Current implementation (branch `feature/enh-stereo-hardening`, verified by reading + running tests)
+## 3. Current implementation (branch `feature/enh-stereo-hardening`, `dev` merged in; verified by reading + running tests)
 
 | Stage | Location | State |
 |-------|----------|-------|
@@ -93,7 +97,8 @@ From [STRING-ALG] and [DECK]. The normative encoding grammar is in §6; the beha
 | Transfer molfile→`ORIG_ATOM_DATA.v3000` | `mol2atom.c:1646-1712`; component split `runichi3.c:359-395`; free `mol2atom.c:1421-1452` | ✅ |
 | Option `-EnhancedStereochemistry` → `ip->bEnhancedStereo` | `ichiparm.c:273-275,2144` | ✅ |
 | `1B` beta prefix | `ichiprt1.c:3119` `OutputINCHI_VersionAndKind`, `is_beta` set `:1713-1715`, `B` appended `:3132-3135` | ✅ |
-| `/t`+`/m` sign-normalisation | `strutil.c` `set_EnhancedStereo_t_m_layers`, `invert_parities` (min-canon centre → `-`, whole-group flip; ABS toggles `nCompInv2Abs`; force `m0` when only OR/AND) | ✅ works, but the forced `m0` contradicts §6 → ES-R18 |
+| `/t`+`/m` sign-normalisation | `strutil.c` `set_EnhancedStereo_t_m_layers`, `invert_parities` (min-canon centre → `-`, whole-group flip; ABS toggles `nCompInv2Abs`) | ✅ |
+| `/m` suppressed for OR/AND-only components (ES-R18) | `strutil.c` `set_EnhancedStereo_t_m_layers` zeroes `nCompInv2Abs` (⇒ `str_StereoAbsInv` emits the `.` placeholder), membership tested per component by `component_has_collection_atom`; `ichiprt1.c` `bHasAbsStereoComponent` drops the whole `/m` segment when no component keeps an ABS reference | ✅ ES-R18 — [DECK] slide 10 |
 | Grouped `/s` emission | `ichiprt1.c:3496` `OutputINCHI_StereoLayer_EnhancedStereo` → `ichiprt2.c` `MakeSlayerString` → `MakeEnhStereoString` (type digit, canon-atom map, within-group + inter-group sort, parenthesised groups) | ✅ matches target ordering |
 | ABS-only reduction to bare `/s1` | `ichiprt2.c` `MakeSlayerString` (per-sublayer lengths; ABS-only ⇒ bare type digit) | ✅ ES-R11 |
 | Single-OR / single-AND reduction to bare `/s2` / `/s3` | `ichiprt2.c` `MakeSlayerString` (guarded by `num_groups_used` from `MakeEnhStereoString`, so ≥2 groups stay grouped) | ✅ ES-R17 |
@@ -110,8 +115,9 @@ not grouped (see specs 2–4).
 
 ## 4. Requirements
 
-Priority is MoSCoW. The core works end-to-end; the one open Must-have (ES-R18) is a
-conformance gap against §6 found by measuring OR-only/AND-only output, not a missing feature.
+Priority is MoSCoW. The core works end-to-end and every §6 MUST is met as of 0.6. The one open
+Must-have is ES-R12: input validation, not an encoding gap — malformed collections are silently
+laundered into plausible-looking output rather than diagnosed (§5.H).
 **Won't (this spec):** name-level `rac`/`rel` nomenclature and independent-centre superscripts ([ESR]/[BNF])
 — IUPAC nomenclature recommendations, not InChI code.
 
@@ -120,18 +126,18 @@ conformance gap against §6 found by measuring OR-only/AND-only output, not a mi
 | ES-R1 | Parse STEABS/STEREL#/STERAC# `ATOMS=()` | Must | ✅ `mol_fmt3.c:647` (see ES-R20) |
 | ES-R2 | Grouped `/s1(…)2(…)3(…)` emission | Must | ✅ `MakeEnhStereoString` / `MakeSlayerString` |
 | ES-R3 | Within-/inter-group ordering | Must | ✅ `MakeEnhStereoString` (`qsort` on canon numbers) |
-| ES-R4 | Sign normalisation + `/m` coupling to ABS | Must | ✅ `invert_parities` — but see ES-R18 |
+| ES-R4 | Sign normalisation + `/m` coupling to ABS | Must | ✅ `invert_parities` + ES-R18 |
 | ES-R5 | Reductions (only-ABS ⇒ `/s1`, only-OR ⇒ `/s2`, only-AND ⇒ `/s3`) | Must | ✅ complete — ABS (ES-R11), single OR/AND (ES-R17) |
 | ES-R6 | `-EnhancedStereochemistry` + `1B` prefix | Must | ✅ `ichiparm.c:273` |
 | ES-R7 | Multi-component `count*substring` / `;` composition | Should | ✅ `MakeSlayerString` emit loop |
 | ES-R11 | Explicit-STEABS-only ⇒ bare `/s1` (== `SAbs`) | Should | ✅ done + gated (G6) |
-| ES-R12 | Enforce one-group-per-centre / at-most-one-ABS; reject conflicts | Must | ❌ not implemented — malformed input silently corrupts `/t` and `/s` *(§5.H; raised from Should)* |
-| ES-R13 | Wire `enh_stereo_test_file_2.sdf` gate (35 mol) | Should | ❌ dormant |
+| ES-R12 | Enforce one-group-per-centre / at-most-one-ABS; reject conflicts | Must | ❌ not implemented — malformed input silently corrupts `/s` *(§5.H; raised from Should)* |
+| ES-R13 | Wire `enh_stereo_test_file_2.sdf` gate (35 mol) | Should | ❌ dormant — its 8 OR/AND-only records carry a stale `/m0` and must be re-pinned when wired *(§5.K)* |
 | ES-R14 | No component may be dropped from the `/s` substring dictionary | Should | ✅ done — dictionary sized from `num_components`; the fixed cap is gone |
 | ES-R15 | Fixture-path robustness (`FIXTURES_DIR` CMake define) | Should | ❌ port from `atropisomers` *(§5.B)* |
 | ES-R16 | Propagate `set_EnhancedStereo_t_m_layers` sub-call failures | Could | ❌ returns `0` always *(§5.D)* |
-| ES-R17 | Single-OR ⇒ bare `/s2`, single-AND ⇒ bare `/s3` (§6 MUST) | Must | ✅ done + gated (G7 partial, G4) — ≥2 groups stay grouped |
-| ES-R18 | No `/m` when a component has only OR/AND centres (§6 MUST) | Must | ❌ `m0` is forced instead *(§5.G)* |
+| ES-R17 | Single-OR ⇒ bare `/s2`, single-AND ⇒ bare `/s3` (§6 MUST) | Must | ✅ done + gated (G4, G7, G9) — ≥2 groups stay grouped; confirmed by [DECK] slides 10, 12 |
+| ES-R18 | No `/m` when a component has only OR/AND centres (§6 MUST) | Must | ✅ done + gated (G7 end-to-end, G9 negative control) — [DECK] slide 10 is explicit *(§5, resolved-G)* |
 | ES-R19 | `-EnhancedStereochemistry` MUST NOT crash on input without V3000 collections | Must | ✅ done + gated (G8) — was a segfault *(§5, resolved-I)* |
 | ES-R20 | Collection atom numbers MUST be remapped regardless of molfile atom numbering | Must | ✅ done + gated (G8) — was an off-by-two *(§5, resolved-J)* |
 
@@ -156,19 +162,38 @@ per-molecule detail.
 - **G6** — [STRING-ALG] "only ABS" edge table: explicit STEABS-only ⇒ bare `/s1`, whole string
   byte-identical to standard InChI apart from `1B`. ✅ **passes** (end-to-end, ES-R11).
 - **G7** — [STRING-ALG] "only OR" / "only AND" edge tables ⇒ bare `/s2` / `/s3`, no `/m`.
-  ⚠️ **half passes** — the `/s` half now holds (ES-R17): a single STEREL1 over all centres
-  measures `/s2`, a single STERAC1 `/s3`, byte-identical to `-SRel` / `-SRac` apart from the
-  prefix **and** a spurious `/m0` (ES-R18). Unit-gated in G4; no end-to-end gate wired yet —
-  wire it with the ES-R18 fix.
+  ✅ **passes**, end-to-end gate now wired as
+  `test_enhancedStereo.cpp::test_EnhancedStereochemistry_or_and_only_omit_m_layer`: a single
+  STEREL1 over all centres measures `/s2`, a single STERAC1 `/s3`, and each is byte-identical
+  to `-SRel` / `-SRac` apart from the version prefix — asserted as whole-string equality, not
+  just on the `/s` substring. Two further ES-R18 gates accompany it:
+  `..._m_layer_is_per_component` (ABS + OR-only siblings ⇒ `/m.1/s2;1`; both OR/AND-only ⇒ no
+  `/m` at all) and `..._or_only_omits_m_with_mobile_h` (the Fixed-H path, == `-SRel -FixedH`).
+  All three verified to fail with the fix reverted.
+- **G9** — [BIOVIA] Appendix B / [DECK]-era MDL white-paper fig. 22, the 29-atom molfile mixing
+  all five collection types. ✅ **passes** —
+  `test_enhancedStereo.cpp::test_EnhancedStereochemistry_biovia_appendix_b`, molblock inline so
+  it does not inherit the ES-R15 path fragility. Pinned to
+  `…/t13-,14-,15-,17-,18-,21-,23+/m1/s1(15)2(13,14)(21,23)3(17)(18)`, which in one structure
+  cross-checks against a third-party authority: ABS `(15)`, two OR groups, two AND groups,
+  `/m1` **present** (ES-R18 negative control), neither the OR nor the AND pair reduced
+  (ES-R17 over-reduction guard), and every group's lowest centre normalised to `-`.
+  Dataset: `datasets/biovia_white_paper_fig22.mol` (upstream `M END` corrected to `M  END`).
 - **G8** — the two 0.5 defect regressions in `test_enhancedStereo.cpp`: an L-alanine **V2000**
   molfile with a stereocentre plus `-EnhancedStereochemistry` (ES-R19, segfaulted before) and
   the same V3000 structure with two STEREL groups presented twice, atoms numbered `1..18` and
   `101..118`, asserted to give one identical InChI (ES-R20). ✅ **passes**; both verified to
   fail without their fix.
 
-All 17 unit suites (179 tests) pass — `ctest` in `CMake_build/full_build` is green — and the
-enhanced-stereo suites are clean under an ASAN Debug build. Out-of-tree build directories still
-fail `test_enhancedStereo` and `test_ichimain` on fixture paths; see §5.B.
+All 17 unit suites (188 tests) pass — `ctest` in `CMake_build/full_build` is green; the
+`test_enhancedStereo` suite is now 21 tests. Backward compatibility was re-verified for 0.6 by
+building the tree with and without the ES-R18 change and diffing standard (option-off) output
+over 84 structures: byte-identical. Out-of-tree build directories still fail
+`test_enhancedStereo` and `test_ichimain` on fixture paths; see §5.B.
+
+> **Build note.** `cmake --build` links the CLI as `bin/inchi-1d`; a stale `bin/inchi-1` from an
+> earlier build may sit alongside it and will silently serve outdated measurements. Check the
+> binary's mtime before trusting a hand-run comparison.
 
 ## 5. Open issues / risks
 
@@ -180,21 +205,65 @@ fail `test_enhancedStereo` and `test_ichimain` on fixture paths; see §5.B.
   Logic is correct. Fix = CMake `FIXTURES_DIR` define (ES-R15).
 - **D. Return value not propagated.** `set_EnhancedStereo_t_m_layers` returns its initial `0`
   regardless of the three `invert_parities` results (ES-R16).
-- **G. `/m` emitted for OR/AND-only components (ES-R18).** `set_EnhancedStereo_t_m_layers`
-  forces `nCompInv2Abs = 1` (⇒ `m0`) when no ABS collection exists but OR/AND ones do, so
-  measured output is `/m0/s2(…)`. §6 says `/m` MUST NOT appear when a component has only
-  OR/AND centres, and `-SRel` / `-SRac` indeed emit no `/m`. Either the forced `m0` is a
-  deliberate deviation and §6 is wrong, or §6 holds and the forcing must go — §3 marked this
-  ✅ and §6 forbids it, so the two sections have been contradicting each other since 0.1.
-  Resolve the intent first; do not "fix" one side blindly.
 - **H. Missing ES-R12 validation corrupts output, it does not merely fail to diagnose.**
   Measured with the option on: putting atoms 1,2 in both `STEABS ATOMS=(8 1 2 3 4 5 12 13 14)`
-  and `STERAC1 ATOMS=(2 1 2)` yields `/t3-,4-,5+,6+,7-,8+,9-,10+/m0/s1(3,4,5,6,7,8,9,10)3(9,10)`
-  — the shared centres appear in **two** `/s` groups and their parities are flipped **twice**
-  in `/t` (clean input gives `…9+,10-`). Two `STEABS` collections are likewise merged silently
-  and then reduced to a bare `/s1`, erasing all trace of the malformed input. This is why
-  ES-R12 is a Must from 0.5 on: the reader must reject/diagnose per [BIOVIA] before the
-  normalisation pass runs.
+  and `STERAC1 ATOMS=(2 1 2)` yields `/t3-,4-,5+,6+,7-,8+,9-,10+/s1(3,4,5,6,7,8,9,10)3(9,10)`
+  — the shared centres appear in **two** `/s` groups. Two `STEABS` collections are likewise
+  merged silently and then reduced to a bare `/s1`, erasing all trace of the malformed input,
+  and one atom placed in both a STEABS and a STERAC collection yields `/s1(6)3(6)`: the same
+  centre declared absolute *and* racemic. Nothing is diagnosed — the run reports "0 errors".
+  This is why ES-R12 is a Must from 0.5 on: the reader must reject/diagnose per [BIOVIA]
+  before the normalisation pass runs. *Corrected in 0.6:* 0.5 also claimed the shared centres'
+  parities are flipped **twice** in `/t`. They are not — `invert_parities` re-reads the current
+  parity, so the second group sees the post-first state and skips its flip; the measured `/t`
+  is byte-identical to the well-formed disjoint reading. 0.5 reached the opposite conclusion by
+  comparing against the *STEABS-only* input, which is a different structure. The corruption is
+  confined to `/s`, which makes ES-R12 less severe than 0.5 stated but no less a Must — the
+  reduction rules actively launder malformed input into a plausible-looking valid string.
+- **I. `/s` emits classes for atoms that are not stereocentres.** `MakeEnhStereoString` admits a
+  collection atom on the sole test that it maps into the component (`lookup_canonical_atom_number
+  != -1`); it never requires the atom to be a stereocentre. So a group can be emitted for an
+  atom absent from `/t`, and even for a component with an **empty** `/t`. Three sightings, all
+  pre-existing: `test_EnhancedStereochemistry_4_mols` pins `/s1(7)` where canon 7 is not in that
+  component's `/t8-,9+`; the pinned `2C10H14BrCl7.C8H18` expectation carries `…;1(6)3(7,8)` for a
+  component whose `/t` is empty; and a minimal two-component case (propane bearing
+  `STEABS ATOMS=(1 8)` on a CH₂) measures `/t3-,4-;/s2;1` — the stereo-free component reported as
+  class 1 via the ABS-only reduction. ES-R18 deliberately keys `/m` on the *same* membership test
+  so `/m` and `/s` cannot disagree; fixing the root cause belongs with ES-R12/ES-R2. Contrast
+  `epam/Indigo` `non_atrop.mol`, where a `STEREL1` on a non-stereogenic atom in a structure with
+  **no** stereocentres at all is correctly ignored (no `/t`, no `/s`) — so the defect needs the
+  structure to have stereo somewhere.
+- **J. Isotopic-only stereocentres are ignored entirely.** For a centre that is stereogenic only
+  through isotopic substitution (CH₃ vs CD₃), `-EnhancedStereochemistry` reproduces standard
+  InChI — `/i1D3/t3-/m1/s1`, collection ignored, no `/s2`, `/m1` retained — where `-SRel` gives
+  `/i1D3/t3-/s2`. Cause: `set_EnhancedStereo_t_m_layers` returns early on
+  `nNumberOfStereoCenters <= 0`, which counts the **non-isotopic** centres only. Arguably outside
+  the "sp³ tetrahedral `/t` centres only" scope in §3, but a `/t` does exist here, so §3 should
+  say so explicitly rather than leave it implied.
+- **K. The dormant G5 fixture disagrees with ES-R18 and is the stale side.** All 8 OR/AND-only
+  records in `enh_stereo_test_file_2.sdf` carry `/m0` in their `<InChI_new>` column, and record 32
+  *changes* the standard `/m1` to `/m0` — i.e. the old forcing behaviour, chosen deliberately at
+  authoring time. It does not outweigh [DECK] slide 10: the column is hand-authored, internally
+  inconsistent on the version prefix (record 22 writes `1/`, record 32 `1S/`), and therefore
+  predates the `1B` decision and the 2026-07-22 deck. Re-pin those 8 records when wiring ES-R13.
+
+**Resolved in 0.6** (kept for traceability):
+
+- ~~**G. `/m` emitted for OR/AND-only components (ES-R18).**~~ `set_EnhancedStereo_t_m_layers`
+  forced `nCompInv2Abs = 1` (⇒ `m0`) when no ABS collection existed but OR/AND ones did, so
+  measured output was `/m0/s2(…)`. §3 marked this ✅ while §6 forbade it, and the two sections had
+  contradicted each other since 0.1. **[DECK] slide 10 settles it in favour of §6**, in terms that
+  leave no room: "*/m0 and /m1 are only used in the context of absolute centers*" and "*In case
+  that the structure only contains OR# and/or AND# centers /m# is obsolete a[n]d must not be
+  used*" — with worked examples on slides 11–12 showing no `/m` for OR/AND-only including the
+  multi-group cases, which also independently confirms ES-R17's reduce-only-at-one-group reading.
+  Two things the fix had to get right beyond deleting the forcing: (i) `/m` **segment** presence
+  is decided by `CompINChILayers` *before* the normalisation pass runs, and the same `bRelRac`
+  value gates `/s`, so zeroing `nCompInv2Abs` early would have destroyed the `/s` layer too —
+  hence the separate `bHasAbsStereoComponent` gate in the enhanced-only output function; (ii) the
+  collection lists are structure-wide, so the test must be **per component** or an ABS collection
+  on one component keeps `/m` alive on an OR/AND-only sibling (measured `/m11/s2;1`, now
+  `/m.1/s2;1`). Gated by G7 end-to-end plus G9 as the negative control.
 
 **Resolved in 0.5** (kept for traceability):
 
@@ -251,11 +320,15 @@ atom-group   = "(" atom *("," atom) ")" ; canonical atom numbers, ascending with
 atom         = 1*DIGIT                  ; canonical (final) atom rank
 ```
 
-Rules (each **MUST** hold; ⚠️ marks a rule the code does not yet meet):
+Rules (each **MUST** hold; as of 0.6 the code meets all of them):
 - Within an `atom-group`, atoms **MUST** be in ascending canonical order; `atom-group`s within
   an `s-type` **MUST** be ordered by their smallest atom.
-- ⚠️ `/m` **MUST** be present iff at least one ABS centre exists; it **MUST NOT** appear when
-  the component has only OR/AND centres *(ES-R18, §5.G)*.
+- `/m` **MUST** be present iff the component has at least one ABS collection member; it
+  **MUST NOT** appear when the component has only OR/AND centres, and in a multi-component
+  structure this is decided **per component** — the `.` placeholder is used for the components
+  that carry no ABS reference, and the segment is omitted entirely when none do
+  *(ES-R18, [DECK] slide 10, §5 resolved-G)*. Note the criterion is collection **membership**,
+  matching what `/s` itself admits, not stereocentre-hood — see §5.I.
 - A component whose centres are all ABS **MUST** reduce to the standard `/s1` (identical to
   `SAbs`); a single OR group **MUST** reduce to `/s2`; a single AND group to `/s3` *(ES-R11,
   ES-R17)*. Two or more OR (resp. AND) groups **MUST NOT** be reduced — the grouping is
@@ -275,6 +348,8 @@ Rules (each **MUST** hold; ⚠️ marks a rule the code does not yet meet):
 - **A-2** Each stereocentre belongs to **exactly one** collection ([BIOVIA]); the reader
   MUST reject/diagnose violations (ES-R12).
 - **D-1** Depends on final **canonical ranks** (grouping/ordering use canonical atom numbers).
+- **A-3** Applies to centres present in the **non-isotopic** `/t` layer. Centres that are
+  stereogenic only through isotopic substitution are currently ignored by the grouping *(§5.J)*.
 - **D-2** Depends on the existing `/t`+`/m` sp³ parity pipeline; enhanced grouping is layered
   on top, not a replacement.
 - **D-3** Reuses the `is_beta` mechanism for the `1B` prefix.
