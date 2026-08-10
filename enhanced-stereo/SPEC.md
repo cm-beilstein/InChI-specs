@@ -2,13 +2,13 @@
 
 | | |
 |---|---|
-| **Doc version** | 0.6 |
-| **Date** | 2026-08-07 |
+| **Doc version** | 0.7 |
+| **Date** | 2026-08-10 |
 | **Status** | draft |
 | **Author** | C. Müller |
 | **Reviewers** | TBD (InChI Trust / project 2019-017-2-800 TG) |
 | **Requirement prefix** | `ES-` |
-| **Change history** | 0.1 (2026-07-09) — initial spec; verified against `dev`, incl. [BIOVIA]. 0.2 (2026-07-10) — consolidated: requirements/gates/deliverables/NFRs merged into one table (§4); ABNF grammar retained (§6). 0.3 (2026-07-10) — readability pass: added At-a-glance, split requirements from gates, tightened prose. 0.4 (2026-07-28) — ES-R11, ES-R14 and §5.E implemented on `feature/enh-stereo-hardening`; measurement of OR-only/AND-only output added two grammar-conformance gaps (ES-R17, ES-R18). 0.5 (2026-08-03) — full re-audit of `feature/enh-stereo-hardening` by reading + measuring: ES-R17 is implemented and gated (G7 half-satisfied); two defects the spec did not know about found, reproduced and fixed (ES-R19 V2000 crash, ES-R20 collection atom-remap off-by-two, commit `f4268f6`); test counts refreshed to 17 suites / 179 tests. 0.6 (2026-08-07) — **ES-R18 resolved and implemented.** [DECK] slide 10 settles the §3-vs-§6 contradiction explicitly ("/m0 and /m1 are only used in the context of absolute centers"; "In case that the structure only contains OR# and/or AND# centers /m# is obsolete a[n]d must not be used"), with worked examples on slides 11-12 showing no /m for OR/AND-only including the multi-group cases. Implemented per component (an ABS collection on a sibling component no longer keeps /m alive on an OR/AND-only one); G7 wired end-to-end and G9 ([BIOVIA] Appendix B) materialised from a file located in the wild. `dev` merged into `feature/enh-stereo-hardening`. Two further pre-existing defects recorded but not fixed (§5.I orphan /s groups, §5.J isotopic-only centres ignored). Test counts: 17 suites / 188 tests. |
+| **Change history** | 0.1 (2026-07-09) — initial spec; verified against `dev`, incl. [BIOVIA]. 0.2 (2026-07-10) — consolidated: requirements/gates/deliverables/NFRs merged into one table (§4); ABNF grammar retained (§6). 0.3 (2026-07-10) — readability pass: added At-a-glance, split requirements from gates, tightened prose. 0.4 (2026-07-28) — ES-R11, ES-R14 and §5.E implemented on `feature/enh-stereo-hardening`; measurement of OR-only/AND-only output added two grammar-conformance gaps (ES-R17, ES-R18). 0.5 (2026-08-03) — full re-audit of `feature/enh-stereo-hardening` by reading + measuring: ES-R17 is implemented and gated (G7 half-satisfied); two defects the spec did not know about found, reproduced and fixed (ES-R19 V2000 crash, ES-R20 collection atom-remap off-by-two, commit `f4268f6`); test counts refreshed to 17 suites / 179 tests. 0.6 (2026-08-07) — **ES-R18 resolved and implemented.** [DECK] slide 10 settles the §3-vs-§6 contradiction explicitly ("/m0 and /m1 are only used in the context of absolute centers"; "In case that the structure only contains OR# and/or AND# centers /m# is obsolete a[n]d must not be used"), with worked examples on slides 11-12 showing no /m for OR/AND-only including the multi-group cases. Implemented per component (an ABS collection on a sibling component no longer keeps /m alive on an OR/AND-only one); G7 wired end-to-end and G9 ([BIOVIA] Appendix B) materialised from a file located in the wild. `dev` merged into `feature/enh-stereo-hardening`. Two further pre-existing defects recorded but not fixed (§5.I orphan /s groups, §5.J isotopic-only centres ignored). Test counts: 17 suites / 188 tests. 0.7 (2026-08-10) — **ES-R12 resolved and implemented**, the last open Must. A corpus of malformed collection files was assembled first (two real, from [rdkit/rdkit#8873]; six derived), which showed §5.H understated the defect: the corruption reaches `/t`, not only `/s`, so a malformed file could be given the InChI of a **different diastereomer**. Validation now runs in the reader (`StereoCollectionsAreMalformed`) and drops the collections rather than guessing; gated by G10. Two pre-existing tests moved with the behaviour and gained the `/s1` they used to drop. Spec requirement IDs, gate IDs and section references were removed from all source and test comments — the spec→code link is now by function name only. Test counts: 17 suites / 195 tests. |
 
 > Normative keywords (MUST/SHOULD/MAY) per [RFC 2119](../README.md#requirement-conventions-normative);
 > shared glossary and conventions in the [README](../README.md).
@@ -18,12 +18,13 @@
 - ✅ **Works (end-to-end):** parse V3000 STEABS/STEREL#/STERAC# → `/t`+`/m` normalisation →
   grouped `/s1(…)2(…)3(…)` emission, incl. **all three** single-class reductions
   (`/s1`, `/s2`, `/s3`), the `/m`-only-with-ABS rule (per component) and multi-component.
-  **Every §6 MUST is now met.** Tested (G1–G4, G6–G9 pass).
-- ❌ **Missing:** one-group-per-centre enforcement (ES-R12) — malformed input silently corrupts
-  `/s` (§5.H); the dormant 35-molecule gate (ES-R13); fixture-path robustness (ES-R15).
-- ▶ **Next:** ES-R12, the only remaining Must. Then ES-R13 — note its 8 OR/AND-only records
-  carry a stale `/m0` and must be re-pinned against [DECK] slide 10 when the gate is wired.
-  Two pre-existing defects found in 0.6 are recorded and unfixed: §5.I, §5.J.
+  **Every §6 MUST is now met**, and malformed collections are diagnosed instead of laundered.
+  Tested (G1–G4, G6–G10 pass).
+- ❌ **Missing:** nothing Must-have. The dormant 35-molecule gate (ES-R13); fixture-path
+  robustness (ES-R15); return-value propagation (ES-R16).
+- ▶ **Next:** ES-R13 — note its 8 OR/AND-only records carry a stale `/m0` and must be re-pinned
+  against [DECK] slide 10 when the gate is wired. Then ES-R15, which ES-R13 depends on in
+  practice. Two pre-existing defects found in 0.6 are recorded and unfixed: §5.I, §5.J.
 
 **Feature:** recognise MDL V3000 enhanced-stereo collections (STEABS / STEREL# / STERAC#) on
 sp³ tetrahedral centres and encode them in an extended, grouped `/s` layer. · **Branch:** `dev`
@@ -78,6 +79,9 @@ From [STRING-ALG] and [DECK]. The normative encoding grammar is in §6; the beha
 - *Determinism* — identical input ⇒ identical output, order-independent of input atom order
   ✅ *(held since ES-R20; collection atom numbers were previously mis-remapped when the molfile
   did not number its atoms 1..n)*.
+- *No laundering* — a collection block that violates the input constraints below MUST be
+  diagnosed, and MUST NOT be turned into a valid-looking `/s` or into a `/t` that names a
+  different stereoisomer ✅ *(held since ES-R12)*.
 - *Robustness* — malformed/empty/out-of-range collections MUST NOT crash and MUST degrade
   gracefully; the per-component `/s` substring dictionary MUST NOT drop components ✅ *(it is
   sized from the component count, so no cap exists; ES-R14)*. Input without a V3000 collection
@@ -92,7 +96,8 @@ From [STRING-ALG] and [DECK]. The normative encoding grammar is in §6; the beha
 
 | Stage | Location | State |
 |-------|----------|-------|
-| V3000 COLLECTION parse (STEABS/STEREL#/STERAC#, `ATOMS=()`, group #) | `mol_fmt3.c:647` `MolfileV3000ReadCollections`, dispatch `:695-729`, atoms `:738-782` | ✅ done; non-stereo collections skipped; atom-number remap fixed (ES-R20) |
+| V3000 COLLECTION parse (STEABS/STEREL#/STERAC#, `ATOMS=()`, group #) | `mol_fmt3.c` `MolfileV3000ReadCollections`, atoms via `MolfileV3000ReadStereoCollection` + `get_actual_atom_number` | ✅ done; non-stereo collections skipped; atom-number remap fixed (ES-R20) |
+| Input validation of the collection block | `mol_fmt3.c` `StereoCollectionsAreMalformed`, called once from `MolfileV3000ReadCollections` after the block is read | ✅ ES-R12 — five checks; on any hit it names the violation via `AddErrorMessage` and `NumLists_Free`s all three lists |
 | Storage | `inpdef.h:396-404` `OAD_V3000.lists_steabs/sterel/sterac` | ✅ |
 | Transfer molfile→`ORIG_ATOM_DATA.v3000` | `mol2atom.c:1646-1712`; component split `runichi3.c:359-395`; free `mol2atom.c:1421-1452` | ✅ |
 | Option `-EnhancedStereochemistry` → `ip->bEnhancedStereo` | `ichiparm.c:273-275,2144` | ✅ |
@@ -108,16 +113,19 @@ From [STRING-ALG] and [DECK]. The normative encoding grammar is in §6; the beha
 | Multi-component `count*substr` + `;` (beyond single-molecule spec) | `ichiprt2.c` `MakeSlayerString` emit loop | ✅ present + tested (extension) |
 
 Line numbers are omitted for the functions touched on this branch; they move. Grep the
-function names.
+function names — **as of 0.7 that is the only spec↔code link.** Requirement IDs, gate IDs and
+section references were removed from all source and test comments, so the code no longer points
+back here; keep the function names in this table current, because nothing else does.
 
 Applies to **sp³ tetrahedral `/t` centres only**; E/Z, allene and atropisomer centres are
 not grouped (see specs 2–4).
 
 ## 4. Requirements
 
-Priority is MoSCoW. The core works end-to-end and every §6 MUST is met as of 0.6. The one open
-Must-have is ES-R12: input validation, not an encoding gap — malformed collections are silently
-laundered into plausible-looking output rather than diagnosed (§5.H).
+Priority is MoSCoW. The core works end-to-end, every §6 MUST is met as of 0.6, and as of 0.7
+**no Must-have is open**: ES-R12 closed the last one, so malformed collections are now diagnosed
+rather than laundered into plausible-looking output (§5, resolved-H). What remains is Should and
+Could work: ES-R13, ES-R15, ES-R16, plus the two pre-existing defects §5.I and §5.J.
 **Won't (this spec):** name-level `rac`/`rel` nomenclature and independent-centre superscripts ([ESR]/[BNF])
 — IUPAC nomenclature recommendations, not InChI code.
 
@@ -131,7 +139,7 @@ laundered into plausible-looking output rather than diagnosed (§5.H).
 | ES-R6 | `-EnhancedStereochemistry` + `1B` prefix | Must | ✅ `ichiparm.c:273` |
 | ES-R7 | Multi-component `count*substring` / `;` composition | Should | ✅ `MakeSlayerString` emit loop |
 | ES-R11 | Explicit-STEABS-only ⇒ bare `/s1` (== `SAbs`) | Should | ✅ done + gated (G6) |
-| ES-R12 | Enforce one-group-per-centre / at-most-one-ABS; reject conflicts | Must | ❌ not implemented — malformed input silently corrupts `/s` *(§5.H; raised from Should)* |
+| ES-R12 | Enforce one-group-per-centre / at-most-one-ABS; reject conflicts | Must | ✅ done + gated (G10) — diagnosed in the reader, collections dropped *(§5, resolved-H)* |
 | ES-R13 | Wire `enh_stereo_test_file_2.sdf` gate (35 mol) | Should | ❌ dormant — its 8 OR/AND-only records carry a stale `/m0` and must be re-pinned when wired *(§5.K)* |
 | ES-R14 | No component may be dropped from the `/s` substring dictionary | Should | ✅ done — dictionary sized from `num_components`; the fixed cap is gone |
 | ES-R15 | Fixture-path robustness (`FIXTURES_DIR` CMake define) | Should | ❌ port from `atropisomers` *(§5.B)* |
@@ -185,8 +193,23 @@ per-molecule detail.
   `101..118`, asserted to give one identical InChI (ES-R20). ✅ **passes**; both verified to
   fail without their fix.
 
-All 17 unit suites (188 tests) pass — `ctest` in `CMake_build/full_build` is green; the
-`test_enhancedStereo` suite is now 21 tests. Backward compatibility was re-verified for 0.6 by
+- **G10** — the ES-R12 malformed-input corpus, `datasets/malformed/` (eight molfiles, two of them
+  real: the attachments to [rdkit/rdkit#8873], reported from a live R-group-enumeration pipeline).
+  ✅ **passes**, wired at two levels. Reader: `test_mol_fmt.cpp`
+  `test_malformed_collections_*` — six cases (atom in two collections, second STEABS, atom twice
+  in one collection, unresolvable atom index, repeated group number, plus a **well-formed
+  over-rejection guard**), each asserting the named diagnostic, that all three collection lists
+  are emptied, and that the structure itself still parses. End-to-end:
+  `test_enhancedStereo.cpp::test_EnhancedStereochemistry_malformed_collections_are_not_used` —
+  four cases, each asserting `inchi_Ret_WARNING`, the diagnostic reaching the caller through
+  `szMessage`, and a string byte-identical to the standard InChI apart from the `1B` prefix.
+  Three of the four were verified to fail with the fix reverted, producing exactly the strings
+  recorded in `datasets/malformed/MALFORMED.md`; the second-STEABS case is **not** detectable
+  end-to-end, because the laundered output coincides with the degraded one — only the diagnostic
+  separates them, which is why the reader test carries it.
+
+All 17 unit suites (195 tests) pass — `ctest` in `CMake_build/full_build` is green; the
+`test_enhancedStereo` suite is now 22 tests and `test_mol_fmt` 18. Backward compatibility was re-verified for 0.6 by
 building the tree with and without the ES-R18 change and diffing standard (option-off) output
 over 84 structures: byte-identical. Out-of-tree build directories still fail
 `test_enhancedStereo` and `test_ichimain` on fixture paths; see §5.B.
@@ -205,21 +228,6 @@ over 84 structures: byte-identical. Out-of-tree build directories still fail
   Logic is correct. Fix = CMake `FIXTURES_DIR` define (ES-R15).
 - **D. Return value not propagated.** `set_EnhancedStereo_t_m_layers` returns its initial `0`
   regardless of the three `invert_parities` results (ES-R16).
-- **H. Missing ES-R12 validation corrupts output, it does not merely fail to diagnose.**
-  Measured with the option on: putting atoms 1,2 in both `STEABS ATOMS=(8 1 2 3 4 5 12 13 14)`
-  and `STERAC1 ATOMS=(2 1 2)` yields `/t3-,4-,5+,6+,7-,8+,9-,10+/s1(3,4,5,6,7,8,9,10)3(9,10)`
-  — the shared centres appear in **two** `/s` groups. Two `STEABS` collections are likewise
-  merged silently and then reduced to a bare `/s1`, erasing all trace of the malformed input,
-  and one atom placed in both a STEABS and a STERAC collection yields `/s1(6)3(6)`: the same
-  centre declared absolute *and* racemic. Nothing is diagnosed — the run reports "0 errors".
-  This is why ES-R12 is a Must from 0.5 on: the reader must reject/diagnose per [BIOVIA]
-  before the normalisation pass runs. *Corrected in 0.6:* 0.5 also claimed the shared centres'
-  parities are flipped **twice** in `/t`. They are not — `invert_parities` re-reads the current
-  parity, so the second group sees the post-first state and skips its flip; the measured `/t`
-  is byte-identical to the well-formed disjoint reading. 0.5 reached the opposite conclusion by
-  comparing against the *STEABS-only* input, which is a different structure. The corruption is
-  confined to `/s`, which makes ES-R12 less severe than 0.5 stated but no less a Must — the
-  reduction rules actively launder malformed input into a plausible-looking valid string.
 - **I. `/s` emits classes for atoms that are not stereocentres.** `MakeEnhStereoString` admits a
   collection atom on the sole test that it maps into the component (`lookup_canonical_atom_number
   != -1`); it never requires the atom to be a stereocentre. So a group can be emitted for an
@@ -246,6 +254,49 @@ over 84 structures: byte-identical. Out-of-tree build directories still fail
   authoring time. It does not outweigh [DECK] slide 10: the column is hand-authored, internally
   inconsistent on the version prefix (record 22 writes `1/`, record 32 `1S/`), and therefore
   predates the `1B` decision and the 2026-07-22 deck. Re-pin those 8 records when wiring ES-R13.
+
+**Resolved in 0.7** (kept for traceability):
+
+- ~~**H. Missing ES-R12 validation corrupts output, it does not merely fail to diagnose.**~~
+  A corpus of malformed collection files was assembled before touching the code
+  (`datasets/malformed/`, with per-file measurements and the reference-implementation
+  comparison in `MALFORMED.md`). It disproved this entry's own closing claim.
+  **0.6 said the corruption is confined to `/s`. It is not.** Two cases change `/t`:
+  a `STEREL1` group split over two lines is read as two groups and each runs its own
+  whole-group sign flip, giving `/t4-,5-,6-` against the well-formed `6+`; and the real
+  two-`STEABS` file from [rdkit/rdkit#8873] measured `/t7-,8-` where standard InChI gives
+  `/t7-,8+` for the very same file — the enhanced string named a **different diastereomer**,
+  breaking the §2 backward-compatibility invariant outright. 0.6 reasoned from a single
+  overlapping-pair example in which the two flips happened to cancel; that is not the general
+  case. A third case, an atom repeated inside one collection, emitted `/s2(4,4,6)` — not
+  ascending, so **not conformant to the §6 grammar either**, which makes ES-R12 an output
+  correctness requirement and not only an input-hygiene one.
+
+  Resolved by validating in the reader rather than repairing: `StereoCollectionsAreMalformed`
+  runs once after the collection block is read and rejects a second STEABS collection, a
+  STEREL/STERAC group number naming two collections, an atom in two collections, an atom
+  listed twice in one collection, and an atom the CTab does not have. On any hit it names the
+  violation and frees all three collection lists, so the enhanced path takes the ES-R19 route —
+  the same as a structure with no collection block. **Diagnose, do not guess:** on merging
+  vs. renumbering same-id groups even RDKit has no settled answer
+  ([rdkit/rdkit#6050], and the #8873 discussion: *"since we don't have a context, I don't think
+  we can assume merging will always be the right answer"*), so InChI must not invent one.
+  Gated by G10. Three consequences worth recording:
+  - **Standard InChI strings are unchanged** — the option-off path never used the collections.
+    Only the API return moves `inchi_Ret_OKAY` → `inchi_Ret_WARNING`, and it does so whether the
+    option is on or off, since the collection block is parsed either way.
+  - **Two existing tests moved with the behaviour.** `..._3_empty_collection_info` and
+    `..._3_wrong_atoms_in_collection` now expect the warning, and their string gains the `/s1`
+    it used to drop — the new value is byte-identical to standard InChI apart from the prefix,
+    so §2 now holds where it previously did not.
+  - **One regression in usefulness.** `ATOMS=(3 4 5)` promises three atoms and lists two; the
+    third slot is garbage and trips the unknown-atom check. It used to produce the correct
+    `/s1(5)2(4,6)` by luck and now warns and drops the collection. Consistent with the policy,
+    but it is a file that worked and now does not.
+
+  What this does **not** fix: §5.I. Validation checks collection membership for consistency,
+  never stereocentre-hood, so a group can still be emitted for an atom absent from `/t`.
+  Same root cause, still open.
 
 **Resolved in 0.6** (kept for traceability):
 
@@ -346,7 +397,8 @@ Rules (each **MUST** hold; as of 0.6 the code meets all of them):
   has no ESR channel, so a V2000 file yields standard output (no `/s` grouping) ✅ *(held since
   ES-R19; it used to crash instead whenever the V2000 structure had stereocentres)*.
 - **A-2** Each stereocentre belongs to **exactly one** collection ([BIOVIA]); the reader
-  MUST reject/diagnose violations (ES-R12).
+  MUST reject/diagnose violations ✅ *(held since ES-R12; diagnosed and the collections dropped,
+  so the enhanced layer degrades to standard output rather than encoding a guess)*.
 - **D-1** Depends on final **canonical ranks** (grouping/ordering use canonical atom numbers).
 - **A-3** Applies to centres present in the **non-isotopic** `/t` layer. Centres that are
   stereogenic only through isotopic substitution are currently ignored by the grouping *(§5.J)*.
@@ -355,3 +407,5 @@ Rules (each **MUST** hold; as of 0.6 the code meets all of them):
 - **D-3** Reuses the `is_beta` mechanism for the `1B` prefix.
 
 [RFC 5234]: https://www.rfc-editor.org/rfc/rfc5234
+[rdkit/rdkit#8873]: https://github.com/rdkit/rdkit/issues/8873
+[rdkit/rdkit#6050]: https://github.com/rdkit/rdkit/issues/6050

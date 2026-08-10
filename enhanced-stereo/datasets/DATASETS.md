@@ -51,6 +51,15 @@ Why these matter beyond ES-R18:
   puts `STEREL1` on a non-stereogenic atom and correctly yields no `/t` and no `/s` at all
   (not persisted; noted because it bounds the orphan-`/s`-group defect, see SPEC §5).
 
+## 2026-08-10 additions (ES-R12 validation corpus)
+
+`malformed/` — eight molfiles violating the [BIOVIA] one-group-per-centre / at-most-one-ABS
+constraints: two real (attachments to `rdkit/rdkit#8873`), six derived from
+`rdkit_two_centers_or.mol` by editing only the collection block. All eight measure "0 errors"
+today. See [malformed/MALFORMED.md](malformed/MALFORMED.md) for per-file measurements, what
+RDKit and Indigo do with the same input, and the correction to SPEC §5.H — the corruption
+reaches `/t`, not just `/s`.
+
 Extraction notes (both are upstream transcription artefacts, not InChI bugs):
 - `biovia_white_paper_fig22.mol` — the upstream file terminates with `M END` (one space)
   instead of `M  END`, which InChI rejects with `Error 64 (no InChI; Unknown error)`. Corrected
