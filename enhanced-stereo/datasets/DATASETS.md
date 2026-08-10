@@ -60,6 +60,16 @@ today. See [malformed/MALFORMED.md](malformed/MALFORMED.md) for per-file measure
 RDKit and Indigo do with the same input, and the correction to SPEC §5.H — the corruption
 reaches `/t`, not just `/s`.
 
+## 2026-08-10 — `enh_stereo_test_file_2.sdf` re-pinned (ES-R13)
+
+The repo copy of the 35-molecule G5 fixture was re-pinned from measurement and the gate wired;
+the copy in this directory is the **pre-repin** version and is kept as the historical record of
+the hand-authored expectations. The repo also keeps one beside the fixture as
+`enh_stereo_test_file_2.sdf.bak`, where it doubles as the negative control for the new G5 loop
+(run against it, the loop reports 40 failures — exactly the 40 lines re-pinning changed).
+Three classes of staleness: `/m` on the 8 OR/AND-only records, version prefixes on **all 35**,
+and four wrong values. See SPEC §5 resolved-K.
+
 Extraction notes (both are upstream transcription artefacts, not InChI bugs):
 - `biovia_white_paper_fig22.mol` — the upstream file terminates with `M END` (one space)
   instead of `M  END`, which InChI rejects with `Error 64 (no InChI; Unknown error)`. Corrected

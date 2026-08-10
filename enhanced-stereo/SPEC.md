@@ -2,13 +2,13 @@
 
 | | |
 |---|---|
-| **Doc version** | 0.7 |
+| **Doc version** | 0.8 |
 | **Date** | 2026-08-10 |
 | **Status** | draft |
 | **Author** | C. Müller |
 | **Reviewers** | TBD (InChI Trust / project 2019-017-2-800 TG) |
 | **Requirement prefix** | `ES-` |
-| **Change history** | 0.1 (2026-07-09) — initial spec; verified against `dev`, incl. [BIOVIA]. 0.2 (2026-07-10) — consolidated: requirements/gates/deliverables/NFRs merged into one table (§4); ABNF grammar retained (§6). 0.3 (2026-07-10) — readability pass: added At-a-glance, split requirements from gates, tightened prose. 0.4 (2026-07-28) — ES-R11, ES-R14 and §5.E implemented on `feature/enh-stereo-hardening`; measurement of OR-only/AND-only output added two grammar-conformance gaps (ES-R17, ES-R18). 0.5 (2026-08-03) — full re-audit of `feature/enh-stereo-hardening` by reading + measuring: ES-R17 is implemented and gated (G7 half-satisfied); two defects the spec did not know about found, reproduced and fixed (ES-R19 V2000 crash, ES-R20 collection atom-remap off-by-two, commit `f4268f6`); test counts refreshed to 17 suites / 179 tests. 0.6 (2026-08-07) — **ES-R18 resolved and implemented.** [DECK] slide 10 settles the §3-vs-§6 contradiction explicitly ("/m0 and /m1 are only used in the context of absolute centers"; "In case that the structure only contains OR# and/or AND# centers /m# is obsolete a[n]d must not be used"), with worked examples on slides 11-12 showing no /m for OR/AND-only including the multi-group cases. Implemented per component (an ABS collection on a sibling component no longer keeps /m alive on an OR/AND-only one); G7 wired end-to-end and G9 ([BIOVIA] Appendix B) materialised from a file located in the wild. `dev` merged into `feature/enh-stereo-hardening`. Two further pre-existing defects recorded but not fixed (§5.I orphan /s groups, §5.J isotopic-only centres ignored). Test counts: 17 suites / 188 tests. 0.7 (2026-08-10) — **ES-R12 resolved and implemented**, the last open Must. A corpus of malformed collection files was assembled first (two real, from [rdkit/rdkit#8873]; six derived), which showed §5.H understated the defect: the corruption reaches `/t`, not only `/s`, so a malformed file could be given the InChI of a **different diastereomer**. Validation now runs in the reader (`StereoCollectionsAreMalformed`) and drops the collections rather than guessing; gated by G10. Two pre-existing tests moved with the behaviour and gained the `/s1` they used to drop. Spec requirement IDs, gate IDs and section references were removed from all source and test comments — the spec→code link is now by function name only. Test counts: 17 suites / 195 tests. |
+| **Change history** | 0.1 (2026-07-09) — initial spec; verified against `dev`, incl. [BIOVIA]. 0.2 (2026-07-10) — consolidated: requirements/gates/deliverables/NFRs merged into one table (§4); ABNF grammar retained (§6). 0.3 (2026-07-10) — readability pass: added At-a-glance, split requirements from gates, tightened prose. 0.4 (2026-07-28) — ES-R11, ES-R14 and §5.E implemented on `feature/enh-stereo-hardening`; measurement of OR-only/AND-only output added two grammar-conformance gaps (ES-R17, ES-R18). 0.5 (2026-08-03) — full re-audit of `feature/enh-stereo-hardening` by reading + measuring: ES-R17 is implemented and gated (G7 half-satisfied); two defects the spec did not know about found, reproduced and fixed (ES-R19 V2000 crash, ES-R20 collection atom-remap off-by-two, commit `f4268f6`); test counts refreshed to 17 suites / 179 tests. 0.6 (2026-08-07) — **ES-R18 resolved and implemented.** [DECK] slide 10 settles the §3-vs-§6 contradiction explicitly ("/m0 and /m1 are only used in the context of absolute centers"; "In case that the structure only contains OR# and/or AND# centers /m# is obsolete a[n]d must not be used"), with worked examples on slides 11-12 showing no /m for OR/AND-only including the multi-group cases. Implemented per component (an ABS collection on a sibling component no longer keeps /m alive on an OR/AND-only one); G7 wired end-to-end and G9 ([BIOVIA] Appendix B) materialised from a file located in the wild. `dev` merged into `feature/enh-stereo-hardening`. Two further pre-existing defects recorded but not fixed (§5.I orphan /s groups, §5.J isotopic-only centres ignored). Test counts: 17 suites / 188 tests. 0.7 (2026-08-10) — **ES-R12 resolved and implemented**, the last open Must. A corpus of malformed collection files was assembled first (two real, from [rdkit/rdkit#8873]; six derived), which showed §5.H understated the defect: the corruption reaches `/t`, not only `/s`, so a malformed file could be given the InChI of a **different diastereomer**. Validation now runs in the reader (`StereoCollectionsAreMalformed`) and drops the collections rather than guessing; gated by G10. Two pre-existing tests moved with the behaviour and gained the `/s1` they used to drop. Spec requirement IDs, gate IDs and section references were removed from all source and test comments — the spec→code link is now by function name only. Test counts: 17 suites / 195 tests. 0.8 (2026-08-10) — **ES-R15 and ES-R13 done.** ES-R15 ported the `FIXTURES_DIR` CMake define from `atropisomers`; out-of-tree builds failed two suites before it and pass now. That unblocked ES-R13: the dormant G5 fixture was re-pinned by measurement — `/m` dropped from the 8 OR/AND-only records (§5.K as predicted), **all 35** `<InChI_new>` prefixes corrected to `1B/`, and four values found stale once the prefix noise cleared (18–20 shared one `<InChI>` across records whose standard strings differ; 26 carried a different molecule's formula in both columns). G5 is now wired over both columns, 70 assertions. Test counts: 17 suites / 196 tests. |
 
 > Normative keywords (MUST/SHOULD/MAY) per [RFC 2119](../README.md#requirement-conventions-normative);
 > shared glossary and conventions in the [README](../README.md).
@@ -20,11 +20,10 @@
   (`/s1`, `/s2`, `/s3`), the `/m`-only-with-ABS rule (per component) and multi-component.
   **Every §6 MUST is now met**, and malformed collections are diagnosed instead of laundered.
   Tested (G1–G4, G6–G10 pass).
-- ❌ **Missing:** nothing Must-have. The dormant 35-molecule gate (ES-R13); fixture-path
-  robustness (ES-R15); return-value propagation (ES-R16).
-- ▶ **Next:** ES-R13 — note its 8 OR/AND-only records carry a stale `/m0` and must be re-pinned
-  against [DECK] slide 10 when the gate is wired. Then ES-R15, which ES-R13 depends on in
-  practice. Two pre-existing defects found in 0.6 are recorded and unfixed: §5.I, §5.J.
+- ❌ **Missing:** return-value propagation (ES-R16, a Could). Every Must and every Should is done.
+- ▶ **Next:** the two pre-existing defects found in 0.6 and still unfixed — §5.I (orphan `/s`
+  groups for atoms that are not stereocentres) and §5.J (isotopic-only centres ignored). Both are
+  correctness gaps in what `/s` admits, and §5.I shares its root cause with ES-R2/ES-R12.
 
 **Feature:** recognise MDL V3000 enhanced-stereo collections (STEABS / STEREL# / STERAC#) on
 sp³ tetrahedral centres and encode them in an extended, grouped `/s` layer. · **Branch:** `dev`
@@ -90,7 +89,8 @@ From [STRING-ALG] and [DECK]. The normative encoding grammar is in §6; the beha
   reverse map replaced the linear scans; §5 resolved-E)*.
 - *`/m` only with ABS* — a component with only OR/AND centres MUST NOT carry `/m` ✅ *(held
   since ES-R18; per component, and the segment disappears when no component has ABS)*.
-- *Portability* — tests MUST resolve fixtures independent of build layout *(gap: §5.B)*.
+- *Portability* — tests MUST resolve fixtures independent of build layout ✅ *(held since ES-R15;
+  out-of-tree builds failed `test_enhancedStereo` and `test_ichimain` before it)*.
 
 ## 3. Current implementation (branch `feature/enh-stereo-hardening`, `dev` merged in; verified by reading + running tests)
 
@@ -122,10 +122,11 @@ not grouped (see specs 2–4).
 
 ## 4. Requirements
 
-Priority is MoSCoW. The core works end-to-end, every §6 MUST is met as of 0.6, and as of 0.7
-**no Must-have is open**: ES-R12 closed the last one, so malformed collections are now diagnosed
-rather than laundered into plausible-looking output (§5, resolved-H). What remains is Should and
-Could work: ES-R13, ES-R15, ES-R16, plus the two pre-existing defects §5.I and §5.J.
+Priority is MoSCoW. The core works end-to-end and every §6 MUST is met as of 0.6. **As of 0.8
+every Must and every Should is closed**: ES-R12 took the last Must in 0.7 (malformed collections
+are diagnosed rather than laundered, §5 resolved-H) and ES-R15 and ES-R13 took the last Shoulds
+in 0.8 (§5 resolved-B, resolved-K). What remains is one Could, ES-R16, plus the two pre-existing
+defects §5.I and §5.J.
 **Won't (this spec):** name-level `rac`/`rel` nomenclature and independent-centre superscripts ([ESR]/[BNF])
 — IUPAC nomenclature recommendations, not InChI code.
 
@@ -140,9 +141,9 @@ Could work: ES-R13, ES-R15, ES-R16, plus the two pre-existing defects §5.I and 
 | ES-R7 | Multi-component `count*substring` / `;` composition | Should | ✅ `MakeSlayerString` emit loop |
 | ES-R11 | Explicit-STEABS-only ⇒ bare `/s1` (== `SAbs`) | Should | ✅ done + gated (G6) |
 | ES-R12 | Enforce one-group-per-centre / at-most-one-ABS; reject conflicts | Must | ✅ done + gated (G10) — diagnosed in the reader, collections dropped *(§5, resolved-H)* |
-| ES-R13 | Wire `enh_stereo_test_file_2.sdf` gate (35 mol) | Should | ❌ dormant — its 8 OR/AND-only records carry a stale `/m0` and must be re-pinned when wired *(§5.K)* |
+| ES-R13 | Wire `enh_stereo_test_file_2.sdf` gate (35 mol) | Should | ✅ done + gated (G5) — fixture re-pinned by measurement first *(§5, resolved-K)* |
 | ES-R14 | No component may be dropped from the `/s` substring dictionary | Should | ✅ done — dictionary sized from `num_components`; the fixed cap is gone |
-| ES-R15 | Fixture-path robustness (`FIXTURES_DIR` CMake define) | Should | ❌ port from `atropisomers` *(§5.B)* |
+| ES-R15 | Fixture-path robustness (`FIXTURES_DIR` CMake define) | Should | ✅ done — ported from `atropisomers` *(§5, resolved-B)* |
 | ES-R16 | Propagate `set_EnhancedStereo_t_m_layers` sub-call failures | Could | ❌ returns `0` always *(§5.D)* |
 | ES-R17 | Single-OR ⇒ bare `/s2`, single-AND ⇒ bare `/s3` (§6 MUST) | Must | ✅ done + gated (G4, G7, G9) — ≥2 groups stay grouped; confirmed by [DECK] slides 10, 12 |
 | ES-R18 | No `/m` when a component has only OR/AND centres (§6 MUST) | Must | ✅ done + gated (G7 end-to-end, G9 negative control) — [DECK] slide 10 is explicit *(§5, resolved-G)* |
@@ -158,7 +159,7 @@ per-molecule detail.
   `test_EnhancedStereochemistry_4_mols` had recorded the pre-ES-R11 `/s1(8,9,10,11);…` for a
   component whose single stereocentre is ABS; its expectation is now the reduced `/s1;…`.
 - **G2** — 33-molecule `enh_stereo_test_file_1.sdf` (m0/m1 flips, `?` passthrough, reductions).
-  ✅ **passes** (when fixture path resolves — §5.B).
+  ✅ **passes** (fixture path no longer layout-dependent — ES-R15).
 - **G3** — `strutil` units (9): sign normalisation, `invert_parities`, canon lookups, and
   reverse-map/linear-scan equivalence (duplicates, invalid aux, NULL-map fallback, 5000 atoms).
   ✅ **9/9**.
@@ -166,7 +167,18 @@ per-molecule detail.
   single-OR ⇒ `/s2` and single-AND ⇒ `/s3` (ES-R17), two over-reduction guards (ABS+AND stays
   grouped, multiple OR groups stay grouped), no-component-dropped at 1/2/100/101/250
   components, and `count*substring` dedup. ✅ **passes**.
-- **G5** — dormant 35-molecule `enh_stereo_test_file_2.sdf` (embedded `<InChI_new>`). ❌ *no gate wired* (ES-R13).
+- **G5** — 35-molecule `enh_stereo_test_file_2.sdf`. ✅ **passes**, wired as
+  `test_enhancedStereo.cpp::test_EnhancedStereochemistry_test_file_2`. Both embedded columns are
+  checked, `<InChI>` with the option off and `<InChI_new>` with it on — 70 assertions, so every
+  record doubles as a backward-compatibility case. The expectations are **read from the SDF**
+  rather than transcribed into the test as G2 does, since this file already carries them and a
+  second copy would drift. Two hazards the loop handles explicitly: every record opens with an
+  **empty title line**, so trimming leading whitespace after the `$$$$` split (what the G2 loop
+  does) shifts the 4-line header up and misparses the counts line; and a missing tag would read
+  as an empty expectation and pass vacuously, so the record count and both tags are asserted
+  first. Verified to fail: run against the pre-repin copy kept beside it as
+  `enh_stereo_test_file_2.sdf.bak`, it reports 40 failures — exactly the 40 lines re-pinning
+  changed.
 - **G6** — [STRING-ALG] "only ABS" edge table: explicit STEABS-only ⇒ bare `/s1`, whole string
   byte-identical to standard InChI apart from `1B`. ✅ **passes** (end-to-end, ES-R11).
 - **G7** — [STRING-ALG] "only OR" / "only AND" edge tables ⇒ bare `/s2` / `/s3`, no `/m`.
@@ -181,7 +193,7 @@ per-molecule detail.
 - **G9** — [BIOVIA] Appendix B / [DECK]-era MDL white-paper fig. 22, the 29-atom molfile mixing
   all five collection types. ✅ **passes** —
   `test_enhancedStereo.cpp::test_EnhancedStereochemistry_biovia_appendix_b`, molblock inline so
-  it does not inherit the ES-R15 path fragility. Pinned to
+  it did not inherit the then-unfixed path fragility (ES-R15). Pinned to
   `…/t13-,14-,15-,17-,18-,21-,23+/m1/s1(15)2(13,14)(21,23)3(17)(18)`, which in one structure
   cross-checks against a third-party authority: ABS `(15)`, two OR groups, two AND groups,
   `/m1` **present** (ES-R18 negative control), neither the OR nor the AND pair reduced
@@ -212,7 +224,7 @@ All 17 unit suites (195 tests) pass — `ctest` in `CMake_build/full_build` is g
 `test_enhancedStereo` suite is now 22 tests and `test_mol_fmt` 18. Backward compatibility was re-verified for 0.6 by
 building the tree with and without the ES-R18 change and diffing standard (option-off) output
 over 84 structures: byte-identical. Out-of-tree build directories still fail
-`test_enhancedStereo` and `test_ichimain` on fixture paths; see §5.B.
+`test_enhancedStereo` and `test_ichimain` on fixture paths — fixed in 0.8, see §5 resolved-B.
 
 > **Build note.** `cmake --build` links the CLI as `bin/inchi-1d`; a stale `bin/inchi-1` from an
 > earlier build may sit alongside it and will silently serve outdated measurements. Check the
@@ -220,12 +232,6 @@ over 84 structures: byte-identical. Out-of-tree build directories still fail
 
 ## 5. Open issues / risks
 
-- **B. Fixture path fragility.** `test_EnhancedStereochemistry_test_file_1`
-  (`test_enhancedStereo.cpp`) opens `../../../../../…/enh_stereo_test_file_1.sdf`; fails
-  `ASSERT_TRUE(is_open())` unless run from one specific depth. It happens to resolve for the
-  documented in-tree layout (`ctest` in `CMake_build/full_build` passes 17/17, because the test
-  cwd is then five levels below the repo root), and breaks for any out-of-tree build directory.
-  Logic is correct. Fix = CMake `FIXTURES_DIR` define (ES-R15).
 - **D. Return value not propagated.** `set_EnhancedStereo_t_m_layers` returns its initial `0`
   regardless of the three `invert_parities` results (ES-R16).
 - **I. `/s` emits classes for atoms that are not stereocentres.** `MakeEnhStereoString` admits a
@@ -248,12 +254,38 @@ over 84 structures: byte-identical. Out-of-tree build directories still fail
   `nNumberOfStereoCenters <= 0`, which counts the **non-isotopic** centres only. Arguably outside
   the "sp³ tetrahedral `/t` centres only" scope in §3, but a `/t` does exist here, so §3 should
   say so explicitly rather than leave it implied.
-- **K. The dormant G5 fixture disagrees with ES-R18 and is the stale side.** All 8 OR/AND-only
-  records in `enh_stereo_test_file_2.sdf` carry `/m0` in their `<InChI_new>` column, and record 32
-  *changes* the standard `/m1` to `/m0` — i.e. the old forcing behaviour, chosen deliberately at
-  authoring time. It does not outweigh [DECK] slide 10: the column is hand-authored, internally
-  inconsistent on the version prefix (record 22 writes `1/`, record 32 `1S/`), and therefore
-  predates the `1B` decision and the 2026-07-22 deck. Re-pin those 8 records when wiring ES-R13.
+
+**Resolved in 0.8** (kept for traceability):
+
+- ~~**B. Fixture path fragility.**~~ `test_enhancedStereo` and `test_ichimain` opened their
+  fixtures through a relative path counted in five `../` hops, so they resolved only when the
+  binary was launched exactly five levels below the repo root — true for the documented in-tree
+  layout, false for any out-of-tree build directory, where both suites failed on
+  `ASSERT_TRUE(is_open())` / `fopen` with nothing wrong in the test logic. CMake now passes
+  `FIXTURES_DIR` as an absolute compile definition (ported from `atropisomers`), each file
+  keeping the old literal behind an `#ifndef` fallback. Measured both ways with a build directory
+  configured outside the tree: 2 suites failed before, 17/17 pass after; in-tree unaffected.
+  *Not fixed, and out of ES-R15's scope:* `test_ichimain` **writes** into the fixture directory
+  (`output.txt`, `mkstemp` templates). Now that the path always resolves, out-of-tree runs write
+  into the source tree where they previously just failed. Nothing is left behind after a run, but
+  the tests are not hermetic.
+
+- ~~**K. The dormant G5 fixture disagrees with ES-R18 and is the stale side.**~~ Confirmed, and
+  it was staler than 0.6 knew. Re-pinned from measurement, never by hand, in three passes:
+  1. **`/m` on the 8 OR/AND-only records** (22–25, 32–35, identified from their molblocks as the
+     records with no `STEABS`) — dropped, exactly as this entry predicted.
+  2. **Version prefixes.** Not just the two records 0.6 noticed: **no record at all** carried
+     `1B/` in `<InChI_new>` (31 said `1S/`, 4 said `1/`), and record 23 said `1/` in `<InChI>`.
+     Corrected to `1B/` and `1S/` after confirming the binary emits exactly those for all 35
+     records in both modes.
+  3. **Four stale values**, only visible once the prefix noise was gone. Records 18–20 shared one
+     `<InChI>` expectation across three records whose standard strings are *not* all the same
+     (18 and 19 agree; 20 does not). Record 26 carried `C7H14BrClO` in **both** columns while its
+     own molblock — 11 heavy atoms — is `C8H16BrClO`; the molblock is the correct side.
+
+  40 `InChI=` lines changed in total, no molblock, tag, record count or line count touched. The
+  hand-authored original is kept beside it as `enh_stereo_test_file_2.sdf.bak`, which then served
+  as the negative control proving the new G5 loop actually asserts something.
 
 **Resolved in 0.7** (kept for traceability):
 
