@@ -2,13 +2,13 @@
 
 | | |
 |---|---|
-| **Doc version** | 0.8 |
+| **Doc version** | 0.9 |
 | **Date** | 2026-08-10 |
 | **Status** | draft |
 | **Author** | C. Müller |
 | **Reviewers** | TBD (InChI Trust / project 2019-017-2-800 TG) |
 | **Requirement prefix** | `ES-` |
-| **Change history** | 0.1 (2026-07-09) — initial spec; verified against `dev`, incl. [BIOVIA]. 0.2 (2026-07-10) — consolidated: requirements/gates/deliverables/NFRs merged into one table (§4); ABNF grammar retained (§6). 0.3 (2026-07-10) — readability pass: added At-a-glance, split requirements from gates, tightened prose. 0.4 (2026-07-28) — ES-R11, ES-R14 and §5.E implemented on `feature/enh-stereo-hardening`; measurement of OR-only/AND-only output added two grammar-conformance gaps (ES-R17, ES-R18). 0.5 (2026-08-03) — full re-audit of `feature/enh-stereo-hardening` by reading + measuring: ES-R17 is implemented and gated (G7 half-satisfied); two defects the spec did not know about found, reproduced and fixed (ES-R19 V2000 crash, ES-R20 collection atom-remap off-by-two, commit `f4268f6`); test counts refreshed to 17 suites / 179 tests. 0.6 (2026-08-07) — **ES-R18 resolved and implemented.** [DECK] slide 10 settles the §3-vs-§6 contradiction explicitly ("/m0 and /m1 are only used in the context of absolute centers"; "In case that the structure only contains OR# and/or AND# centers /m# is obsolete a[n]d must not be used"), with worked examples on slides 11-12 showing no /m for OR/AND-only including the multi-group cases. Implemented per component (an ABS collection on a sibling component no longer keeps /m alive on an OR/AND-only one); G7 wired end-to-end and G9 ([BIOVIA] Appendix B) materialised from a file located in the wild. `dev` merged into `feature/enh-stereo-hardening`. Two further pre-existing defects recorded but not fixed (§5.I orphan /s groups, §5.J isotopic-only centres ignored). Test counts: 17 suites / 188 tests. 0.7 (2026-08-10) — **ES-R12 resolved and implemented**, the last open Must. A corpus of malformed collection files was assembled first (two real, from [rdkit/rdkit#8873]; six derived), which showed §5.H understated the defect: the corruption reaches `/t`, not only `/s`, so a malformed file could be given the InChI of a **different diastereomer**. Validation now runs in the reader (`StereoCollectionsAreMalformed`) and drops the collections rather than guessing; gated by G10. Two pre-existing tests moved with the behaviour and gained the `/s1` they used to drop. Spec requirement IDs, gate IDs and section references were removed from all source and test comments — the spec→code link is now by function name only. Test counts: 17 suites / 195 tests. 0.8 (2026-08-10) — **ES-R15 and ES-R13 done.** ES-R15 ported the `FIXTURES_DIR` CMake define from `atropisomers`; out-of-tree builds failed two suites before it and pass now. That unblocked ES-R13: the dormant G5 fixture was re-pinned by measurement — `/m` dropped from the 8 OR/AND-only records (§5.K as predicted), **all 35** `<InChI_new>` prefixes corrected to `1B/`, and four values found stale once the prefix noise cleared (18–20 shared one `<InChI>` across records whose standard strings differ; 26 carried a different molecule's formula in both columns). G5 is now wired over both columns, 70 assertions. Test counts: 17 suites / 196 tests. |
+| **Change history** | 0.1 (2026-07-09) — initial spec; verified against `dev`, incl. [BIOVIA]. 0.2 (2026-07-10) — consolidated: requirements/gates/deliverables/NFRs merged into one table (§4); ABNF grammar retained (§6). 0.3 (2026-07-10) — readability pass: added At-a-glance, split requirements from gates, tightened prose. 0.4 (2026-07-28) — ES-R11, ES-R14 and §5.E implemented on `feature/enh-stereo-hardening`; measurement of OR-only/AND-only output added two grammar-conformance gaps (ES-R17, ES-R18). 0.5 (2026-08-03) — full re-audit of `feature/enh-stereo-hardening` by reading + measuring: ES-R17 is implemented and gated (G7 half-satisfied); two defects the spec did not know about found, reproduced and fixed (ES-R19 V2000 crash, ES-R20 collection atom-remap off-by-two, commit `f4268f6`); test counts refreshed to 17 suites / 179 tests. 0.6 (2026-08-07) — **ES-R18 resolved and implemented.** [DECK] slide 10 settles the §3-vs-§6 contradiction explicitly ("/m0 and /m1 are only used in the context of absolute centers"; "In case that the structure only contains OR# and/or AND# centers /m# is obsolete a[n]d must not be used"), with worked examples on slides 11-12 showing no /m for OR/AND-only including the multi-group cases. Implemented per component (an ABS collection on a sibling component no longer keeps /m alive on an OR/AND-only one); G7 wired end-to-end and G9 ([BIOVIA] Appendix B) materialised from a file located in the wild. `dev` merged into `feature/enh-stereo-hardening`. Two further pre-existing defects recorded but not fixed (§5.I orphan /s groups, §5.J isotopic-only centres ignored). Test counts: 17 suites / 188 tests. 0.7 (2026-08-10) — **ES-R12 resolved and implemented**, the last open Must. A corpus of malformed collection files was assembled first (two real, from [rdkit/rdkit#8873]; six derived), which showed §5.H understated the defect: the corruption reaches `/t`, not only `/s`, so a malformed file could be given the InChI of a **different diastereomer**. Validation now runs in the reader (`StereoCollectionsAreMalformed`) and drops the collections rather than guessing; gated by G10. Two pre-existing tests moved with the behaviour and gained the `/s1` they used to drop. Spec requirement IDs, gate IDs and section references were removed from all source and test comments — the spec→code link is now by function name only. Test counts: 17 suites / 195 tests. 0.8 (2026-08-10) — **ES-R15 and ES-R13 done.** ES-R15 ported the `FIXTURES_DIR` CMake define from `atropisomers`; out-of-tree builds failed two suites before it and pass now. That unblocked ES-R13: the dormant G5 fixture was re-pinned by measurement — `/m` dropped from the 8 OR/AND-only records (§5.K as predicted), **all 35** `<InChI_new>` prefixes corrected to `1B/`, and four values found stale once the prefix noise cleared (18–20 shared one `<InChI>` across records whose standard strings differ; 26 carried a different molecule's formula in both columns). G5 is now wired over both columns, 70 assertions. Test counts: 17 suites / 196 tests. 0.9 (2026-08-10) — **ES-R16 closed by deletion, not implementation.** Investigating it showed the requirement rested on a false premise: `invert_parities` has no failure return, its non-zero paths mean "this collection list is empty", which is the ordinary case. Propagating the three results would have reported a no-op for nearly every real structure. `set_EnhancedStereo_t_m_layers` is now `void` and its three unread locals are gone. **Every requirement in this spec is now closed**, so what remains is the two pre-existing defects §5.I and §5.J, neither of which has a requirement ID yet. |
 
 > Normative keywords (MUST/SHOULD/MAY) per [RFC 2119](../README.md#requirement-conventions-normative);
 > shared glossary and conventions in the [README](../README.md).
@@ -20,7 +20,7 @@
   (`/s1`, `/s2`, `/s3`), the `/m`-only-with-ABS rule (per component) and multi-component.
   **Every §6 MUST is now met**, and malformed collections are diagnosed instead of laundered.
   Tested (G1–G4, G6–G10 pass).
-- ❌ **Missing:** return-value propagation (ES-R16, a Could). Every Must and every Should is done.
+- ❌ **Missing:** nothing. Every requirement is closed as of 0.9.
 - ▶ **Next:** the two pre-existing defects found in 0.6 and still unfixed — §5.I (orphan `/s`
   groups for atoms that are not stereocentres) and §5.J (isotopic-only centres ignored). Both are
   correctness gaps in what `/s` admits, and §5.I shares its root cause with ES-R2/ES-R12.
@@ -122,11 +122,12 @@ not grouped (see specs 2–4).
 
 ## 4. Requirements
 
-Priority is MoSCoW. The core works end-to-end and every §6 MUST is met as of 0.6. **As of 0.8
-every Must and every Should is closed**: ES-R12 took the last Must in 0.7 (malformed collections
-are diagnosed rather than laundered, §5 resolved-H) and ES-R15 and ES-R13 took the last Shoulds
-in 0.8 (§5 resolved-B, resolved-K). What remains is one Could, ES-R16, plus the two pre-existing
-defects §5.I and §5.J.
+Priority is MoSCoW. **As of 0.9 every requirement in this table is closed.** ES-R12 took the last
+Must in 0.7 (malformed collections are diagnosed rather than laundered, §5 resolved-H); ES-R13 and
+ES-R15 took the last Shoulds in 0.8 (§5 resolved-K, resolved-B); and ES-R16, the last Could, was
+**withdrawn** in 0.9 rather than implemented, because it asked for something that does not exist
+(§5 resolved-D). What remains open is the two pre-existing defects §5.I and §5.J, which carry no
+requirement IDs yet.
 **Won't (this spec):** name-level `rac`/`rel` nomenclature and independent-centre superscripts ([ESR]/[BNF])
 — IUPAC nomenclature recommendations, not InChI code.
 
@@ -144,7 +145,7 @@ defects §5.I and §5.J.
 | ES-R13 | Wire `enh_stereo_test_file_2.sdf` gate (35 mol) | Should | ✅ done + gated (G5) — fixture re-pinned by measurement first *(§5, resolved-K)* |
 | ES-R14 | No component may be dropped from the `/s` substring dictionary | Should | ✅ done — dictionary sized from `num_components`; the fixed cap is gone |
 | ES-R15 | Fixture-path robustness (`FIXTURES_DIR` CMake define) | Should | ✅ done — ported from `atropisomers` *(§5, resolved-B)* |
-| ES-R16 | Propagate `set_EnhancedStereo_t_m_layers` sub-call failures | Could | ❌ returns `0` always *(§5.D)* |
+| ES-R16 | Propagate `set_EnhancedStereo_t_m_layers` sub-call failures | Could | ⊘ **withdrawn** — there are no failures to propagate; the return value was deleted instead *(§5, resolved-D)* |
 | ES-R17 | Single-OR ⇒ bare `/s2`, single-AND ⇒ bare `/s3` (§6 MUST) | Must | ✅ done + gated (G4, G7, G9) — ≥2 groups stay grouped; confirmed by [DECK] slides 10, 12 |
 | ES-R18 | No `/m` when a component has only OR/AND centres (§6 MUST) | Must | ✅ done + gated (G7 end-to-end, G9 negative control) — [DECK] slide 10 is explicit *(§5, resolved-G)* |
 | ES-R19 | `-EnhancedStereochemistry` MUST NOT crash on input without V3000 collections | Must | ✅ done + gated (G8) — was a segfault *(§5, resolved-I)* |
@@ -232,8 +233,6 @@ over 84 structures: byte-identical. Out-of-tree build directories still fail
 
 ## 5. Open issues / risks
 
-- **D. Return value not propagated.** `set_EnhancedStereo_t_m_layers` returns its initial `0`
-  regardless of the three `invert_parities` results (ES-R16).
 - **I. `/s` emits classes for atoms that are not stereocentres.** `MakeEnhStereoString` admits a
   collection atom on the sole test that it maps into the component (`lookup_canonical_atom_number
   != -1`); it never requires the atom to be a stereocentre. So a group can be emitted for an
@@ -254,6 +253,31 @@ over 84 structures: byte-identical. Out-of-tree build directories still fail
   `nNumberOfStereoCenters <= 0`, which counts the **non-isotopic** centres only. Arguably outside
   the "sp³ tetrahedral `/t` centres only" scope in §3, but a `/t` does exist here, so §3 should
   say so explicitly rather than leave it implied.
+
+**Resolved in 0.9** (kept for traceability):
+
+- ~~**D. Return value not propagated.**~~ True as stated — `ret` was set to `0` and returned
+  untouched while `ret_abs`/`ret_rac`/`ret_rel` were assigned and never read — but the remedy the
+  requirement implies would have been a **bug**. `invert_parities` has no failure return: its two
+  non-zero paths are `list_atoms == NULL` and `nof_lists == 0`, both the ordinary case, since a
+  structure with no AND groups has `n_sterac == 0`. It returns `0` only after doing work, and
+  `set_EnhancedStereo_t_m_layers` follows the same convention, returning `1` for not-V3000, NULL
+  inputs, no stereocentres and no aux atoms — every one a no-op. These are did-I-do-anything
+  codes, not error codes, so OR-ing the three together would have reported a no-op for nearly
+  every real structure: almost none carry all three collection types (`biovia_white_paper_fig22.mol`
+  is the rare file that does). Nor is there anything to report — the one allocation,
+  `make_orig_to_canon_map`, is *allowed* to fail, because `lookup_canonical_atom_number` falls
+  back to the linear scan, so exhaustion degrades to slow rather than wrong.
+
+  The sole caller already ignored the result, so the function is now `void` and the three dead
+  locals are gone. The one test touching it asserted only `ret == 0`, which said nothing about
+  whether the parities were normalised; it now pins the resulting `t_parity` array and
+  `nCompInv2Abs`, measured rather than derived, and verified to fail (5 assertions) with the
+  function body neutered.
+
+  **The lesson for the remaining entries:** this requirement was written from reading the
+  function in isolation. §5.I and §5.J should be re-derived by measurement before anyone
+  implements them.
 
 **Resolved in 0.8** (kept for traceability):
 
