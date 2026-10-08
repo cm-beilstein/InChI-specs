@@ -209,6 +209,20 @@ stereo and no warning — the test expected the warning of the retired placehold
   are explicitly deferred.
 - **Reuse discipline** — parity must come from InChI's allene machinery, not new vector code
   (already honoured in A).
+- **Enhanced-stereo collections name the lower axis atom only.** `lookup_stereo_centre` finds
+  an axis via its lower-numbered atom; a collection that cites the higher-numbered end is
+  dropped silently.
+- **Hindrance heuristic prunes some real atropisomers.** 1,1'-binaphthyl counts only 2
+  hindered ortho positions (acyclic threshold 3) and gets no axis, while BINOL passes.
+  v1 limitation; follows [ATROP] literally.
+- **Ring detection (resolved).** The A-phase simple-cycle enumeration was exponential on
+  dense inputs (metal clusters, `InChI_TestSet_ext.sdf` 126–145 stalled for minutes). The
+  candidate filter now uses InChI's bounded BFS `is_bond_in_Nmax_memb_ring`; the
+  `ring_detection` module is gone.
+- **Axis in stereo-bond slot [1] (resolved).** An axis end that also owns a C=C or a second
+  axis stores the axis in slot [1]; `Copy2StereoBondOrAllene`, `InvertStereo` and
+  `MarkAmbiguousStereo` read slot [0] only, giving `STEREOCOUNT_ERR` or an axis printed in
+  `/b`. They now locate the slot by partner atom (`find_stereo_bond_slot`).
 
 ## 6. Assumptions & dependencies
 
