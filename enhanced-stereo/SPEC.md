@@ -59,7 +59,7 @@ From [STRING-ALG] and [DECK]. The normative encoding grammar is in §6; the beha
   order; groups ordered by smallest canonical atom; lowest centre in each group normalised
   to `-` (whole-group sign flip, ABS also toggles `/m`).
 - Worked reference cases with expected strings: [STRING-ALG] "Only ABS / Only OR / Only AND"
-  edge tables; [DECK] slide 9 (`/s1(5,7)2(8,10)(9)3(4)(6)`) and slide 12.
+  edge tables; [DECK] slide 9 (`/s1(5,7)2(8,10)(9)3(4)(6)`) and slide 12. A chemist-oriented walkthrough is in §2.1.
 
 **Input constraints (authoritative, [BIOVIA]):**
 - A stereogenic centre belongs to **exactly one** stereochemical group. A structure may
@@ -99,6 +99,69 @@ From [STRING-ALG] and [DECK]. The normative encoding grammar is in §6; the beha
   since ES-R18; per component, and the segment disappears when no component has ABS)*.
 - *Portability* — tests MUST resolve fixtures independent of build layout ✅ *(held since ES-R15;
   out-of-tree builds failed `test_enhancedStereo` and `test_ichimain` before it)*.
+
+### 2.1 Chemistry primer — what the labels mean, by example
+
+**The molecule.** 3-Chlorobutan-2-ol, CH₃–C²H(OH)–C³H(Cl)–CH₃, has two stereocentres and
+therefore four stereoisomers: the enantiomer pair **(2R,3R)/(2S,3S)** and the enantiomer pair
+**(2R,3S)/(2S,3R)**. The two pairs are diastereomers of each other. Its InChI skeleton is
+
+```
+InChI=1B/C4H9ClO/c1-3(5)4(2)6/h3-4,6H,1-2H3
+```
+
+where canonical atom **3 is C3 (the C–Cl carbon)** and **4 is C2 (the C–OH carbon)**.
+
+**Reading the stereo layers.**
+- **`/t`** gives each centre's parity, i.e. the **relative** configuration. `/t3-,4-` covers the
+  (2R,3R)/(2S,3S) pair; `/t3-,4+` covers the other pair.
+- **`/m`** picks one enantiomer of that pair: `/m1` here means (2R,3R) and `/m0` means (2S,3S). It
+  is written only when something in the component is known absolutely.
+- **`/s`** says what is known: `1` = absolute (ABS), `2` = relative (OR, "one of the two, unknown
+  which"), `3` = racemic (AND, "both, as a mixture"). A bare digit applies to every centre; `3(3)`
+  applies class 3 to canonical atom 3.
+
+**One drawing, eight labellings.** All rows below use the drawing of (2R,3R), with both wedges up.
+In a structure editor the labels appear as `abs`, `or1`, `&1`. Every string was measured. The last
+column shows that standard InChI, which treats every wedge as absolute, cannot tell these
+substances apart.
+
+| # | labels on C2 / C3 | what the sample is | enhanced InChI (after the skeleton) | standard InChI |
+|---|---|---|---|---|
+| 1 | none, or `abs` on both | (2R,3R) | `/t3-,4-/m1/s1` | same |
+| 2 | `or1` on both | (2R,3R) **or** (2S,3S): one enantiomer, unknown which | `/t3-,4-/s2` | `/t3-,4-/m1/s1` |
+| 3 | `&1` on both | (2R,3R) **and** (2S,3S): the racemate | `/t3-,4-/s3` | `/t3-,4-/m1/s1` |
+| 4 | `abs` / `&1` | (2R,3R) **and** (2R,3S): C2 known, mixture of C3 epimers | `/t3-,4-/m1/s1(4)3(3)` | `/t3-,4-/m1/s1` |
+| 5 | `abs` / `or1` | (2R,3R) **or** (2R,3S): C2 known, C3 unknown | `/t3-,4-/m1/s1(4)2(3)` | `/t3-,4-/m1/s1` |
+| 6 | `or1` / `or2` | any **one** of the four stereoisomers, unknown which | `/t3-,4-/s2(3)(4)` | `/t3-,4-/m1/s1` |
+| 7 | `&1` / `&2` | **all four** stereoisomers: each centre racemic on its own | `/t3-,4-/s3(3)(4)` | `/t3-,4-/m1/s1` |
+| 8 | `&1` / none (C3 wedged, unlabelled) | (2R,3R) **and** (2S,3R): C3 known, C2 racemic | `/t3-,4-/m1/s3(4)` | `/t3-,4-/m1/s1` |
+
+**What to notice.**
+- **Same sample, same InChI.** Drawing the other member of a group gives an identical string: the
+  (2S,3S) drawing in rows 2 and 3, the (2R,3S) drawing in rows 4 and 5, any of the four drawings
+  in rows 6 and 7, the (2S,3R) drawing in row 8. Each group is normalised so that its lowest
+  canonical centre reads `-` (§6), so the drawing chosen does not matter.
+- **Different samples, different InChIs.** Rows 2 and 3 share `/t` and differ only in `/s2` vs
+  `/s3`: "one unknown enantiomer" is a different substance from "the racemate". With row 2's
+  labels, the (2R,3S) drawing gives `/t3-,4+/s2`, because it is the other diastereomer pair.
+- **`/m` only with something absolute.** Rows 2, 3, 6 and 7 have no absolute centre, so there is
+  no `/m`. Rows 4, 5 and 8 keep `/m` for their absolute centre. In row 8 that centre is C3, which is
+  wedged but in no collection; an unlabelled wedge counts as absolute (ES-R24). With row 4's
+  labels, the (2S,3S) drawing gives `/m0`: a different sample.
+- **Bare digit or groups.** One class covering every centre in a single group gives a bare digit
+  (rows 1–3). Several groups (rows 6 and 7) or mixed classes (rows 4, 5 and 8) list the atoms.
+
+**More than one molecule.** `/t`, `/m` and `/s` each have one `;`-separated slot per component.
+(R)-Pentan-2-ol mixed with racemic butan-2-ol, the pentanol wedged and unlabelled and the
+butanol `&1`, gives `/t5-;4-/m1./s;3`. Read slot by slot:
+- pentanol: `5-`, `1` in `/m`, nothing in `/s`, so it is absolute;
+- butanol: `4-`, `.` in `/m`, `3` in `/s`, so it is racemic.
+
+Adding water adds an empty slot (`/m1../s;3;`) and changes nothing else. A single `&1` group
+across **both** alcohols would say "(R,R) and (S,S) pairs", a link between two separate molecules
+that per-molecule slots cannot express. Such input is rejected with a warning (ES-R23). §8 has the
+full set of multi-component, meso and isotope examples.
 
 ## 3. Current implementation (branch `feature/enh-stereo-hardening`, `dev` merged in; verified by reading + running tests)
 
