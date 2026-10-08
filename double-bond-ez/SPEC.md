@@ -17,10 +17,10 @@
 
 - ✅ **Works:** classic absolute `/b`; either/crossed/wavy bonds; V3000 `STEBABS`/`STEBRELn`/
   `STEBRACn` input; grouped `/b2(…)`/`/b3(…)` output; combined with `/t`+`/s`. Test suite
-  `test_doubleBondEZ` (9 tests).
-- ❌ **Open:** component order is input-dependent when components differ only in enhanced
-  classes (§5, shared with Spec 1); grouped `/b` in fixed-H and isotopic layers; InChI→structure
-  parsing of grouped `/b`.
+  `test_doubleBondEZ` (10 tests).
+- ✅ **Fixed (shared with Spec 1):** component order no longer depends on input order (§5).
+- ❌ **Open:** grouped `/b` in fixed-H and isotopic layers; InChI→structure parsing of grouped
+  `/b`.
 
 **Feature:** recognise MDL V3000 **bond** stereo collections (STEBABS / STEBREL# / STEBRAC#) on
 C=C double bonds and encode OR/AND mixtures in a **grouped `/b` layer**. · **Branch:**
@@ -68,8 +68,8 @@ prefix is `1B` in every case, including pure-absolute output.
   output is byte-identical (verified on `InChI_TestSet_ext.sdf` and all fixtures).
 - *Grammar injectivity* — a grouped entry starts `digit (`, a flat one `digits -`; one
   character after the leading number decides.
-- *Determinism* — identical input ⇒ identical output. Atom-order invariance holds within a
-  component; across identical components see §5.
+- *Determinism* — the same molecule gives the same InChI whatever its atom, bond or collection
+  order, also across components (§5).
 - *Either ≠ OR* — only bonds with defined parity join a group.
 
 ## 3. Current implementation (branch `feature/double-bond-ez`)
@@ -82,11 +82,12 @@ prefix is `1B` in every case, including pure-absolute output.
 | Data model | `MOL_FMT_v3000.steb*` (`mol_fmt.h`), `OAD_V3000.lists_steb*` (`inpdef.h`): atom-pair lists `[n, 2·bonds, a1, b1, …]` |
 | Transfer, copy, free, renumber | `mol2atom.c` (`CopyIntLists`, `FreeIntLists`), `runichi3.c` (deep copy, `DropStereoCollections`), `permutation_util.c` |
 | Spanning groups | `runichi3.c` `StereoGroupSpansComponents` (now also STEBREL/STEBRAC) |
+| OR/AND normalisation | `strutil.c` `normalise_bond_groups` (via `set_EnhancedStereo_t_m_layers`), in `INChI_Stereo.b_parity`, main and isotopic, before the component sort |
+| Component order | `runichi4.c` `MakeEnhSortKey` → `INCHI_SORT.enh_key`; `ichimake.c` `CompEnhKey`, last tie-break before input order |
 | Grouped `/b` emitter | `ichiprt2.c` `MakeBlayerString` → `MakeBlayerComponent` → `MarkBondGroups`; called from `ichiprt1.c` `OutputINCHI_StereoLayer_EnhancedStereo` in the main layer when OR/AND bond groups exist |
 
 Bonds are stored as atom pairs so every atom-list path (copy, renumber, component split) handles
-them unchanged. Normalisation is emission-only: the `INChI_Stereo.b_parity` values are not
-modified.
+them unchanged.
 
 ## 4. Requirements
 
@@ -104,7 +105,7 @@ Priority is MoSCoW. **Won't (this spec):** allene/atropisomer bonds (those are `
 | EZ-R10 | Grammar injectivity | Must | ✅ §2 invariant |
 | EZ-R7 | Combined `/b` + `/t`+`/s` independence | Should | ✅ gated by Z6 |
 | EZ-R9 | Classic `/b` unit tests | Should | ✅ Z1, Z2 |
-| EZ-R11 | Canonical order of components differing only in enhanced classes | Must | ❌ §5 |
+| EZ-R11 | Canonical order of components differing only in enhanced classes | Must | ✅ §5 |
 | EZ-R12 | Grouped `/b` in fixed-H and isotopic layers | Could | ❌ flat there |
 
 ### Gates
@@ -120,15 +121,17 @@ All in `INCHI-1-TEST/tests/test_unit/test_doubleBondEZ.cpp`.
 - **Z6** — double bond + tetrahedral centre, the three deck strings exactly. ✅
 - Non-stereo bond in a collection ignored; atom renumbering invariant; malformed collections
   dropped. ✅
+- Component order: swapped OR/AND collections over two equal components, and swapped drawn
+  geometry of their OR/AND bonds → one InChI. ✅
 
 ## 5. Open issues / risks
 
-- **Component order (EZ-R11, also Spec 1).** Components identical in every standard layer are
-  ordered by input order, and components differing only in the raw parity of an OR/AND element
-  are ordered by that meaningless parity, because the component sort runs before enhanced
-  normalisation. Two BrClC=CClF components with STEBREL1 on one and STEBRAC1 on the other give
-  `/b2(2-1-);3(2-1-)` or `/b3(2-1-);2(2-1-)` depending on which copy carries which collection.
-  The same holds for `/s` (`/s2;3` vs `/s3;2`).
+- **Resolved — component order (EZ-R11, also Spec 1).** Components identical in every standard
+  layer were left in input order, and components differing only in the raw parity of an OR/AND
+  element were ordered by that meaningless parity, because the sort ran before normalisation:
+  `/b2(2-1-);3(2-1-)` vs `/b3(2-1-);2(2-1-)`, `/s2;3` vs `/s3;2`. Now OR/AND parities are
+  normalised before the sort and the component's own `/s` and `/b` strings break ties before
+  input order.
 - **Haptic bonds.** A `BONDS=(k)` index is taken as the k-th bond line; with haptic bonds present
   the bond collections are treated as unknown and dropped.
 - **InChI→structure.** `ichiread.c` rejects grouped `/b` (as it rejects grouped `/s` from Spec 1);
