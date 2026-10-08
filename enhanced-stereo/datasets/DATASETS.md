@@ -85,6 +85,23 @@ Extraction notes (both are upstream transcription artefacts, not InChI bugs):
 [molinfo-vienna/CDPKit]: https://github.com/molinfo-vienna/CDPKit
 [mn-am/corina-classic-python]: https://github.com/mn-am/corina-classic-python
 
+## 2026-10-08 additions (1.0 multi-component audit, gate G11)
+
+`multi_component/` — the structures behind SPEC §8. Each string there is measured on
+`feature/enh-stereo-hardening`; G11 holds the same molecules inline.
+
+| file | what it exercises | SPEC |
+|------|-------------------|------|
+| `01`–`07_*.mol` | pentan-2-ol + butan-2-ol, AND groups, Na⁺/OH⁻ or water spectators (third-party report) | §8.1–8.4, ES-R21–R25 |
+| `chlorobutanol_abs_and_mirror.mol` | ABS-C2 + AND-C3, wedges down/up: the mirror image that collided | §8.2b, ES-R27 |
+| `chlorobutanol_or_ungrouped.mol` | OR-C2, C3 wedged in no collection | §8.2b, ES-R24 |
+| `mg_bis_butanolate_and_spanning.mol` | AND over two ligands of Mg: spans after metal disconnection | §8.4, ES-R23 |
+| `mg_bis_butanolate_and_per_ligand.mol` | one AND group per ligand; with `-RecMet` | §8.4b, ES-R28 |
+| `pt_haptic_and_spanning.mol` | AND over a haptic and an O-bound ligand of Pt | §8.4, ES-R23 |
+| `butanediol_meso_and_per_centre.mol` | meso drawing, one AND group per centre | §8.4b, ES-R29 |
+| `propanol_13C_or.mol` | centre stereogenic only through ¹³C, OR | §8.4b, ES-R30 |
+| `chloromethylbutane_13C_and_or.mol` | AND on a main-layer centre, OR on an isotope-only one | §8.4b, ES-R30 |
+
 ## Active gates
 
 ### `fixtures/enh_stereo_test_file_1.sdf` — 33 molecules (**gate G2**)

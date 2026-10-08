@@ -2,13 +2,13 @@
 
 | | |
 |---|---|
-| **Doc version** | 0.9 |
-| **Date** | 2026-08-10 |
+| **Doc version** | 1.0 |
+| **Date** | 2026-10-08 |
 | **Status** | draft |
 | **Author** | C. Müller |
 | **Reviewers** | TBD (InChI Trust / project 2019-017-2-800 TG) |
 | **Requirement prefix** | `ES-` |
-| **Change history** | 0.1 (2026-07-09) — initial spec; verified against `dev`, incl. [BIOVIA]. 0.2 (2026-07-10) — consolidated: requirements/gates/deliverables/NFRs merged into one table (§4); ABNF grammar retained (§6). 0.3 (2026-07-10) — readability pass: added At-a-glance, split requirements from gates, tightened prose. 0.4 (2026-07-28) — ES-R11, ES-R14 and §5.E implemented on `feature/enh-stereo-hardening`; measurement of OR-only/AND-only output added two grammar-conformance gaps (ES-R17, ES-R18). 0.5 (2026-08-03) — full re-audit of `feature/enh-stereo-hardening` by reading + measuring: ES-R17 is implemented and gated (G7 half-satisfied); two defects the spec did not know about found, reproduced and fixed (ES-R19 V2000 crash, ES-R20 collection atom-remap off-by-two, commit `f4268f6`); test counts refreshed to 17 suites / 179 tests. 0.6 (2026-08-07) — **ES-R18 resolved and implemented.** [DECK] slide 10 settles the §3-vs-§6 contradiction explicitly ("/m0 and /m1 are only used in the context of absolute centers"; "In case that the structure only contains OR# and/or AND# centers /m# is obsolete a[n]d must not be used"), with worked examples on slides 11-12 showing no /m for OR/AND-only including the multi-group cases. Implemented per component (an ABS collection on a sibling component no longer keeps /m alive on an OR/AND-only one); G7 wired end-to-end and G9 ([BIOVIA] Appendix B) materialised from a file located in the wild. `dev` merged into `feature/enh-stereo-hardening`. Two further pre-existing defects recorded but not fixed (§5.I orphan /s groups, §5.J isotopic-only centres ignored). Test counts: 17 suites / 188 tests. 0.7 (2026-08-10) — **ES-R12 resolved and implemented**, the last open Must. A corpus of malformed collection files was assembled first (two real, from [rdkit/rdkit#8873]; six derived), which showed §5.H understated the defect: the corruption reaches `/t`, not only `/s`, so a malformed file could be given the InChI of a **different diastereomer**. Validation now runs in the reader (`StereoCollectionsAreMalformed`) and drops the collections rather than guessing; gated by G10. Two pre-existing tests moved with the behaviour and gained the `/s1` they used to drop. Spec requirement IDs, gate IDs and section references were removed from all source and test comments — the spec→code link is now by function name only. Test counts: 17 suites / 195 tests. 0.8 (2026-08-10) — **ES-R15 and ES-R13 done.** ES-R15 ported the `FIXTURES_DIR` CMake define from `atropisomers`; out-of-tree builds failed two suites before it and pass now. That unblocked ES-R13: the dormant G5 fixture was re-pinned by measurement — `/m` dropped from the 8 OR/AND-only records (§5.K as predicted), **all 35** `<InChI_new>` prefixes corrected to `1B/`, and four values found stale once the prefix noise cleared (18–20 shared one `<InChI>` across records whose standard strings differ; 26 carried a different molecule's formula in both columns). G5 is now wired over both columns, 70 assertions. Test counts: 17 suites / 196 tests. 0.9 (2026-08-10) — **ES-R16 closed by deletion, not implementation.** Investigating it showed the requirement rested on a false premise: `invert_parities` has no failure return, its non-zero paths mean "this collection list is empty", which is the ordinary case. Propagating the three results would have reported a no-op for nearly every real structure. `set_EnhancedStereo_t_m_layers` is now `void` and its three unread locals are gone. **Every requirement in this spec is now closed**, so what remains is the two pre-existing defects §5.I and §5.J, neither of which has a requirement ID yet. |
+| **Change history** | 0.1 (2026-07-09) — initial spec; verified against `dev`, incl. [BIOVIA]. 0.2 (2026-07-10) — consolidated: requirements/gates/deliverables/NFRs merged into one table (§4); ABNF grammar retained (§6). 0.3 (2026-07-10) — readability pass: added At-a-glance, split requirements from gates, tightened prose. 0.4 (2026-07-28) — ES-R11, ES-R14 and §5.E implemented on `feature/enh-stereo-hardening`; measurement of OR-only/AND-only output added two grammar-conformance gaps (ES-R17, ES-R18). 0.5 (2026-08-03) — full re-audit of `feature/enh-stereo-hardening` by reading + measuring: ES-R17 is implemented and gated (G7 half-satisfied); two defects the spec did not know about found, reproduced and fixed (ES-R19 V2000 crash, ES-R20 collection atom-remap off-by-two, commit `f4268f6`); test counts refreshed to 17 suites / 179 tests. 0.6 (2026-08-07) — **ES-R18 resolved and implemented.** [DECK] slide 10 settles the §3-vs-§6 contradiction explicitly ("/m0 and /m1 are only used in the context of absolute centers"; "In case that the structure only contains OR# and/or AND# centers /m# is obsolete a[n]d must not be used"), with worked examples on slides 11-12 showing no /m for OR/AND-only including the multi-group cases. Implemented per component (an ABS collection on a sibling component no longer keeps /m alive on an OR/AND-only one); G7 wired end-to-end and G9 ([BIOVIA] Appendix B) materialised from a file located in the wild. `dev` merged into `feature/enh-stereo-hardening`. Two further pre-existing defects recorded but not fixed (§5.I orphan /s groups, §5.J isotopic-only centres ignored). Test counts: 17 suites / 188 tests. 0.7 (2026-08-10) — **ES-R12 resolved and implemented**, the last open Must. A corpus of malformed collection files was assembled first (two real, from [rdkit/rdkit#8873]; six derived), which showed §5.H understated the defect: the corruption reaches `/t`, not only `/s`, so a malformed file could be given the InChI of a **different diastereomer**. Validation now runs in the reader (`StereoCollectionsAreMalformed`) and drops the collections rather than guessing; gated by G10. Two pre-existing tests moved with the behaviour and gained the `/s1` they used to drop. Spec requirement IDs, gate IDs and section references were removed from all source and test comments — the spec→code link is now by function name only. Test counts: 17 suites / 195 tests. 0.8 (2026-08-10) — **ES-R15 and ES-R13 done.** ES-R15 ported the `FIXTURES_DIR` CMake define from `atropisomers`; out-of-tree builds failed two suites before it and pass now. That unblocked ES-R13: the dormant G5 fixture was re-pinned by measurement — `/m` dropped from the 8 OR/AND-only records (§5.K as predicted), **all 35** `<InChI_new>` prefixes corrected to `1B/`, and four values found stale once the prefix noise cleared (18–20 shared one `<InChI>` across records whose standard strings differ; 26 carried a different molecule's formula in both columns). G5 is now wired over both columns, 70 assertions. Test counts: 17 suites / 196 tests. 0.9 (2026-08-10) — **ES-R16 closed by deletion, not implementation.** Investigating it showed the requirement rested on a false premise: `invert_parities` has no failure return, its non-zero paths mean "this collection list is empty", which is the ordinary case. Propagating the three results would have reported a no-op for nearly every real structure. `set_EnhancedStereo_t_m_layers` is now `void` and its three unread locals are gone. **Every requirement in this spec is now closed**, so what remains is the two pre-existing defects §5.I and §5.J, neither of which has a requirement ID yet. 1.0 (2026-10-08) — **multi-component audit** with seven pentan-2-ol/butan-2-ol structures (stereo-free spectators, one AND group per or over both alcohols). Found and fixed four defects that 0.9 marked ✅: §5 resolved-L `/s` merged equal components that were not adjacent, putting groups on the wrong component (ES-R21); resolved-M with `-AuxNone` the `/t`+`/m` normalisation read another component's aux, so a spectator changed `/m` (ES-R22); resolved-N an OR/AND group spanning components was silently split, colliding with independent groups (ES-R23, now diagnosed and dropped; the three inter-fragment tests that pinned the split moved with it); and the ungrouped-wedge `/m` rule was unstated (ES-R24, behaviour already correct once ES-R22 was fixed). §5.O found the same day and fixed (ES-R25): uniform multi-component `/s` now reduces to standard's single digit. §5.I fixed (ES-R26): re-derived by measurement first, it also reached `/m` (an ABS label on a CH₂ kept `/m` alive on an AND-only component) and `/t` (a CH₃ as a group's lowest atom skipped its sign normalisation: two InChIs for one racemate). Worked examples added (§8). An advisor review then found two collisions, measured and fixed (§5 resolved-P, ES-R24 restated, ES-R27): an ABS flip set `/m1` instead of toggling `/m`, and an ungrouped wedge beside an OR/AND group lost its configuration. Its three lower findings closed too: the ES-R23 spanning check moved from the reader's CTab union-find to InChI's own components after metal disconnection (a group over two Mg ligands was missed; a haptic group under `-MolecularInorganics` was falsely rejected); `?` centres under `-SUU` no longer block ES-R25; the stale §6 claim is gone. §5.Q (`-RecMet` crash, pre-existing) and §5.J (isotope-only centres) then fixed (ES-R28–ES-R30); chasing §5.Q exposed a meso defect, fixed too. **No open issue remains.** Test counts: 17 suites / 211 tests. |
 
 > Normative keywords (MUST/SHOULD/MAY) per [RFC 2119](../README.md#requirement-conventions-normative);
 > shared glossary and conventions in the [README](../README.md).
@@ -18,12 +18,12 @@
 - ✅ **Works (end-to-end):** parse V3000 STEABS/STEREL#/STERAC# → `/t`+`/m` normalisation →
   grouped `/s1(…)2(…)3(…)` emission, incl. **all three** single-class reductions
   (`/s1`, `/s2`, `/s3`), the `/m`-only-with-ABS rule (per component) and multi-component.
-  **Every §6 MUST is now met**, and malformed collections are diagnosed instead of laundered.
-  Tested (G1–G4, G6–G10 pass).
-- ❌ **Missing:** nothing. Every requirement is closed as of 0.9.
-- ▶ **Next:** the two pre-existing defects found in 0.6 and still unfixed — §5.I (orphan `/s`
-  groups for atoms that are not stereocentres) and §5.J (isotopic-only centres ignored). Both are
-  correctness gaps in what `/s` admits, and §5.I shares its root cause with ES-R2/ES-R12.
+  0.9 claimed every §6 MUST was met; the 1.0 multi-component audit disproved that (ES-R21–ES-R27),
+  now fixed. Only stereocentres reach `/s` and `/m`; a component's absolute set (STEABS plus
+  ungrouped wedges) flips as one and toggles `/m`. Malformed collections, including OR/AND groups spanning components, are diagnosed
+  instead of laundered. Tested (G1–G11 pass).
+- ❌ **Missing:** nothing required.
+- ▶ **Next:** nothing open in §5. Worked examples: §8.
 
 **Feature:** recognise MDL V3000 enhanced-stereo collections (STEABS / STEREL# / STERAC#) on
 sp³ tetrahedral centres and encode them in an extended, grouped `/s` layer. · **Branch:** `dev`
@@ -64,8 +64,15 @@ From [STRING-ALG] and [DECK]. The normative encoding grammar is in §6; the beha
 **Input constraints (authoritative, [BIOVIA]):**
 - A stereogenic centre belongs to **exactly one** stereochemical group. A structure may
   contain **at most one ABS collection** but **multiple OR# and AND# groups**. Centres not in
-  any collection (no wedge) are unknown/undefined (`?`). Conflicting membership is malformed
-  input — the reader must reject or diagnose it, not silently pick one.
+  any collection (no wedge) are unknown/undefined (`?`). A **wedged** centre in no collection is
+  drawn with a definite configuration and is treated as absolute: with the STEABS members it
+  forms the component's **absolute set**, which keeps `/m`, flips as one group, and stops a
+  single OR/AND group beside it from reducing to bare `/s2`/`/s3` (ES-R24).
+  Conflicting membership is malformed input — the reader must reject or diagnose it, not silently
+  pick one.
+- An OR or AND group **MUST NOT** span connected components: it would couple them (e.g. (R,R)
+  and (S,S) of a salt pair), which the per-component `/s` cannot express. Such input is
+  diagnosed and its collections dropped (ES-R23). An ABS collection may span components.
 - Semantics: OR = "one stereoisomer, as-drawn *or* its epimer" (relative); AND = "as-drawn
   *and* its enantiomer" (racemic). Molfile keywords `STEABS` / `STERELn` / `STERACn` map to
   display labels `abs` / `orn` / `&n`. [BIOVIA] Appendix B is a full worked example V3000
@@ -77,7 +84,8 @@ From [STRING-ALG] and [DECK]. The normative encoding grammar is in §6; the beha
   the `1B` prefix ✅ *(held for explicit STEABS-only since ES-R11; gate G6)*.
 - *Determinism* — identical input ⇒ identical output, order-independent of input atom order
   ✅ *(held since ES-R20; collection atom numbers were previously mis-remapped when the molfile
-  did not number its atoms 1..n)*.
+  did not number its atoms 1..n)*, and independent of output options such as `-AuxNone`
+  ✅ *(held since ES-R22)*.
 - *No laundering* — a collection block that violates the input constraints below MUST be
   diagnosed, and MUST NOT be turned into a valid-looking `/s` or into a `/t` that names a
   different stereoisomer ✅ *(held since ES-R12)*.
@@ -98,19 +106,20 @@ From [STRING-ALG] and [DECK]. The normative encoding grammar is in §6; the beha
 |-------|----------|-------|
 | V3000 COLLECTION parse (STEABS/STEREL#/STERAC#, `ATOMS=()`, group #) | `mol_fmt3.c` `MolfileV3000ReadCollections`, atoms via `MolfileV3000ReadStereoCollection` + `get_actual_atom_number` | ✅ done; non-stereo collections skipped; atom-number remap fixed (ES-R20) |
 | Input validation of the collection block | `mol_fmt3.c` `StereoCollectionsAreMalformed`, called once from `MolfileV3000ReadCollections` after the block is read | ✅ ES-R12 — five checks; on any hit it names the violation via `AddErrorMessage` and `NumLists_Free`s all three lists |
+| OR/AND group spanning components (ES-R23) | `runichi3.c` `CheckStereoGroupComponents` → `StereoGroupSpansComponents`, at the end of `PreprocessOneStructure` (and before its `-MolecularInorganics` early return), on `at[].component`; only with `-EnhancedStereochemistry` | ✅ warning via `WarningMessage`; `DropStereoCollections` on the original, disconnected and reconnected copies |
 | Storage | `inpdef.h:396-404` `OAD_V3000.lists_steabs/sterel/sterac` | ✅ |
 | Transfer molfile→`ORIG_ATOM_DATA.v3000` | `mol2atom.c:1646-1712`; component split `runichi3.c:359-395`; free `mol2atom.c:1421-1452` | ✅ |
 | Option `-EnhancedStereochemistry` → `ip->bEnhancedStereo` | `ichiparm.c:273-275,2144` | ✅ |
 | `1B` beta prefix | `ichiprt1.c:3119` `OutputINCHI_VersionAndKind`, `is_beta` set `:1713-1715`, `B` appended `:3132-3135` | ✅ |
-| `/t`+`/m` sign-normalisation | `strutil.c` `set_EnhancedStereo_t_m_layers`, `invert_parities` (min-canon centre → `-`, whole-group flip; ABS toggles `nCompInv2Abs`) | ✅ |
-| `/m` suppressed for OR/AND-only components (ES-R18) | `strutil.c` `set_EnhancedStereo_t_m_layers` zeroes `nCompInv2Abs` (⇒ `str_StereoAbsInv` emits the `.` placeholder), membership tested per component by `component_has_collection_atom`; `ichiprt1.c` `bHasAbsStereoComponent` drops the whole `/m` segment when no component keeps an ABS reference | ✅ ES-R18 — [DECK] slide 10 |
+| `/t`+`/m` sign-normalisation | `strutil.c` `set_EnhancedStereo_t_m_layers`, `invert_parities` (min-canon centre → `-`, whole-group flip; ABS toggles `nCompInv2Abs`); called from `OutputINChI1` with the component's own aux | ✅ ES-R22 |
+| `/m` suppressed for OR/AND-only components (ES-R18) | `strutil.c` `set_EnhancedStereo_t_m_layers` zeroes `nCompInv2Abs` (⇒ `str_StereoAbsInv` emits the `.` placeholder), membership tested per component by `component_has_collection_atom`, stereocentres only (`lookup_stereo_centre`); `ichiprt1.c` `bHasAbsStereoComponent` drops the whole `/m` segment when no component keeps an ABS reference | ✅ ES-R18 — [DECK] slide 10 |
 | Grouped `/s` emission | `ichiprt1.c:3496` `OutputINCHI_StereoLayer_EnhancedStereo` → `ichiprt2.c` `MakeSlayerString` → `MakeEnhStereoString` (type digit, canon-atom map, within-group + inter-group sort, parenthesised groups) | ✅ matches target ordering |
 | ABS-only reduction to bare `/s1` | `ichiprt2.c` `MakeSlayerString` (per-sublayer lengths; ABS-only ⇒ bare type digit) | ✅ ES-R11 |
 | Single-OR / single-AND reduction to bare `/s2` / `/s3` | `ichiprt2.c` `MakeSlayerString` (guarded by `num_groups_used` from `MakeEnhStereoString`, so ≥2 groups stay grouped) | ✅ ES-R17 |
 | `/s` emission guarded against absent V3000 data | `ichiprt1.c` `OutputINCHI_StereoLayer_EnhancedStereo` (`orig_inp_data->v3000` NULL ⇒ plain stereo-type digit) | ✅ ES-R19 |
-| Per-component `/s` substring dictionary | `ichiprt2.c` `MakeSlayerString` (sized from `num_components`; dense `n_entries` index) | ✅ ES-R14 — no cap, nothing droppable |
+| Per-component `/s` substrings | `ichiprt2.c` `MakeSlayerString` (one slot per component, in component order) | ✅ ES-R14, ES-R21 |
 | orig→canon reverse map | `strutil.c` `make_orig_to_canon_map` / `lookup_canonical_atom_number`, used by `invert_parities` + `MakeEnhStereoString` | ✅ replaces the O(n²) scans |
-| Multi-component `count*substr` + `;` (beyond single-molecule spec) | `ichiprt2.c` `MakeSlayerString` emit loop | ✅ present + tested (extension) |
+| Multi-component `count*substr` + `;` (beyond single-molecule spec) | `ichiprt2.c` `MakeSlayerString` emit loop — folds only consecutive equal non-empty substrings | ✅ ES-R21 |
 
 Line numbers are omitted for the functions touched on this branch; they move. Grep the
 function names — **as of 0.7 that is the only spec↔code link.** Requirement IDs, gate IDs and
@@ -126,8 +135,8 @@ Priority is MoSCoW. **As of 0.9 every requirement in this table is closed.** ES-
 Must in 0.7 (malformed collections are diagnosed rather than laundered, §5 resolved-H); ES-R13 and
 ES-R15 took the last Shoulds in 0.8 (§5 resolved-K, resolved-B); and ES-R16, the last Could, was
 **withdrawn** in 0.9 rather than implemented, because it asked for something that does not exist
-(§5 resolved-D). What remains open is the two pre-existing defects §5.I and §5.J, which carry no
-requirement IDs yet.
+(§5 resolved-D). 1.0 added and closed ES-R21–ES-R26 (multi-component audit and §5.I). What
+remains open is §5.J, which carries no requirement ID yet.
 **Won't (this spec):** name-level `rac`/`rel` nomenclature and independent-centre superscripts ([ESR]/[BNF])
 — IUPAC nomenclature recommendations, not InChI code.
 
@@ -150,6 +159,16 @@ requirement IDs yet.
 | ES-R18 | No `/m` when a component has only OR/AND centres (§6 MUST) | Must | ✅ done + gated (G7 end-to-end, G9 negative control) — [DECK] slide 10 is explicit *(§5, resolved-G)* |
 | ES-R19 | `-EnhancedStereochemistry` MUST NOT crash on input without V3000 collections | Must | ✅ done + gated (G8) — was a segfault *(§5, resolved-I)* |
 | ES-R20 | Collection atom numbers MUST be remapped regardless of molfile atom numbering | Must | ✅ done + gated (G8) — was an off-by-two *(§5, resolved-J)* |
+| ES-R21 | Multi-component `/s` MUST be positional: one `;` slot per component, `n*` only over consecutive equal components, empty slots never folded | Must | ✅ done + gated (G11) *(§5, resolved-L)* |
+| ES-R22 | Output MUST NOT depend on `-AuxNone` | Must | ✅ done + gated (G11) *(§5, resolved-M)* |
+| ES-R23 | An OR/AND group spanning InChI components (after salt and metal disconnection) MUST be diagnosed and the collections dropped | Must | ✅ done + gated (G11) *(§5, resolved-N)* |
+| ES-R24 | A wedged centre in no collection is absolute: it joins STEABS in the component's absolute set, keeps `/m`, and blocks the single OR/AND reduction | Must | ✅ done + gated (G11) — held only for components without OR/AND until resolved-P |
+| ES-R25 | When every component with sp3 centres reduces to the same bare digit and the rest have no defined centre outside a collection (`?` centres do not count), `/s` MUST be that single digit (== `SAbs`/`SRel`/`SRac`) | Must | ✅ done + gated (G11) *(§5, resolved-O)* |
+| ES-R26 | Only stereocentres of the component's `/t` reach `/s` and the `/m` membership test | Must | ✅ done + gated (G11) *(§5, resolved-I)* |
+| ES-R27 | Flipping the absolute set MUST toggle `/m`, not set it | Must | ✅ done + gated (G11) *(§5, resolved-P)* |
+| ES-R28 | `-EnhancedStereochemistry -RecMet` MUST NOT read through missing input data | Must | ✅ done + gated (G11) *(§5, resolved-Q)* |
+| ES-R29 | A meso component with OR/AND stereocentres MUST keep its `/s` | Must | ✅ done + gated (G11) *(§5, resolved-Q)* |
+| ES-R30 | Collections apply to the isotopic stereo layer as to the main one; its `/s` is printed when its classes differ from the main layer's | Must | ✅ done + gated (G11) *(§5, resolved-J)* |
 
 ### Gates
 
@@ -206,6 +225,34 @@ per-molecule detail.
   `101..118`, asserted to give one identical InChI (ES-R20). ✅ **passes**; both verified to
   fail without their fix.
 
+- **G11** — the 1.0 multi-component audit, in `test_enhancedStereo.cpp`:
+  `..._s_layer_is_positional` (ES-R21: `/s;3;`, `/s;3;;`, `/s3;;;`, `/s2*3;;`),
+  `..._independent_of_aux_none` (ES-R22: same string with and without `-AuxNone`),
+  `..._group_spanning_components_is_not_used` (ES-R23: STERAC1/STEREL1 over two components ⇒
+  warning + standard string with `1B`; ABS over two components accepted) and
+  `..._ungrouped_wedge_keeps_m` (ES-R24: `/m1.` vs `/m0.` for the two enantiomers of the ungrouped
+  component), and `..._uniform_class_reduces_to_standard` (ES-R25: all-ABS, all-ABS + Na⁺/OH⁻,
+  one OR group per component, one AND group per component + Na⁺/OH⁻ — each byte-identical to
+  standard / `-SRel` / `-SRac` apart from the prefix), and `..._non_stereocentres_are_ignored`
+  (ES-R26: ABS on a CH₂ of the ungrouped pentanol, on a CH₂ of the AND-only butanol, on OH⁻, and
+  AND groups naming a CH₃ beside their centre, incl. two wedge combinations that need the group's
+  sign flip). ✅ **passes**; all but ES-R24's verified to fail
+  without their fix. Unit level: `test_ichiprt2` `MakeEnhStereoString_skips_non_stereocentres`.
+  `..._absolute_set_flips_as_one` (ES-R24, ES-R27) asserts substance identity rather than digits:
+  for 3-chlorobutan-2-ol under ABS-C2 + AND-C3, AND-C2 + ungrouped C3, and OR-C2 + ungrouped C3,
+  the two wedge sets of one substance give one InChI and the two substances differ; verified to
+  fail in all three before the fix. `..._group_spanning_disconnected_metal_is_not_used` and
+  `..._haptic_group_follows_inchi_components` (ES-R23 on InChI components: Mg complex rejected;
+  haptic complex kept under `-MolecularInorganics` as `/t5-,6-/s3`, rejected without it), and
+  `..._unknown_centres_do_not_block_reduction` (ES-R25 under `-SUU`: equals `-SUU` / `-SUU -SRac`).
+  `..._reconnected_metal_layer` (ES-R28: `-RecMet`, one AND group per Mg ligand, no crash and `/r`
+  carries `/s3`), `..._meso_component_keeps_s` (ES-R29: butane-2,3-diol, meso and chiral drawings
+  equal; all-ABS meso stays standard), `..._isotopic_only_centre` (ES-R30: propan-2-ol-1-¹³C equals
+  `-SRel` / `-SRac` / standard) and `..._isotopic_layer_states_its_classes` (ES-R30: OR vs AND on
+  an isotope-only centre beside a main-layer centre differ). The three
+  `..._inter_enhstereo_grps` tests, which pinned the lossy split, now expect the ES-R23 warning.
+  Source structures: `H:\docs\inchi\molecules_enh_stereo\molecules` (7 molfiles + README).
+
 - **G10** — the ES-R12 malformed-input corpus, `datasets/malformed/` (eight molfiles, two of them
   real: the attachments to [rdkit/rdkit#8873], reported from a live R-group-enumeration pipeline).
   ✅ **passes**, wired at two levels. Reader: `test_mol_fmt.cpp`
@@ -221,8 +268,12 @@ per-molecule detail.
   end-to-end, because the laundered output coincides with the degraded one — only the diagnostic
   separates them, which is why the reader test carries it.
 
-All 17 unit suites (195 tests) pass — `ctest` in `CMake_build/full_build` is green; the
-`test_enhancedStereo` suite is now 22 tests and `test_mol_fmt` 18. Backward compatibility was re-verified for 0.6 by
+Standard output is untouched by 1.0: with the option off (also with `-RecMet`, `-SUU`, `-SRel`)
+the InChI and AuxInfo lines are byte-identical to the 0.9 base `4f94b95` — 404 runs over 101
+files (test fixtures, these datasets, `datasets/multi_component/`).
+
+All 17 unit suites (211 tests) pass — `ctest` is green in a fresh out-of-tree build; the
+`test_enhancedStereo` suite is now 37 tests, `test_ichiprt2` 25 and `test_mol_fmt` 18. Backward compatibility was re-verified for 0.6 by
 building the tree with and without the ES-R18 change and diffing standard (option-off) output
 over 84 structures: byte-identical. Out-of-tree build directories still fail
 `test_enhancedStereo` and `test_ichimain` on fixture paths — fixed in 0.8, see §5 resolved-B.
@@ -233,26 +284,94 @@ over 84 structures: byte-identical. Out-of-tree build directories still fail
 
 ## 5. Open issues / risks
 
-- **I. `/s` emits classes for atoms that are not stereocentres.** `MakeEnhStereoString` admits a
-  collection atom on the sole test that it maps into the component (`lookup_canonical_atom_number
-  != -1`); it never requires the atom to be a stereocentre. So a group can be emitted for an
-  atom absent from `/t`, and even for a component with an **empty** `/t`. Three sightings, all
-  pre-existing: `test_EnhancedStereochemistry_4_mols` pins `/s1(7)` where canon 7 is not in that
-  component's `/t8-,9+`; the pinned `2C10H14BrCl7.C8H18` expectation carries `…;1(6)3(7,8)` for a
-  component whose `/t` is empty; and a minimal two-component case (propane bearing
-  `STEABS ATOMS=(1 8)` on a CH₂) measures `/t3-,4-;/s2;1` — the stereo-free component reported as
-  class 1 via the ABS-only reduction. ES-R18 deliberately keys `/m` on the *same* membership test
-  so `/m` and `/s` cannot disagree; fixing the root cause belongs with ES-R12/ES-R2. Contrast
-  `epam/Indigo` `non_atrop.mol`, where a `STEREL1` on a non-stereogenic atom in a structure with
-  **no** stereocentres at all is correctly ignored (no `/t`, no `/s`) — so the defect needs the
-  structure to have stereo somewhere.
-- **J. Isotopic-only stereocentres are ignored entirely.** For a centre that is stereogenic only
-  through isotopic substitution (CH₃ vs CD₃), `-EnhancedStereochemistry` reproduces standard
-  InChI — `/i1D3/t3-/m1/s1`, collection ignored, no `/s2`, `/m1` retained — where `-SRel` gives
-  `/i1D3/t3-/s2`. Cause: `set_EnhancedStereo_t_m_layers` returns early on
-  `nNumberOfStereoCenters <= 0`, which counts the **non-isotopic** centres only. Arguably outside
-  the "sp³ tetrahedral `/t` centres only" scope in §3, but a `/t` does exist here, so §3 should
-  say so explicitly rather than leave it implied.
+None.
+
+**Resolved in 1.0** (kept for traceability):
+
+- ~~**Q. `-RecMet` crash, and meso components lost `/s` (ES-R28, ES-R29).**~~ With a disconnected
+  metal and `-RecMet`, the AuxInfo-only pass for the reconnected structure calls `OutputINChI1`
+  with `orig_inp_data = NULL`, and `set_EnhancedStereo_t_m_layers` read through it (valgrind:
+  invalid read at `0x68`, segfault; present at the 0.9 base `4f94b95`; natively it ran on stack
+  garbage). Now an early return; the INChI pass before it already normalised the same components.
+  The garbage had hidden a second defect, single-molecule as well: the `/s` segment followed
+  standard InChI's decision, which gives a **meso** component neither `/m` nor `/s`. Butane-2,3-diol
+  with one OR (AND) group per centre measured `/t3-,4-` for the meso drawing and `/t3-,4-/s2(3)(4)`
+  (`/s3(3)(4)`) for the chiral one — one substance, two InChIs, one of them with no `/s` at all.
+  The enhanced main layer now prints `/s` when a component has OR/AND stereocentres
+  (`bHasRelRacComponent`); all-ABS meso is untouched and stays standard.
+- ~~**J. Isotope-only stereocentres were ignored (ES-R30).**~~ The enhanced pipeline only touched
+  `Stereo`, never `StereoIsotopic`. Propan-2-ol-1-¹³C with an OR group measured `/i1+1/t3-/m0/s1` or
+  `/m1/s1` by wedge, against `-SRel`'s `/i1+1/t3-/s2`. Fixed through an **isotopic view** of each
+  component (`isotopic_stereo_view`: shallow INChI/INChI_Aux copies with `Stereo := StereoIsotopic`
+  and the isotopic canonical order), so the existing normalisation, `/m` rule and `MakeSlayerString`
+  run on the isotopic layer unchanged. Measuring a mixed molecule (3-chloro-2-methylbutane-¹³C:
+  C3 a main-layer centre, C2 isotope-only) found one more gap: standard InChI omits the isotopic
+  `/s` when its digit equals the main layer's, so OR and AND on C2 both gave `/i1+1/t4-,5-`. The
+  isotopic `/s` is now printed when its **enhanced** classes differ from the main layer's
+  (`bIsoSlayerDiffers`): `/s2(4)3(5)` vs `/s3(4)(5)`. Structures with isotopes but no isotope-only
+  centre are unchanged (compared against the previous build).
+
+- ~~**P. Absolute centres did not flip as one (ES-R24, ES-R27).**~~ Found by advisor review,
+  then measured on 3-chlorobutan-2-ol.
+  (1) `invert_parities` *set* `nCompInv2Abs = -1` on an ABS flip instead of toggling it. The
+  flip only happens when a lower centre is OR/AND or ungrouped, and then both mirror images
+  flipped and both got `/m1`: ABS-C2 + AND-C3, wedges down/up and up/down — different substances —
+  both `/t3-,4-/m1/s1(4)3(3)`. Pre-existing since the first implementation.
+  (2) An ungrouped wedge counted as absolute only in a component without OR/AND. Beside a single
+  OR or AND group, the reduction emitted bare `/s2`/`/s3` and `/m` was zeroed, so all four wedge
+  sets of OR-C2 + ungrouped C3 gave `/t3-,4-/s2`: two substances, one InChI.
+  Now `absolute_centres` collects STEABS stereocentres plus defined (`+`/`-`) centres in no
+  collection; that set is normalised as one group and toggles `/m`; `/m` survives iff it is
+  non-empty; and `MakeSlayerString` keeps a single OR/AND group grouped beside an ungrouped wedge.
+  No pinned output changed (G1–G10 green unmodified).
+
+- ~~**I. `/s` emitted classes for atoms that are not stereocentres (ES-R26).**~~
+  `MakeEnhStereoString` admitted a collection atom on the sole test that it maps into the
+  component, so a group could name an atom absent from `/t`, or a component whose `/t` is empty.
+  Re-derived by measurement before fixing, as resolved-D advised. Confirmed: `3(1,3)` for `3(3)`
+  when an AND group names a CH₃ beside its centre; a bare `1` for a component whose only
+  centre is ungrouped, from ABS on one of its CH₂; a `1` on water or OH⁻; the two pinned sightings
+  (`…;1(6)3(7,8)` on an empty-`/t` C₈H₁₈, `1(7)3(8,9)` with 7 not in `/t8-,9+`). **Wider than
+  recorded:** `component_has_collection_atom` shared the test, so ABS on a CH₂ of an AND-only
+  component kept `/m` alive (`/m10/s;1(3)3(4)` for `/m1./s;3`), and it reached `/t`:
+  `invert_parities` normalised each group by its lowest canonical atom, centre or not; a CH₃ there
+  has no parity, so the group's sign flip was skipped. 3-chlorobutan-2-ol with AND on C2 measured
+  `/t3-,4+` when the group also listed the CH₃ and `/t3-,4-` when it did not — one racemate, two
+  InChIs, in two of the four wedge combinations. All three paths now go through
+  `lookup_stereo_centre`, which also requires the atom in the component's `/t`. A component
+  without stereo data admits nothing.
+
+- ~~**O. Uniform multi-component `/s` differed from standard (ES-R25).**~~ Two all-ABS components
+  emitted `/s2*1` (`/s2*1;;` with spectators) where standard InChI has `/s1`, breaking the §2
+  backward-compatibility invariant beyond one component (G6 covered one). OR/AND likewise:
+  `/s2*2`, `/s2*3;;` against `-SRel`/`-SRac`'s `/s2`, `/s3`. `MakeSlayerString` now emits the
+  single digit when every component with sp3 centres reduces to the same bare digit and the rest
+  have none. A stereo component without a collection (ungrouped wedge) blocks the reduction, so
+  `/s;3` stays positional. Sound only because ES-R23 keeps OR/AND groups inside one component.
+
+- ~~**L. `/s` merged non-adjacent components (ES-R21).**~~ `MakeSlayerString` collected the
+  per-component substrings in a dictionary that merged equal strings from any position, then
+  printed them first-seen. Pentanol + racemic butanol + water gave `/s2*;3` (water racemic)
+  for `/s;3;`. Every existing multi-component test had its equal components adjacent. Now one
+  slot per component; only consecutive equal non-empty substrings fold, as in `/t` and `/q`.
+- ~~**M. `-AuxNone` corrupted `/t` and `/m` (ES-R22).**~~ `OutputINChI1` assigns `pINChI_Aux`
+  only when AuxInfo is output, so with `-AuxNone` `set_EnhancedStereo_t_m_layers` received the
+  aux of the last component an earlier loop saw. Membership and sign flips ran against the wrong
+  component; stereo-free spectators changed `/m` (`/m10..` where none is due) because they
+  changed which component that was. Now passed `is->pINChI_Aux[jj]`.
+- ~~**N. OR/AND groups spanning components were split silently (ES-R23).**~~ One STERAC1 over two
+  alcohols, the same with one wedge flipped, and two independent STERAC groups all gave
+  `/t5-;4-/s2*3`. Each component was normalised and reduced on its own, losing the coupling.
+  First fixed in the reader with a union-find over the CTab bonds. Advisor review showed that is
+  not InChI's component split, and both ways were measured: Mg bis(butan-2-olate) with STERAC1 over
+  both ligands passed (Mg is disconnected later) and two different substances shared
+  `/t2*4-;/s3`; and a haptically bound ligand that `-MolecularInorganics` keeps in the metal's
+  component was falsely rejected. The check now runs after preprocessing on InChI's own
+  component numbers (`runichi3.c` `StereoGroupSpansComponents`), only with
+  `-EnhancedStereochemistry`, and drops the collections from every copy of the structure.
+  Remaining ceilings: every collection atom counts, not only stereocentres (they are not known
+  yet at that point); and with `-RecMet` a group inside one reconnected component but across
+  disconnected ones is rejected for both layers.
 
 **Resolved in 0.9** (kept for traceability):
 
@@ -427,40 +546,168 @@ atom-group   = "(" atom *("," atom) ")" ; canonical atom numbers, ascending with
 atom         = 1*DIGIT                  ; canonical (final) atom rank
 ```
 
-Rules (each **MUST** hold; as of 0.6 the code meets all of them):
+Rules (each **MUST** hold; as of 1.0 the code meets all of them, gated by G1–G11):
+- An `atom` **MUST** be a stereocentre of the component's `/t`; collection atoms that are not
+  are ignored *(ES-R26)*.
 - Within an `atom-group`, atoms **MUST** be in ascending canonical order; `atom-group`s within
   an `s-type` **MUST** be ordered by their smallest atom.
-- `/m` **MUST** be present iff the component has at least one ABS collection member; it
+- `/m` **MUST** be present iff the component's absolute set — its ABS collection members plus
+  its wedged centres in no collection — is non-empty (ES-R24); it
   **MUST NOT** appear when the component has only OR/AND centres, and in a multi-component
   structure this is decided **per component** — the `.` placeholder is used for the components
   that carry no ABS reference, and the segment is omitted entirely when none do
-  *(ES-R18, [DECK] slide 10, §5 resolved-G)*. Note the criterion is collection **membership**,
-  matching what `/s` itself admits, not stereocentre-hood — see §5.I.
+  *(ES-R18, [DECK] slide 10, §5 resolved-G)*. The criterion is membership of a **stereocentre**
+  of the component's `/t`, the same test `/s` applies *(ES-R26)*. A spectator without stereo gets
+  `.` and never changes another component's digit (ES-R22).
 - A component whose centres are all ABS **MUST** reduce to the standard `/s1` (identical to
   `SAbs`); a single OR group **MUST** reduce to `/s2`; a single AND group to `/s3` *(ES-R11,
-  ES-R17)*. Two or more OR (resp. AND) groups **MUST NOT** be reduced — the grouping is
+  ES-R17)* — unless the component also has wedged centres in no collection, which keeps the
+  group explicit, e.g. `/m1/s2(4)` *(ES-R24)*. Two or more OR (resp. AND) groups **MUST NOT** be reduced — the grouping is
   information the bare digit would lose.
 - The lowest-numbered centre of each group **MUST** be normalised to `-` (whole-group sign
-  flip; ABS groups additionally toggle `/m`).
+  flip). The absolute set counts as one group, and its flip **MUST** toggle `/m` *(ES-R27)*.
 - Canonical atom numbers **MUST** be derived from the collection's molfile atom indexes through
   the final atom order, whatever those indexes are — output **MUST NOT** depend on the input
   numbering *(ES-R20)*.
-- Multi-component output uses the existing `count*substring` / `;` composition (extension).
+- Multi-component output uses the existing `count*substring` / `;` composition (extension):
+  positional, one `;` slot per component, `n*` only over **consecutive** equal components,
+  empty slots never folded — e.g. `/t5-;4-;;` pairs with `/s;3;;` *(ES-R21)*. If every
+  component with sp3 centres reduces to the same bare digit and the rest have none, `/s` is that
+  single digit, as in standard InChI — `/s3`, not `/s2*3;;` *(ES-R25)*.
 
 ## 7. Assumptions & dependencies
 
 - **A-1** Input is MDL V3000 with `STEABS`/`STERELn`/`STERACn` `ATOMS=()` collections; V2000
   has no ESR channel, so a V2000 file yields standard output (no `/s` grouping) ✅ *(held since
   ES-R19; it used to crash instead whenever the V2000 structure had stereocentres)*.
-- **A-2** Each stereocentre belongs to **exactly one** collection ([BIOVIA]); the reader
-  MUST reject/diagnose violations ✅ *(held since ES-R12; diagnosed and the collections dropped,
-  so the enhanced layer degrades to standard output rather than encoding a guess)*.
+- **A-2** Each stereocentre belongs to **exactly one** collection ([BIOVIA]); the reader MUST
+  reject/diagnose violations. An OR/AND group lies within one **InChI** component — after salt
+  and metal disconnection, with haptic ligands kept only under `-MolecularInorganics` ✅ *(held
+  since ES-R12 / ES-R23; diagnosed and the collections dropped, so the enhanced layer degrades to
+  standard output rather than encoding a guess. Ceilings: §5 resolved-N)*.
 - **D-1** Depends on final **canonical ranks** (grouping/ordering use canonical atom numbers).
-- **A-3** Applies to centres present in the **non-isotopic** `/t` layer. Centres that are
-  stereogenic only through isotopic substitution are currently ignored by the grouping *(§5.J)*.
+- **A-3** Applies to sp³ centres of the non-isotopic and the isotopic `/t` layer alike; a centre
+  stereogenic only through isotopic substitution is grouped in the isotopic layer *(ES-R30)*.
 - **D-2** Depends on the existing `/t`+`/m` sp³ parity pipeline; enhanced grouping is layered
   on top, not a replacement.
 - **D-3** Reuses the `is_beta` mechanism for the `1B` prefix.
+
+## 8. Worked examples (multi-component)
+
+Measured on `feature/enh-stereo-hardening` with `-EnhancedStereochemistry`; each string is
+identical with and without `-AuxNone` (ES-R22). Gated by G11; the molfiles are in
+[datasets/multi_component/](datasets/multi_component/).
+
+**Structures.** Butan-2-ol (molfile atoms 1–5, centre **2**) and pentan-2-ol (atoms 6–11,
+centre **7**), each wedged, as two components. InChI orders them pentanol first (`C5H12O`), then
+butanol (`C4H10O`), then any spectator: water (atom 12), or Na⁺ (12) and OH⁻ (13). Canonical
+centres are pentanol 5, butanol 4. Everything up to `/t` is fixed per spectator set:
+
+```
+none   InChI=1B/C5H12O.C4H10O/c1-3-4-5(2)6;1-3-4(2)5/h5-6H,3-4H2,1-2H3;4-5H,3H2,1-2H3
+water  InChI=1B/C5H12O.C4H10O.H2O/c1-3-4-5(2)6;1-3-4(2)5;/h5-6H,3-4H2,1-2H3;4-5H,3H2,1-2H3;1H2
+Na/OH  InChI=1B/C5H12O.C4H10O.Na.H2O/c1-3-4-5(2)6;1-3-4(2)5;;/h5-6H,3-4H2,1-2H3;4-5H,3H2,1-2H3;;1H2/q;;+1;/p-1
+```
+
+Below, only the part from `/t` on is shown.
+
+### 8.1 Positional `/s` — one slot per component (ES-R21)
+
+| collections | spectators | `/t…` | wrong (pre-1.0) |
+|---|---|---|---|
+| `STERAC1 (1 2)` (butanol) | none | `/t5-;4-/m1./s;3` | — |
+| `STERAC1 (1 2)` (butanol) | water | `/t5-;4-;/m1../s;3;` | `/s2*;3` (reads: water racemic) |
+| `STERAC1 (1 2)` (butanol) | Na/OH | `/t5-;4-;;/m1.../s;3;;` | `/s3*;3` (reads: OH⁻ racemic) |
+| `STERAC1 (1 7)` (pentanol) | none | `/t5-;4-/m.0/s3;` | `/m10` with `-AuxNone` |
+
+Each `/s` slot lines up with the `/t` slot of the same component. `n*` folds consecutive equal
+non-empty slots only; an empty slot is always written out (`;;`), as in `/t` and `/q`.
+
+### 8.2 `/m` — absolute reference per component (ES-R18, ES-R22, ES-R24)
+
+| collections | `/t…` | why |
+|---|---|---|
+| `STERAC1 (1 2)`, pentanol wedge up | `/t5-;4-/m1./s;3` | ungrouped wedged pentanol keeps its digit; AND-only butanol gets `.` |
+| `STERAC1 (1 2)`, pentanol wedge down | `/t5-;4-/m0./s;3` | the other enantiomer of the pentanol stays distinct |
+| `STERAC1 (1 2)` + `STERAC2 (1 7)`, Na/OH | `/t5-;4-;;/s3` | no absolute reference anywhere: no `/m` segment; spectators do not revive it |
+
+### 8.2b Absolute set — mirror images must differ (ES-R24, ES-R27)
+
+3-chlorobutan-2-ol (§8.5), wedges written C2/C3 (up = `CFG=1`, down = `CFG=3`). An AND or OR group
+on one centre makes its two epimers one substance.
+
+| collections | wedges → `/t…` | pre-fix |
+|---|---|---|
+| `STEABS (1 2)` + `STERAC1 (1 3)` | up/up, up/down → `/t3-,4-/m1/s1(4)3(3)`; down/down, down/up → `/t3-,4-/m0/s1(4)3(3)` | down/up gave `/m1`: mirror of up/down, same InChI |
+| `STEREL1 (1 2)`, C3 ungrouped | up/up, down/up → `/t3-,4-/m1/s2(4)`; down/down, up/down → `/t3-,4-/m0/s2(4)` | all four `/t3-,4-/s2` |
+| `STERAC1 (1 2)`, C3 ungrouped | same split with `/s3(4)` | all four `/t3-,4-/s3` |
+
+### 8.3 Uniform class ⇒ standard single digit (ES-R25)
+
+| collections | spectators | `/t…` | equals |
+|---|---|---|---|
+| `STEABS (2 2 7)` | none | `/t5-;4-/m10/s1` | standard InChI |
+| `STEABS (2 2 7)` | Na/OH | `/t5-;4-;;/m10../s1` | standard InChI |
+| `STEREL1 (1 2)` + `STEREL2 (1 7)` | none | `/t5-;4-/s2` | `-SRel` |
+| `STERAC1 (1 2)` + `STERAC2 (1 7)` | Na/OH | `/t5-;4-;;/s3` | `-SRac` |
+
+Pre-1.0 these were `/s2*1`, `/s2*1;;`, `/s2*2`, `/s2*3;;`. Not reduced when a component with
+stereocentres has no collection: `/s;3` stays positional.
+
+### 8.4 OR/AND group spanning components (ES-R23)
+
+| collections | result |
+|---|---|
+| `STERAC1 (2 2 7)` or `STEREL1 (2 2 7)` | warning `V3000 collections: STERAC1 spans more than one component`; collections dropped; `/t5-;4-/m10/s1` (standard InChI with `1B`) |
+| `STEABS (2 2 7)` | accepted (§8.3) |
+
+Components are InChI's, not the drawing's. Mg bis(butan-2-olate), drawn as one molecule with
+`STERAC1` over both ligand centres: Mg is disconnected, the group spans the two butan-2-olates, so
+the same warning and standard output with `1B` — `/t2*4-;/m10./s1` or `/m11./s1` by wedges. Pre-fix
+both wedge sets gave `/t2*4-;/s3`. Conversely, a ligand bound haptically to Pt stays in Pt's
+component under `-MolecularInorganics`, so a `STERAC1` over a centre on it and one on another Pt
+ligand is kept: `/t5-,6-/s3`.
+
+Pre-1.0, one AND group over both, the same with the pentanol wedge flipped, and two independent
+AND groups all gave `/t5-;4-/s2*3`: three different mixtures, one identifier.
+
+### 8.4b Meso and isotope-only centres (ES-R29, ES-R30)
+
+| structure, collections | `-EnhancedStereochemistry` | pre-fix |
+|---|---|---|
+| butane-2,3-diol, `STERAC1 (1 2)` + `STERAC2 (1 3)`, chiral or meso drawing | `/t3-,4-/s3(3)(4)` both | meso: `/t3-,4-` (no `/s`) |
+| butane-2,3-diol meso, `STEABS (2 2 3)` | `/t3-,4+` (as standard) | same |
+| propan-2-ol-1-¹³C, `STEREL1 (1 2)`, either wedge | `/i1+1/t3-/s2` (== `-SRel`) | `/m0/s1` or `/m1/s1` |
+| propan-2-ol-1-¹³C, `STERAC1 (1 2)` | `/i1+1/t3-/s3` (== `-SRac`) | `/m0/s1` |
+| 3-chloro-2-methylbutane-¹³C, AND on C3 + OR on C2 | `/t5-/s3/i1+1/t4-,5-/s2(4)3(5)` | `/t5-/s3/i1+1/t4-,5-` |
+| same, AND on C3 + AND on C2 | `/t5-/s3/i1+1/t4-,5-/s3(4)(5)` | `/t5-/s3/i1+1/t4-,5-` |
+| Mg bis(butan-2-olate), one AND group per ligand, `-RecMet` | `…/t2*4-;/s3/r…/t7-,8-/s3(7)(8)` | crash under valgrind; `/r` without `/s` |
+
+### 8.5 Collection atoms that are not stereocentres (ES-R26)
+
+| collections | `/t…` | wrong (pre-1.0) |
+|---|---|---|
+| `STERAC1 (1 2)` + `STEABS (1 9)` (CH₂ of pentanol) | `/t5-;4-/m1./s;3` | `/s1;3` |
+| `STERAC1 (1 2)` + `STEABS (1 4)` (CH₂ of butanol) | `/t5-;4-/m1./s;3` | `/m10/s;1(3)3(4)` |
+| `STERAC1 (1 2)` + `STEABS (1 12)` (water O) | `/t5-;4-;/m1../s;3;` | `/s;3;1` |
+
+Single component, 3-chlorobutan-2-ol (C2–OH, C3–Cl, both wedged up): `STEABS (1 2)` +
+`STERAC1 (2 3 4)`, where atom 4 is the CH₃ next to C3:
+
+```
+InChI=1B/C4H9ClO/c1-3(5)4(2)6/h3-4,6H,1-2H3/t3-,4-/m1/s1(4)3(3)
+```
+
+Pre-1.0: `…/s1(4)3(1,3)`, naming canonical atom 1 (a CH₃) as racemic.
+
+The same molecule with `STEABS (1 3)` and the AND group on C2 plus its CH₃, `STERAC1 (2 1 2)`,
+C2 wedged up and C3 down — the CH₃ must not stop the group's sign normalisation:
+
+```
+InChI=1B/C4H9ClO/c1-3(5)4(2)6/h3-4,6H,1-2H3/t3-,4-/m0/s1(3)3(4)
+```
+
+Pre-1.0: `…/t3-,4+/m0/s1(3)3(4)`, while `STERAC1 (1 2)` without the CH₃ gave `/t3-,4-`.
 
 [RFC 5234]: https://www.rfc-editor.org/rfc/rfc5234
 [rdkit/rdkit#8873]: https://github.com/rdkit/rdkit/issues/8873

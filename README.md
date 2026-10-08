@@ -9,7 +9,7 @@ of what is done vs. missing.
 
 | # | Spec | Feature | Status | Branch |
 |---|------|---------|--------|--------|
-| 1 | [enhanced-stereo](enhanced-stereo/SPEC.md) | V3000 ABS/OR/AND enhanced stereo for tetrahedral centres (grouped `/s` layer) | **Mostly implemented** — needs completion/verification | `dev` |
+| 1 | [enhanced-stereo](enhanced-stereo/SPEC.md) | V3000 ABS/OR/AND enhanced stereo for tetrahedral centres (grouped `/s` layer) | **Implemented** — v1.0, every requirement closed, no open issue | `feature/enh-stereo-hardening` |
 | 2 | [allenes](allenes/SPEC.md) | Axial chirality of allenes/cumulenes + single-stereobond + enhanced OR/AND | Classic done; single-bond & enhanced **not done** | `dev` |
 | 3 | [double-bond-ez](double-bond-ez/SPEC.md) | Enhanced OR/AND for C=C double bonds (grouped `/b` layer) | Classic `/b` done; enhanced **not done at all** | `dev` |
 | 4 | [atropisomers](atropisomers/SPEC.md) | Axial chirality about a hindered single bond | **Partly implemented** (detection + parity); emission not done | `atropisomers` |
