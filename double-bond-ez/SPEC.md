@@ -17,7 +17,7 @@
 
 - ✅ **Works:** classic absolute `/b`; either/crossed/wavy bonds; V3000 `STEBABS`/`STEBRELn`/
   `STEBRACn` input; grouped `/b2(…)`/`/b3(…)` output; combined with `/t`+`/s`. Test suite
-  `test_doubleBondEZ` (10 tests).
+  `test_doubleBondEZ` (11 tests).
 - ✅ **Fixed (shared with Spec 1):** component order no longer depends on input order (§5).
 - ❌ **Open:** grouped `/b` in fixed-H and isotopic layers; InChI→structure parsing of grouped
   `/b`.
@@ -132,8 +132,9 @@ All in `INCHI-1-TEST/tests/test_unit/test_doubleBondEZ.cpp`.
   `/b2(2-1-);3(2-1-)` vs `/b3(2-1-);2(2-1-)`, `/s2;3` vs `/s3;2`. Now OR/AND parities are
   normalised before the sort and the component's own `/s` and `/b` strings break ties before
   input order.
-- **Haptic bonds.** A `BONDS=(k)` index is taken as the k-th bond line; with haptic bonds present
-  the bond collections are treated as unknown and dropped.
+- **Resolved — bond indices.** `BONDS=(k)` names a bond by its V3000 index, recorded while
+  reading (`MOL_FMT_v3000.bond_index_orig`), not by line position; reordered or gapped indices
+  work. A haptic bond in a bond collection is unknown and drops the collections.
 - **InChI→structure.** `ichiread.c` rejects grouped `/b` (as it rejects grouped `/s` from Spec 1);
   parsing `1B` grouped layers is out of scope for both specs.
 - **Fixed-H / isotopic `/b`.** Grouped only in the main layer; elsewhere flat (EZ-R12).
