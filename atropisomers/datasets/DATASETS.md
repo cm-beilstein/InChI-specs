@@ -11,8 +11,9 @@ fields; the `Isomer` label is the oracle for the B gates (M → `/m0`, P → `/m
 
 Referenced by molecule index in the design/tests:
 - **mol 1–4** — canonical biaryl atropisomers → axis must be a candidate.
-- **mol 12** — bridged biaryl, axis inside an **8-membered** ring → candidate (ring filter is
-  `≤6` only; ≥7 rings remain candidates).
+- **mol 12** — a drawing of 2-M (`C12H6Br2Cl2`), see the encoding gate below. The bridged
+  biaryls are `test_dummy_12` (7-ring, no ortho substituent → no axis) and mols 22–26 (8-ring
+  lignans → `/t19-`, 2 bridge positions suffice in an 8-ring).
 - **mol 13** — Caryophyllene, macrocyclic → stereo stays classical; must not change output.
 - **mol 14** — biaryl (also the `test_dummy_14` end-to-end molecule).
 - **mol 43** — `C14H26`, **fully acyclic** → central `C1–C2` axis is a candidate (proves no
