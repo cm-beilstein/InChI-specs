@@ -31,7 +31,7 @@ Reference biaryl `C12H6Br2Cl2`. Standard InChI (option off):
 ```
 InChI=1S/C12H6Br2Cl2/c13-7-3-1-5-9(15)11(7)12-8(14)4-2-6-10(12)16/h1-6H
 ```
-With `-Atropisomers` (single, lower-numbered axis atom = 11; dataset mols 7 and 36):
+With `-EnhancedStereochemistry` (single, lower-numbered axis atom = 11; dataset mols 7 and 36):
 ```
 InChI=1B/C12H6Br2Cl2/c13-7-3-1-5-9(15)11(7)12-8(14)4-2-6-10(12)16/h1-6H/t11-/m0/s1   (one isomer)
 InChI=1B/C12H6Br2Cl2/c13-7-3-1-5-9(15)11(7)12-8(14)4-2-6-10(12)16/h1-6H/t11-/m1/s1   (enantiomer)
