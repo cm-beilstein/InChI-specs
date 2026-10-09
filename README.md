@@ -9,10 +9,14 @@ of what is done vs. missing.
 
 | # | Spec | Feature | Status | Branch |
 |---|------|---------|--------|--------|
-| 1 | [enhanced-stereo](enhanced-stereo/SPEC.md) | V3000 ABS/OR/AND enhanced stereo for tetrahedral centres (grouped `/s` layer) | **Implemented** — v1.0, every requirement closed, no open issue | `feature/enh-stereo-hardening` |
-| 2 | [allenes](allenes/SPEC.md) | Axial chirality of allenes/cumulenes + single-stereobond + enhanced OR/AND | Classic done; single-bond & enhanced **not done** | `dev` |
-| 3 | [double-bond-ez](double-bond-ez/SPEC.md) | Enhanced OR/AND for C=C double bonds (grouped `/b` layer) | Classic `/b` done; enhanced **not done at all** | `dev` |
-| 4 | [atropisomers](atropisomers/SPEC.md) | Axial chirality about a hindered single bond | **Partly implemented** (detection + parity); emission not done | `atropisomers` |
+| 1 | [enhanced-stereo](enhanced-stereo/SPEC.md) | V3000 ABS/OR/AND enhanced stereo for tetrahedral centres (grouped `/s` layer) | **Implemented** — v1.2, every requirement closed, no open issue | `atropisomers` (base: `feature/enh-stereo-hardening`) |
+| 2 | [allenes](allenes/SPEC.md) | Axial chirality of allenes/cumulenes + single-stereobond + enhanced OR/AND | **Implemented** — v0.5; open: cumulene length, slide-21 molecule | `atropisomers` (from `feature/allenes`) |
+| 3 | [double-bond-ez](double-bond-ez/SPEC.md) | Enhanced OR/AND for C=C double bonds (grouped `/b` layer) | **Implemented** — v0.4; open: reading grouped `/b` back, fixed-H/isotopic `/b` | `atropisomers` (from `feature/double-bond-ez`) |
+| 4 | [atropisomers](atropisomers/SPEC.md) | Axial chirality about a hindered single bond | **Implemented** — v0.6 (detection, `/t`+`/m`); open: reparse round-trip, C–N/N–N axes | `atropisomers` |
+
+All four run under one option, `-EnhancedStereochemistry`, with prefix `InChI=1B/`. Branch
+`atropisomers` contains all of them. Old vs. new InChI for representative molecules, with
+step-by-step diagrams for chemists: https://cm-beilstein.github.io/InChI-enh-Stereo/
 
 ## Source documents
 
