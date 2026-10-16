@@ -18,7 +18,8 @@ All four run under one option, `-EnhancedStereochemistry`, with prefix `InChI=1B
 `atropisomers` contains all of them. Old vs. new InChI for representative molecules, with
 step-by-step diagrams for chemists: https://cm-beilstein.github.io/InChI-enh-Stereo/
 Chemist-oriented walkthrough per spec: `<spec>/explain.html` (built by `tools/explain.py`;
-so far [enhanced-stereo](enhanced-stereo/explain.html)).
+[enhanced-stereo](enhanced-stereo/explain.html), [allenes](allenes/explain.html),
+[double-bond-ez](double-bond-ez/explain.html), [atropisomers](atropisomers/explain.html)).
 
 ## Source documents
 
