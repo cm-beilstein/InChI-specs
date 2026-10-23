@@ -198,6 +198,33 @@ $gallery
   <div class="result"><span class="inchi">$ch3_tail</span></div></div>
 </div>
 
+<h2 id="meso">When a label changes nothing: meso compounds</h2>
+<p>trans-Cyclohexane-1,4-diol has a mirror plane through C1, C4 and both OH groups. Its mirror
+image is the same molecule. So <span class="chip c-and">&amp;1</span> means "a 1:1 mixture of
+this molecule and itself", and <span class="chip c-or">or1</span> means "this molecule or
+itself". Both say nothing beyond the drawing, so InChI ignores them.</p>
+<div class="two">
+  <div class="pic">$meso_pic</div>
+  <div><dl class="strings">
+    <dt>no label</dt><dd class="inchi">$meso_plain</dd>
+    <dt><span class="chip c-and">&amp;1</span> on both centres</dt><dd class="inchi">$meso_and</dd>
+    <dt><span class="chip c-or">or1</span> on both centres</dt><dd class="inchi">$meso_or</dd>
+  </dl>
+  <p class="muted">The rule: a group is ignored when it holds every stereocentre of a meso
+  molecule. One group per centre is different: flipping one centre turns trans into cis, a
+  different molecule, so those groups stay.</p></div>
+</div>
+<div class="two">
+  <div class="pic">$meso_limit_pic</div>
+  <div><h3>Not yet handled: a meso part inside a chiral molecule</h3>
+  <p>The side-chain centre makes this molecule chiral. The two ring centres only fix trans:
+  flipping both keeps the ring trans. So <span class="chip c-and">&amp;1</span> on the ring says
+  nothing, and the InChI should be the unlabelled one, <code>$meso_limit_want</code>.</p>
+  <div class="dropped"><b>Current result:</b> <span class="inchi">$meso_limit_tail</span><br>
+  InChI only checks whether mirroring the <i>whole</i> molecule changes it. Checking a part
+  needs a symmetry search inside InChI's core; this is an open issue.</div></div>
+</div>
+
 <h2 id="real">Reading a real string</h2>
 <p>The example from the BIOVIA white paper on enhanced stereochemistry uses every class, with two
 or groups and two &amp; groups. Grey numbers are canonical.</p>

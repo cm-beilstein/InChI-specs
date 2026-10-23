@@ -116,6 +116,25 @@ def ignored():
     return dict(ch3_pic=picture(smiles), ch3_tail=mark(stereo_tail(enh)))
 
 
+def meso():
+    """Groups that change nothing (GitHub #286): ignored on a meso molecule,
+    still emitted on a meso part of a chiral one (open issue)."""
+    diol = "O[C@H]1CC[C@H](O)CC1"  # trans
+    tails = [stereo_tail(inchi(diol + labels)[0]) for labels in ("", " |&1:1,4|", " |o1:1,4|")]
+    assert tails == ["/t5-,6-"] * 3, tails
+
+    ether = "O[C@H]1CC[C@H](OCC[C@H](N)C)CC1"
+    want = stereo_tail(inchi(ether)[0])
+    got = stereo_tail(inchi(ether + " |&1:1,4|")[0])
+    assert want == "/t8-,9-,10-/m1/s1", want
+    assert got == "/t8-,9-,10-/m1/s3(9,10)", got
+
+    return dict(meso_pic=picture(diol + " |&1:1,4|"),
+                meso_plain=mark(tails[0]), meso_and=mark(tails[1]), meso_or=mark(tails[2]),
+                meso_limit_pic=picture(ether + " |&1:1,4|"),
+                meso_limit_want=html.escape(want), meso_limit_tail=mark(got))
+
+
 def biovia():
     """The BIOVIA white paper example: every class, several groups."""
     path = os.path.join(SPECS, "enhanced-stereo", "datasets", "biovia_white_paper_fig22.mol")
@@ -134,7 +153,7 @@ def biovia():
 
 def parts():
     iso_svgs = {k: isomer(s) for k, s in ISOMERS.items()}
-    out = dict(gallery=gallery(iso_svgs), **flow(), **multi(), **ignored(), **biovia())
+    out = dict(gallery=gallery(iso_svgs), **flow(), **multi(), **ignored(), **meso(), **biovia())
 
     # Hero: the three labellings that standard InChI cannot separate
     hero = []
