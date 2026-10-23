@@ -4,7 +4,7 @@ Usage (from the repo root; RDKit >= 2024 needed):
   INCHI_NEW=/path/to/atropisomers/inchi-1 python tools/explain.py [spec ...]
 
   spec: enhanced-stereo, allenes, double-bond-ez, atropisomers,
-        impossible-ring-stereo (default: all)
+        impossible-ring-stereo, inchi-versioning (default: all)
 
 Each spec has a module tools/explain_<name>.py whose parts() returns the
 $fields of <spec>/explain.template.html; tools/explain.css is inlined as
@@ -36,6 +36,7 @@ from comments import snippet, spec_link  # noqa: E402
 build.COLL_LABEL["RAC"] = "&"
 
 EXE = os.environ.get("INCHI_NEW", "")
+OLD_EXE = os.environ.get("INCHI_OLD", "")  # the spec's 'old' binary, if it has one
 ENH = ["-EnhancedStereochemistry"]
 ISO_W, ISO_H = 200, 150
 
@@ -46,6 +47,7 @@ SPEC_MODULES = {
     "double-bond-ez": "explain_ez",
     "atropisomers": "explain_atropisomers",
     "impossible-ring-stereo": "explain_ring",
+    "inchi-versioning": "explain_versioning",
 }
 
 

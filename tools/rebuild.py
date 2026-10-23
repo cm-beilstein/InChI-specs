@@ -7,7 +7,11 @@ Builds every inchi-1 revision named in tools/site.json once (cached in
 ~/.cache/inchi-specs/<rev>/inchi-1), checks out site.json 'dataRev' for the
 molblocks that tests and fixtures provide, then runs tools/build.py and,
 per spec with an explain module, tools/explain.py with that spec's 'new'
-binary. Prints which generated files changed (git status).
+binary (INCHI_NEW) and its 'old' one (INCHI_OLD). Prints which generated
+files changed (git status).
+
+Touches the InChI clone only through 'git fetch' and temporary detached
+worktrees (removed again); its checked-out branch and files stay as they are.
 
   spec  only regenerate these specs' explanation pages (examples and the
         landing page are always rebuilt: molecule IDs are global)
@@ -99,8 +103,9 @@ def main():
                 key = spec["key"]
                 if key not in SPEC_MODULES or (args.specs and key not in args.specs):
                     continue
+                old = bins[spec["old"]["rev"]] if "old" in spec else ""
                 run([sys.executable, os.path.join(TOOLS, "explain.py"), key], cwd=ROOT,
-                    env=dict(env, INCHI_NEW=bins[spec["new"]["rev"]]))
+                    env=dict(env, INCHI_NEW=bins[spec["new"]["rev"]], INCHI_OLD=old))
 
             run([sys.executable, os.path.join(TOOLS, "build.py")], cwd=ROOT, env=env,
                 stderr=subprocess.DEVNULL)
