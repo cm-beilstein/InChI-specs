@@ -38,9 +38,13 @@ becomes an open issue marked unverified.
 - §5: new limitations as open issues; fixed ones move to "Resolved in <version>",
   struck through, kept.
 - Test counts, re-counted (`<test binary> --gtest_list_tests`), not adjusted by hand.
+- ✅/❌ markers of requirements and gates: the landing page's "Done" column counts them.
+- Readiness: if a decision closed (or opened) a gap, propose the new verdict to the user.
+- Datasets: molecules added for the change go into `datasets/` and `DATASETS.md`.
 - Worked examples: measured before/after rows.
 
-Then the README status column of each touched spec.
+Then the repo `README.md`: status column of each touched spec, new source documents,
+molecule-ID range.
 
 ## 4. Update the site
 

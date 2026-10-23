@@ -21,6 +21,8 @@ check `grep -h "Requirement prefix" */SPEC.md`).
 | **Author** | <name> |
 | **Reviewers** | TBD |
 | **Requirement prefix** | `<XX>-` |
+| **Readiness** | <ready / ready with open points / not ready> — <gaps>, confirmed <YYYY-MM-DD> |
+| **Kick-off documents** | [`docs/<topic>/`](../docs/<topic>/) |
 | **Change history** | 0.1 (<YYYY-MM-DD>) — initial spec from <issue/PR>; measured against <rev>. |
 
 > Normative keywords (MUST/SHOULD/MAY) per [RFC 2119](../README.md#requirement-conventions-normative);
@@ -58,6 +60,8 @@ Decisions taken in the issue thread go here, with who decided and when.>
 | <XX>-R1 | <testable statement> | Must / Should / Could | ✅ done + gated (G1) / ❌ open |
 
 ### Gates
+
+Molecules and their sources: [datasets/DATASETS.md](datasets/DATASETS.md).
 
 - **G1** — <test file :: test name>: <what it pins>. ✅ passes / ❌ missing.
 

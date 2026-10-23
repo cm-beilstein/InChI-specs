@@ -8,78 +8,113 @@ stereochemistry work streams of IUPAC project
 [2019-017-2-800](https://iupac.org/project/2019-017-2-800/) ("Enhanced recognition and
 encoding of stereoconfiguration by InChI tools").
 
-| # | Spec | Feature | Status | Branch |
-|---|------|---------|--------|--------|
-| 1 | [enhanced-stereo](enhanced-stereo/SPEC.md) | V3000 ABS/OR/AND enhanced stereo for tetrahedral centres (grouped `/s` layer) | **Implemented** — v1.3; open: groups on a meso subset (§5.S) | `atropisomers` (base: `feature/enh-stereo-hardening`) |
-| 2 | [allenes](allenes/SPEC.md) | Axial chirality of allenes/cumulenes + single-stereobond + enhanced OR/AND | **Implemented** — v0.6; open: cumulene length, slide-21 molecule, pseudo-asymmetric axis | `atropisomers` (from `feature/allenes`) |
-| 3 | [double-bond-ez](double-bond-ez/SPEC.md) | Enhanced OR/AND for C=C double bonds (grouped `/b` layer) | **Implemented** — v0.5; open: reading grouped `/b` back, fixed-H/isotopic `/b` | `atropisomers` (from `feature/double-bond-ez`) |
-| 4 | [atropisomers](atropisomers/SPEC.md) | Axial chirality about a hindered single bond | **Implemented** — v0.6 (detection, `/t`+`/m`); open: reparse round-trip, C–N/N–N axes | `atropisomers` |
-| 5 | [explanation](impossible-ring-stereo/explain.html) | Detect physically impossible ring stereo (in/out bridgeheads, trans fusion) | **Proposed** — [IUPAC-InChI/InChI#287](https://github.com/IUPAC-InChI/InChI/issues/287), to be discussed | — |
-| 6 | [inchi-versioning](inchi-versioning/SPEC.md) | Version prefix `1S`/`1B`/`1N` + subversion `B` (Molecular Inorganics), InChIKey flags `SA`…`NB` | **Implemented** — v0.1 (#280); open: combining letters, metalloids, lookup table | `dev` |
+| # | Spec | Feature | Status | Ready | Branch |
+|---|------|---------|--------|-------|--------|
+| 1 | [enhanced-stereo](enhanced-stereo/SPEC.md) | V3000 ABS/OR/AND enhanced stereo for tetrahedral centres (grouped `/s` layer) | **Implemented** — v1.3; open: groups on a meso subset (§5.S) | not assessed | `atropisomers` (base: `feature/enh-stereo-hardening`) |
+| 2 | [allenes](allenes/SPEC.md) | Axial chirality of allenes/cumulenes + single-stereobond + enhanced OR/AND | **Implemented** — v0.6; open: cumulene length, slide-21 molecule, pseudo-asymmetric axis | not assessed | `atropisomers` (from `feature/allenes`) |
+| 3 | [double-bond-ez](double-bond-ez/SPEC.md) | Enhanced OR/AND for C=C double bonds (grouped `/b` layer) | **Implemented** — v0.5; open: reading grouped `/b` back, fixed-H/isotopic `/b` | not assessed | `atropisomers` (from `feature/double-bond-ez`) |
+| 4 | [atropisomers](atropisomers/SPEC.md) | Axial chirality about a hindered single bond | **Implemented** — v0.6 (detection, `/t`+`/m`); open: reparse round-trip, C–N/N–N axes | not assessed | `atropisomers` |
+| 5 | [explanation](impossible-ring-stereo/explain.html) | Detect physically impossible ring stereo (in/out bridgeheads, trans fusion) | **Proposed** — [IUPAC-InChI/InChI#287](https://github.com/IUPAC-InChI/InChI/issues/287), to be discussed | not assessed | — |
+| 6 | [inchi-versioning](inchi-versioning/SPEC.md) | Version prefix `1S`/`1B`/`1N` + subversion `B` (Molecular Inorganics), InChIKey flags `SA`…`NB` | **Implemented** — v0.1 (#280); open: combining letters, metalloids, lookup table | not assessed | `dev` |
 
-The four implemented ones run under one option, `-EnhancedStereochemistry`, with prefix `InChI=1B/`. Branch
-`atropisomers` contains all of them.
+`#` is the spec number and the landing row (`#f<n>`). Specs 1–4 run under one option,
+`-EnhancedStereochemistry`, with prefix `InChI=1B/`; branch `atropisomers` contains all of them.
+
+## Layout
+
+```
+index.html                 landing page (generated)
+<key>/SPEC.md              specification, for developers
+<key>/explain.html         explanation for chemists (generated from explain.template.html)
+<key>/examples/            old vs. new InChI per molecule (generated)
+<key>/workflow.html        how the new InChI is built, step by step (optional)
+<key>/datasets/            molecules the spec, tests and pages use; DATASETS.md lists them
+docs/<topic>/              kick-off documents (issue attachments, decks, papers)
+tools/                     generators and helpers, below
+skills/                    Claude Code skills for this workflow, below
+```
 
 ## Site
 
-[InChI Specifications](https://cm-beilstein.github.io/InChI-specs/) — per spec, four documents,
-plus its branch, issues and pull requests in IUPAC-InChI/InChI (`TRACKING` in `tools/build.py`):
+[InChI Specifications](https://cm-beilstein.github.io/InChI-specs/), served from `main` by
+GitHub Pages. One row per feature (`tools/site.json`, in order) with these columns:
 
-| File | For | Built by |
+| Column | Content | Source |
 |---|---|---|
-| `<spec>/SPEC.md` | developers: requirements, gates, open issues | hand |
-| `<spec>/explain.html` | chemists: what the labels mean, how they reach the InChI | `tools/explain.py` from `explain.template.html` |
-| `<spec>/examples/` | old vs. new InChI per molecule (`index.html`, `<table>.sdf`, `svg/`) | `tools/build.py` from `tools/molecules.py` |
-| `<spec>/workflow.html` | chemists: the new InChI built step by step | [archify](https://github.com/tt-a1i/archify) from `tools/workflow/<table>.json` |
+| Ready | is the information sufficient to implement? ready / open points / not ready | Readiness row in the SPEC.md header, confirmed by a person |
+| Done | Must/Should requirements and gates met | ✅ markers in the SPEC.md requirement table and Gates section |
+| For chemists | explanation page | `<key>/explain.html` |
+| Examples | old vs. new InChI (and InChIKey) per molecule | `<key>/examples/` |
+| Technical | specification, workflow, datasets, kick-off documents | `SPEC.md`, `workflow.html`, `datasets/DATASETS.md`, `docs/<topic>/` |
+| GitHub | branch, issues and pull requests in IUPAC-InChI/InChI | `tracking` in `tools/site.json` |
+| Discussion | the feature's general discussion | `specDiscussions` in `tools/giscus.json` |
 
 Molecule IDs are global over all specs (1–129 at present) and never renumbered: issue
 comments refer to them. New molecules get the next free number. `#m13` links to molecule 13.
 
-Rebuild (RDKit needed; `../InChI` checked out on `atropisomers`):
+### Tools
 
-```
-INCHI_OLD=/path/dev/inchi-1 INCHI_NEW=/path/atropisomers/inchi-1 python tools/build.py
-INCHI_NEW=/path/atropisomers/inchi-1 python tools/explain.py
-```
+| Command | Does |
+|---|---|
+| `python tools/rebuild.py` | builds the InChI revisions named in `site.json` (cached in `~/.cache/inchi-specs/`), regenerates explanation, examples and landing pages |
+| `python tools/audit.py <key>` | lists every document of a feature as ok or MISSING |
+| `python tools/new_discussion.py <key>` | creates the feature's general discussion once |
+
+Python with RDKit ≥ 2024 (e.g. `~/.venvs/inchi-specs`), an InChI clone at `../InChI`, `gh`
+logged in. `rebuild.py` only fetches and adds temporary worktrees in the clone; it leaves
+the checked-out branch alone.
 
 ### Comments
 
-Every molecule and every explain section has a **Comment** button that opens its own
+Every molecule and every explanation section has a **Comment** button that opens its own
 [giscus](https://giscus.app) thread, stored in this repo's Discussions, titled e.g.
 `enhanced-stereo · molecule 13` or `enhanced-stereo · explain · meso`. Commenting needs a
-GitHub account. Setup: Discussions on, giscus app installed, a discussion category for the
-threads (here: Announcements, so only giscus opens threads; everyone can reply); then fill
-`tools/giscus.json` (`repo`, `repoId`, `category`, `categoryId`, shown on https://giscus.app)
-and rebuild. With `repo` empty the pages have no buttons.
+GitHub account. Each feature also has a general discussion (`<key> · general`), linked from
+every page and opened by the landing page's Comment buttons. Configuration:
+`tools/giscus.json` (category Announcements: only giscus opens threads, everyone replies).
 
-Each spec also has a general discussion (`<spec> · general`, numbers in
-`specDiscussions` of `tools/giscus.json`), linked from every page and opened in place by
-the landing page's Comment buttons.
+## Skills
+
+Two [Claude Code](https://claude.com/claude-code) skills in `skills/` run this workflow;
+link them into `~/.claude/skills/` to use them:
+
+- **inchi-feature-check** — takes an issue/PR/feature through kick-off documents,
+  readiness, datasets, unit tests, code, spec, site entry with discussion, examples and
+  explanation, and creates what is missing.
+- **inchi-feature-update** — after a code change, finds every affected document (including
+  sibling specs) and updates it from measurements.
 
 ## Source documents
 
-Authored project documents are vendored in [`docs/`](docs/):
+Kick-off documents live in `docs/<topic>/`, one folder per topic. Stereochemistry
+(specs 1–4), in [`docs/stereochemistry/`](docs/stereochemistry/):
 
-- [`docs/2026-07-22 Enhanced stereochemistry V00.pptx`](docs/2026-07-22%20Enhanced%20stereochemistry%20V00.pptx)
+- [`docs/stereochemistry/2026-07-22 Enhanced stereochemistry V00.pptx`](docs/stereochemistry/2026-07-22%20Enhanced%20stereochemistry%20V00.pptx)
   — the current consolidated deck; authoritative for the proposed InChI-string encodings of all
   four features. Referenced below as **[DECK]** with slide numbers.
-- [`docs/Enhanced stereochemistry InChI string creation.docx`](docs/Enhanced%20stereochemistry%20InChI%20string%20creation.docx)
+- [`docs/stereochemistry/Enhanced stereochemistry InChI string creation.docx`](docs/stereochemistry/Enhanced%20stereochemistry%20InChI%20string%20creation.docx)
   — the tetrahedral grouped-`/s` algorithm with worked examples and expected strings. **[STRING-ALG]**
-- [`docs/Enhanced Stereoc.docx`](docs/Enhanced%20Stereoc.docx) — ESR concepts + nomenclature (Yerin, 2023). **[ESR]**
-- [`docs/Inchi New Stereoisomer Layer Issues YQ.docx`](docs/Inchi%20New%20Stereoisomer%20Layer%20Issues%20YQ.docx)
+- [`docs/stereochemistry/Enhanced Stereoc.docx`](docs/stereochemistry/Enhanced%20Stereoc.docx) — ESR concepts + nomenclature (Yerin, 2023). **[ESR]**
+- [`docs/stereochemistry/Inchi New Stereoisomer Layer Issues YQ.docx`](docs/stereochemistry/Inchi%20New%20Stereoisomer%20Layer%20Issues%20YQ.docx)
   — BNF for the revised stereo layer + the atropisomer-in-`/t` parsing-ambiguity analysis. **[BNF]**
-- [`docs/IUPAC prject - Enhanced recognition and encoding of stereoconfiguration by InChI tools.docx`](docs/IUPAC%20prject%20-%20Enhanced%20recognition%20and%20encoding%20of%20stereoconfiguration%20by%20InChI%20tools.docx)
+- [`docs/stereochemistry/IUPAC prject - Enhanced recognition and encoding of stereoconfiguration by InChI tools.docx`](docs/stereochemistry/IUPAC%20prject%20-%20Enhanced%20recognition%20and%20encoding%20of%20stereoconfiguration%20by%20InChI%20tools.docx)
   — project charter/scope. **[CHARTER]**
-- [`docs/biovia-enhanced-stereochemical-representation-white-paper.pdf`](docs/biovia-enhanced-stereochemical-representation-white-paper.pdf)
+- [`docs/stereochemistry/biovia-enhanced-stereochemical-representation-white-paper.pdf`](docs/stereochemistry/biovia-enhanced-stereochemical-representation-white-paper.pdf)
   — third-party BIOVIA ESR reference; **the authoritative source for ESR semantics** (ABS/OR/AND
   definitions, STEABS/STERELn/STERACn, display labels `abs`/`orn`/`&n`, the "one group per
   centre" rule, an Appendix-B example V3000 molfile). Referenced as **[BIOVIA]**.
-- [`docs/InChI encoding of atropisomers.docx`](docs/InChI%20encoding%20of%20atropisomers.docx)
+- [`docs/stereochemistry/InChI encoding of atropisomers.docx`](docs/stereochemistry/InChI%20encoding%20of%20atropisomers.docx)
   — atropisomer recognition + encoding proposal (Yerin). **[ATROP]**
 - `2018-06-09-AJM_Atropisomerism_GM_website.pdf` — academic literature-review deck (Metrano,
   Princeton, 2018): atropisomer fundamentals, scaffold taxonomy, descriptors (CIP `aR`/`aS` vs
   helical `M`/`P`), rotational barriers. **Background only** — no InChI encoding content, **not
   vendored**. Referenced as **[ATROP-BG]**.
+
+Versioning (spec 6), in [`docs/inchi-versioning/`](docs/inchi-versioning/):
+
+- [`docs/inchi-versioning/InChITrust-Chicago InChI Meeting - Versioning.pdf`](docs/inchi-versioning/InChITrust-Chicago%20InChI%20Meeting%20-%20Versioning.pdf)
+  — InChI Trust meeting slides on version prefixes and InChIKey flags, attached to
+  [IUPAC-InChI/InChI#285](https://github.com/IUPAC-InChI/InChI/issues/285).
 
 ## Common encoding conventions (from [DECK]/[STRING-ALG])
 

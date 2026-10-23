@@ -13,10 +13,16 @@ next to this repo (`../InChI`).
 | `explain.template.html` → `explain.html` | chemists | `tools/explain.py` + `tools/explain_<name>.py` |
 | `examples/index.html`, `examples/<table>.sdf`, `examples/svg/` | both | `tools/build.py` from `tools/molecules.py` |
 | `workflow.html` (optional) | chemists | archify, from `tools/workflow/<table>.json` |
-| `datasets/` | developers | molfiles the spec and pages use |
+| `datasets/`, `datasets/DATASETS.md` | developers | molecules the spec, tests and pages use; DATASETS.md lists each with source and purpose, linked from SPEC.md |
+
+Kick-off documents: `docs/<topic>/`, shared by features of one topic (`"docs"` in site.json).
 
 Landing page `index.html`: one row per entry of `tools/site.json`, in that order. Row IDs
-`#f1…` follow that order; append new features at the end.
+`#f1…` follow that order; append new features at the end. Columns read from the files:
+**Ready** from the spec header row `| **Readiness** | <verdict> — … |`; **Done** counts the
+spec's Must/Should requirement rows marked ✅ (withdrawn ⊘ excluded) and the gate items
+under `### Gates` that say ✅ and not ❌. Keep those markers accurate: the column is only as
+true as the spec.
 
 ## tools/site.json, one entry per feature
 
@@ -29,6 +35,7 @@ Landing page `index.html`: one row per entry of `tools/site.json`, in that order
   "new": {"rev": "b40eeee", "label": "dev", "options": []},
   "inchiKey": true,                    // optional: show InChIKeys in the examples
   "markVersion": true,                 // optional: a changed version prefix counts as a change
+  "docs": "inchi-versioning",          // kick-off documents: docs/<topic>/
   "tracking": {"branch": "dev", "issues": [285], "prs": [280]}
 }
 ```

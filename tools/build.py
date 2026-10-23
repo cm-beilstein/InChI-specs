@@ -400,7 +400,7 @@ LANDING = """<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>InChI Specifications</title>
 <style>
-body {{ font-family: system-ui, sans-serif; margin: 2rem auto; max-width: 900px;
+body {{ font-family: system-ui, sans-serif; margin: 2rem auto; max-width: 1150px;
        padding: 0 1rem; color: #222; line-height: 1.5; }}
 table {{ border-collapse: collapse; width: 100%; }}
 th, td {{ border: 1px solid #ccc; padding: .5rem .7rem; text-align: left; vertical-align: top; }}
@@ -419,7 +419,7 @@ are open for discussion.</p>
 <p>Comments are welcome: per feature, on every molecule and on every explanation section
 (GitHub account needed).</p>
 <table>
-<tr><th>ID</th><th>Feature</th><th>For chemists</th><th>Examples</th><th>Technical</th><th>GitHub</th><th>Discussion</th></tr>
+<tr><th>ID</th><th>Feature</th><th>Ready</th><th>Done</th><th>For chemists</th><th>Examples</th><th>Technical</th><th>GitHub</th><th>Discussion</th></tr>
 {rows}
 </table>
 <p>Source of this site: <a href="https://github.com/cm-beilstein/InChI-specs">cm-beilstein/InChI-specs</a>.
@@ -429,6 +429,47 @@ features.</p>
 {comments}</body>
 </html>
 """
+
+
+READINESS = {"ready": "✅ ready", "ready with open points": "🟡 open points",
+             "not ready": "❌ not ready"}
+
+
+def spec_text(key):
+    path = os.path.join(ROOT, key, "SPEC.md")
+    return open(path).read() if os.path.exists(path) else ""
+
+
+def readiness(text):
+    """Verdict from the spec header row '| **Readiness** | <verdict> — <note> |';
+    set by the user after the check skill proposes it."""
+    m = re.search(r"^\| \*\*Readiness\*\* \| ([^|—]+?)\s*(?:—|\|)", text, re.M)
+    return READINESS.get(m.group(1).strip().lower(), m.group(1).strip()) if m else ""
+
+
+def progress(text):
+    """'10/12 requirements, 7/7 gates' from the spec's tables: Must and Should
+    requirements, withdrawn (⊘) ones excluded, done when marked ✅; a gate is
+    met when its item says ✅ and not ❌."""
+    reqs = done = 0
+    for line in text.splitlines():
+        cells = [c.strip() for c in line.split("|")]
+        if len(cells) < 6 or not re.fullmatch(r"[A-Z]{2,3}-R\d+", cells[1]):
+            continue
+        # Priority wherever its column is (some tables add one); status is last
+        priority = next((c for c in cells if c in ("Must", "Should", "Could", "Won't")), "")
+        if priority not in ("Must", "Should") or cells[-2].startswith("⊘"):
+            continue
+        reqs += 1
+        done += cells[-2].startswith("✅")
+
+    gates = met = 0
+    section = re.search(r"^### Gates\n(.*?)^## ", text, re.S | re.M)
+    for item in re.split(r"^- \*\*", section.group(1), flags=re.M)[1:] if section else []:
+        gates += 1
+        met += "✅" in item and "❌" not in item
+
+    return f"{done}/{reqs} requirements<br>{met}/{gates} gates" if reqs else ""
 
 
 def landing(counts):
@@ -441,10 +482,16 @@ def landing(counts):
         explain = f'<a href="{key}/explain.html">Explanation</a>' if exists("explain.html") else ""
         examples = (f'<a href="{key}/examples/">{counts[key]} molecules, old vs. new</a>'
                     if counts.get(key) else "")
+        docs = spec.get("docs")
         technical = "<br>".join(
             ([f'<a href="{REPO_URL}/{key}/SPEC.md">Specification</a>'] if exists("SPEC.md") else [])
             + (['<a href="{0}/workflow.html">How it is built, step by step</a>'.format(key)]
-               if exists("workflow.html") else []))
+               if exists("workflow.html") else [])
+            + ([f'<a href="{REPO_URL}/{key}/datasets/DATASETS.md">Datasets</a>']
+               if exists(os.path.join("datasets", "DATASETS.md")) else [])
+            + ([f'<a href="{REPO_URL.replace("/blob/", "/tree/")}/docs/{docs}">Kick-off documents</a>']
+               if docs else []))
+        text = spec_text(key)
 
         track = spec["tracking"]
         github = "<br>".join(
@@ -458,6 +505,7 @@ def landing(counts):
         status = "" if spec["status"] == "implemented" else f' <i>({spec["status"]})</i>'
         rows.append(f'<tr id="f{ident}" data-term="{spec_term(key)}"><td class="id">{ident}</td>'
                     f'<td class="name">{html.escape(spec["title"])}{status}</td>'
+                    f'<td>{readiness(text) or "not assessed"}</td><td>{progress(text)}</td>'
                     f'<td>{explain}</td><td>{examples}</td><td>{technical}</td>'
                     f'<td>{github}</td><td>{discuss}</td></tr>')
 

@@ -1,6 +1,6 @@
 ---
 name: inchi-feature-check
-description: Check that an InChI feature, fix or proposal is complete end to end and create whatever is missing - unit tests, the code change, its specification, and its entry on the InChI Specifications site (https://cm-beilstein.github.io/InChI-specs/) with general discussion, old-vs-new examples page and explanation page for chemists. Use whenever the user points at an IUPAC-InChI/InChI issue or PR, or names an InChI feature, and asks to check it, complete it, document it, "put it on the site", add a spec/examples/explanation for it, or whether it is covered or done. Also use when starting work on a new InChI feature. To refresh documents that already exist after a code change, use inchi-feature-update instead.
+description: Check that an InChI feature, fix or proposal is complete end to end and create whatever is missing - kick-off documents, whether the information suffices to implement it, datasets, unit tests, the code change, its specification, and its entry on the InChI Specifications site (https://cm-beilstein.github.io/InChI-specs/) with general discussion, old-vs-new examples page and explanation page for chemists. Use whenever the user points at an IUPAC-InChI/InChI issue or PR, or names an InChI feature, and asks to check it, complete it, document it, "put it on the site", add a spec/examples/explanation for it, or whether it is covered or done. Also use when starting work on a new InChI feature. To refresh documents that already exist after a code change, use inchi-feature-update instead.
 ---
 
 # InChI feature check
@@ -8,7 +8,8 @@ description: Check that an InChI feature, fix or proposal is complete end to end
 Walk one feature through a fixed chain and fill every gap:
 
 ```
-issue/PR ─▶ unit tests ─▶ code ─▶ SPEC.md ─▶ site entry + discussion ─▶ examples ─▶ explanation ─▶ rebuild, verify ─▶ publish
+issue/PR ─▶ kick-off docs + readiness ─▶ datasets ─▶ unit tests ─▶ code ─▶ SPEC.md
+         ─▶ site entry + discussion ─▶ examples ─▶ explanation ─▶ rebuild, verify ─▶ publish
 ```
 
 Each link depends on the one before: a spec describes code that tests pin; examples and
@@ -34,7 +35,42 @@ the rules that keep comment threads and molecule IDs stable.
 - Run `python tools/audit.py <key>` for the starting state (a new key prints all
   MISSING; that is the expected start).
 
-## 2. Unit tests
+## 2. Kick-off documents and readiness
+
+Collect what the feature was started from into `docs/<topic>/`: attachments of the issue
+and PRs (slides, papers, notes), decks and documents the user provides. Several features
+can share a topic (`docs/stereochemistry/` serves specs 1–4). Set `"docs": "<topic>"` in
+`tools/site.json` and list each document in the README's "Source documents" with a
+one-line summary and a citation tag.
+
+Then judge whether the information suffices to implement the feature:
+
+| Question | Where it usually is |
+|---|---|
+| Is the problem stated, with an example of today's output? | issue body |
+| Is the target behaviour defined, with examples (input → expected InChI/InChIKey)? | issue, slides |
+| Are design questions decided, and by whom? | issue thread, meeting notes |
+| Is there test data, or can it be made from the examples? | attachments, PR tests |
+| Are acceptance criteria clear enough to write gates? | all of the above |
+| Is it clear who decides open points? | issue assignees, working group |
+
+Propose a verdict, **ready**, **ready with open points** or **not ready**, with the gaps
+as a short list. The user confirms it; only then write it into the spec header
+(`| **Readiness** | <verdict> — <gaps, date> |`), where the landing page's "Ready"
+column reads it. Not ready: do not implement; list the questions to ask in the issue
+thread and continue only with the documents that describe today's behaviour.
+
+## 3. Datasets
+
+`<key>/datasets/` holds the molecules the spec, tests, examples and explanation use;
+`<key>/datasets/DATASETS.md` lists each of them (file name or inline molblock/SMILES),
+its source (issue, slide, test, paper) and what it shows. Gather them from the issue, its
+attachments and the PR's tests; restore what copy-paste breaks (a molfile's blank title
+line, `M END` spacing). Link `datasets/DATASETS.md` from the spec (Gates section), and
+read example molecules from these files where possible so the three stay in step.
+`audit.py` flags dataset files that `DATASETS.md` does not mention.
+
+## 4. Unit tests
 
 Find the tests that pin the behaviour: files the PR touched under `INCHI-1-TEST/`
 (`gh pr view <n> --json files`), or grep the test tree for the option, function or
@@ -49,14 +85,14 @@ where the behaviour is missing and pass where it exists: for a bug, fail before 
 open; for merged code, prepare a branch from `dev` in the worktree (or save a patch in
 the scratch folder) and ask before pushing or opening a PR.
 
-## 3. Code
+## 5. Code
 
 Implemented when the change is merged or on a branch and its tests pass. If tests fail or
 the behaviour is missing: a bug gets fixed (test first); a feature or a design choice
 goes to the user first. A proposal without code is fine: mark it `"status": "proposed"`
 and continue with the documents, which then describe today's behaviour and the target.
 
-## 4. Specification
+## 6. Specification
 
 `<key>/SPEC.md`. If missing, create it from `references/spec-template.md`: problem with a
 measured example, target behaviour (rules + decisions from the thread, with who decided),
@@ -67,10 +103,12 @@ inchi-feature-update for the spec.
 
 Add or update the feature's row in the repo README table; its `#` is the spec number
 ("Spec <n>") and the landing row `#f<n>`. Update the README's molecule-ID range when
-examples are added. A gate whose test is not merged yet is listed as "not yet in the
-repo" with where it lives.
+examples are added. Mark a gate ✅ only when its test is in the repo and passes; a test
+that passes but is not merged yet is 🟡 "not yet in the repo", with where it lives, and a
+requirement whose only gate that is stays 🟡 too. The landing page's "Done" column counts
+these markers, so they must be true.
 
-## 5. Site entry and discussion
+## 7. Site entry and discussion
 
 Add the feature to `tools/site.json` (fields in `references/site.md`): title, status,
 `old`/`new` revisions (last commit without / first commit with the change; pinned hashes),
@@ -80,7 +118,7 @@ file by hand in its existing compact style (a `json.dump` rewrite reformats ever
 
 Then `python tools/new_discussion.py <key>` (asks GitHub; needs `gh` with write access).
 
-## 6. Examples page
+## 8. Examples page
 
 Add a table to `tools/molecules.py`, at the **end** of `TABLES`, and its `SPEC_OF` line.
 5–15 molecules: those that show the change, those that must not change, edge cases and
@@ -93,7 +131,7 @@ to get subtly wrong (cisplatin as `N[Pt](N)(Cl)Cl` gives NH2 ligands; the dative
 from site.json `dataRev`, which may predate the feature; copy such molblocks into
 `<key>/datasets/` and read them from there.
 
-## 7. Explanation page
+## 9. Explanation page
 
 `<key>/explain.template.html` plus `tools/explain_<name>.py`, registered in `SPEC_MODULES`
 in `tools/explain.py`. Audience: chemists who never read C. Lead with what changes for
@@ -102,7 +140,7 @@ open. Assert every computed string in the generator. `explain.EXE` is the spec's
 binary, `explain.OLD_EXE` its `old` one (empty for proposals), for before/after rows. For a proposal, say at the top that
 nothing is implemented. One `<h2 id>` per topic: each becomes a comment thread.
 
-## 8. Rebuild and verify
+## 10. Rebuild and verify
 
 ```
 python tools/rebuild.py      # needs a Python with RDKit
@@ -121,7 +159,10 @@ The examples page and landing texts are shared by all features. If a sentence th
 not fit the new feature (e.g. stereo labels on a non-stereo page), fix the generator
 (`tools/build.py`) instead of living with it, and check the other pages stay the same.
 
-## 9. Publish
+## 11. Publish
+
+Update the repo `README.md` with the change: the feature's row in the spec table (status,
+readiness), "Source documents" for new kick-off documents, and the molecule-ID range.
 
 Commit in this repo (the user's commit-message rules apply), and in `../InChI` if tests or
 code were added. The site is public and the repo is mirrored to IUPAC: show the user what
@@ -130,7 +171,9 @@ and check the URLs answer.
 
 ## When to stop and ask
 
-- Implementing a feature (not a bug) or choosing between designs.
+- The readiness verdict (propose, the user confirms).
+- Implementing a feature (not a bug), or any feature that is not ready.
+- Choosing between designs.
 - Undecided points in the issue thread that the spec would have to settle.
 - Anything that renames an existing key, molecule ID or section id (breaks comment threads).
 - Pushing, opening PRs, commenting on issues.
@@ -141,6 +184,9 @@ End with one table, one row per link of the chain:
 
 | Step | Found | Done now |
 |---|---|---|
+| Kick-off documents | slides attached to the issue | saved to `docs/<topic>/` |
+| Readiness | — | proposed: ready with open points (A, B) |
+| Datasets | 2 molfiles in the issue | `datasets/` + `DATASETS.md` |
 | Unit tests | `test_x.cpp` (12 tests, pass) | — |
 | Specification | missing | created `<key>/SPEC.md` v0.1 |
 

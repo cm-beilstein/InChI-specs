@@ -86,7 +86,7 @@ version letter was always `A`.
 
 | ID | Requirement | Priority | Status |
 |----|-------------|----------|--------|
-| VR-R1 | Standard InChI of a structure without MI-table atoms MUST be unchanged (`1S`, key `SA`). | Must | ✅ done + gated (G6) |
+| VR-R1 | Standard InChI of a structure without MI-table atoms MUST be unchanged (`1S`, key `SA`). | Must | 🟡 done; gate G6 not yet in the repo |
 | VR-R2 | A structure with an MI-table atom MUST get subversion `B` in InChI and key, also when its layers are unchanged. | Must | ✅ done + gated (G1, G6) |
 | VR-R3 | MI output MUST be class `B` (beta) in this release. | Must | ✅ done + gated (G1) |
 | VR-R4 | A non-standard option MUST give class `N`, also with a beta feature. | Must | ✅ done + gated (G5, G6) |
@@ -101,12 +101,14 @@ version letter was always `A`.
 
 ### Gates
 
+Molecules and their sources: [datasets/DATASETS.md](datasets/DATASETS.md).
+
 - **G1** — `test_inchi_dll_b.cpp` :: `test_MakeINCHIFromMolfileText`, `test_STDINCHIGEN_MolecularInorganics`: ferrocene and CH3Li give `InChI=1BB/…`. ✅ passes.
 - **G2** — `test_inchi_dll_b.cpp` :: `test_CheckINCHI_version_prefixes`: all six prefixes and historical `1/` validate with the right class. ✅ passes.
 - **G3** — `test_inchi_dll_b.cpp` :: `test_GetINCHIfromINCHI_version_prefixes`, `test_GetINCHIfromINCHI_historical_nonstandard_prefix`: prefixes survive InChI2InChI; `1/` → `1N/`. ✅ passes.
 - **G4** — `test_inchi_dll_b.cpp` :: `test_CheckINCHIKey_version_flags`, `test_GetINCHIKeyFromINCHI_version_flags`: the six flag pairs. ✅ passes.
 - **G5** — `test_inchi_dll_b.cpp` :: `test_MakeINCHIFromMolfileText_LegacyMetalHandling`, `test_GetINCHIfromINCHI_rejects_LegacyMetalHandling_for_MI_input`: `InChI=1N/CH3.Li/h1H3;`; MI input rejected. ✅ passes.
-- **G6** — `test_github_285.cpp` (new, not yet in the repo): ethanol stays `1S`/`SA`; NaCl `1BB`/`BB` with 1.07 layers; SbCl3 `1BB`, AsCl3/GeCl4/TeCl4 `1S`; `-FixedH` gives `1N`/`NA` and `1NB`/`NB`. ✅ passes at `b40eeee`; 3 of 4 fail at `68afb20`.
+- **G6** — `test_github_285.cpp` (new, not yet in the repo): ethanol stays `1S`/`SA`; NaCl `1BB`/`BB` with 1.07 layers; SbCl3 `1BB`, AsCl3/GeCl4/TeCl4 `1S`; `-FixedH` gives `1N`/`NA` and `1NB`/`NB`. 🟡 passes at `b40eeee`, 3 of 4 fail at `68afb20`; counts once merged.
 - **G7** — `test_executable/test_roundtrip.py` :: `test_inchi2inchi_legacy_metal_handling_rejects_mi_input_and_continues`, `test_inchi2inchi_unknown_class_letter_gets_no_mi_marker`. ✅ passes.
 - Regression references (`inchi.sdf`, `mcule`) regenerated in #280: 141 prefix-only and 308 layer changes, all on MI structures.
 

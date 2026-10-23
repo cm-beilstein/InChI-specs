@@ -27,6 +27,13 @@ def main(key):
     has = lambda *p: os.path.exists(os.path.join(folder, *p))
 
     molecules = open(os.path.join(TOOLS, "molecules.py")).read()
+    spec_md = open(os.path.join(folder, "SPEC.md")).read() if has("SPEC.md") else ""
+    datasets_md = (open(os.path.join(folder, "datasets", "DATASETS.md")).read()
+                   if has("datasets", "DATASETS.md") else "")
+
+    # Files in datasets/ that DATASETS.md does not mention by name
+    unlisted = [f for f in sorted(os.listdir(os.path.join(folder, "datasets")))
+                if f != "DATASETS.md" and f not in datasets_md] if has("datasets") else []
     explain = open(os.path.join(TOOLS, "explain.py")).read()
     landing = open(os.path.join(ROOT, "index.html")).read()
 
@@ -36,6 +43,13 @@ def main(key):
                                                  or spec["tracking"].get("prs")))),
         ("general discussion", key in giscus.get("specDiscussions", {})),
         ("specification SPEC.md", has("SPEC.md")),
+        ("kick-off documents docs/<topic>/", bool(spec and spec.get("docs")) and
+         os.path.isdir(os.path.join(ROOT, "docs", spec.get("docs", "-")))),
+        ("readiness in SPEC.md header", "| **Readiness** |" in spec_md),
+        ("datasets/DATASETS.md", bool(datasets_md)),
+        ("every dataset file listed in DATASETS.md" + (f" ({', '.join(unlisted)})" if unlisted else ""),
+         not unlisted),
+        ("DATASETS.md linked from SPEC.md", "datasets/DATASETS.md" in spec_md),
         ("explanation template", has("explain.template.html")),
         ("explanation module", f'"{key}":' in explain),
         ("explanation page", has("explain.html")),

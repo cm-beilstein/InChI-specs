@@ -110,7 +110,8 @@ Priority is MoSCoW. **Won't (this spec):** allene/atropisomer bonds (those are `
 
 ### Gates
 
-All in `INCHI-1-TEST/tests/test_unit/test_doubleBondEZ.cpp`.
+All in `INCHI-1-TEST/tests/test_unit/test_doubleBondEZ.cpp`; molecules and expected strings in
+[datasets/DATASETS.md](datasets/DATASETS.md).
 
 - **Z1** — absolute (no collection, STEBABS) → flat `/b2-1-`/`/b2-1+`; standard unchanged. ✅
 - **Z2** — crossed double bond, wavy single bond, crossed bond in STEBREL → no `/b`. ✅

@@ -8,6 +8,7 @@
       "status": "implemented",
       "old": {"rev": "fbf1e01", "label": "dev", "options": []},
       "new": {"rev": "09043c1", "label": "atropisomers", "options": ["-EnhancedStereochemistry"]},
+      "docs": "stereochemistry",
       "tracking": {"branch": "feature/enh-stereo-hardening", "issues": [172, 221, 286], "prs": [185, 251]}
     },
     {
@@ -16,6 +17,7 @@
       "status": "implemented",
       "old": {"rev": "fbf1e01", "label": "dev", "options": []},
       "new": {"rev": "09043c1", "label": "atropisomers", "options": ["-EnhancedStereochemistry"]},
+      "docs": "stereochemistry",
       "tracking": {"branch": "feature/allenes", "issues": [286], "prs": []}
     },
     {
@@ -24,6 +26,7 @@
       "status": "implemented",
       "old": {"rev": "fbf1e01", "label": "dev", "options": []},
       "new": {"rev": "09043c1", "label": "atropisomers", "options": ["-EnhancedStereochemistry"]},
+      "docs": "stereochemistry",
       "tracking": {"branch": "feature/double-bond-ez", "issues": [286], "prs": []}
     },
     {
@@ -32,6 +35,7 @@
       "status": "implemented",
       "old": {"rev": "fbf1e01", "label": "dev", "options": []},
       "new": {"rev": "09043c1", "label": "atropisomers", "options": ["-EnhancedStereochemistry"]},
+      "docs": "stereochemistry",
       "tracking": {"branch": "atropisomers", "issues": [173, 286], "prs": [198]}
     },
     {
@@ -49,6 +53,7 @@
       "new": {"rev": "b40eeee", "label": "dev", "options": []},
       "inchiKey": true,
       "markVersion": true,
+      "docs": "inchi-versioning",
       "tracking": {"branch": "dev", "issues": [285], "prs": [280]}
     }
   ]
