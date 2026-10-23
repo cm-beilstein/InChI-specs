@@ -399,6 +399,7 @@ body {{ font-family: system-ui, sans-serif; margin: 2rem auto; max-width: 900px;
 table {{ border-collapse: collapse; width: 100%; }}
 th, td {{ border: 1px solid #ccc; padding: .5rem .7rem; text-align: left; vertical-align: top; }}
 th {{ background: #f3f3f3; }}
+td.id {{ text-align: right; }}
 </style>
 </head>
 <body>
@@ -412,7 +413,7 @@ open for discussion.</p>
 <p>Comments are welcome: per feature, on every molecule and on every explanation section
 (GitHub account needed).</p>
 <table>
-<tr><th>Feature</th><th>For chemists</th><th>Examples</th><th>Technical</th><th>GitHub</th><th>Discussion</th></tr>
+<tr><th>ID</th><th>Feature</th><th>For chemists</th><th>Examples</th><th>Technical</th><th>GitHub</th><th>Discussion</th></tr>
 {rows}
 </table>
 <p>Source of this site: <a href="https://github.com/cm-beilstein/InChI-specs">cm-beilstein/InChI-specs</a>.
@@ -427,7 +428,9 @@ features.</p>
 def landing(counts):
     """Root index.html: one row per spec with its documents."""
     rows = []
+    ident = 0
     for spec, title in SPECS:
+        ident += 1
         workflow = (f'<br><a href="{spec}/workflow.html">How it is built, step by step</a>'
                     if os.path.exists(os.path.join(ROOT, spec, "workflow.html")) else "")
         link = spec_link(spec)
@@ -436,17 +439,22 @@ def landing(counts):
         github = (f'branch <a href="{INCHI_URL}/tree/{branch}"><code>{branch}</code></a>'
                   + "".join(f'<br>issue <a href="{INCHI_URL}/issues/{n}">#{n}</a>' for n in issues)
                   + "".join(f'<br>PR <a href="{INCHI_URL}/pull/{n}">#{n}</a>' for n in prs))
-        rows.append(f'<tr data-term="{spec_term(spec)}"><td>{html.escape(title)}</td>'
+        rows.append(f'<tr id="f{ident}" data-term="{spec_term(spec)}"><td class="id">{ident}</td>'
+                    f'<td class="name">{html.escape(title)}</td>'
                     f'<td><a href="{spec}/explain.html">Explanation</a></td>'
                     f'<td><a href="{spec}/examples/">{counts[spec]} molecules, old vs. new</a></td>'
                     f'<td><a href="{REPO_URL}/{spec}/SPEC.md">Specification</a>{workflow}</td>'
                     f'<td>{github}</td><td>{discuss}</td></tr>')
     for key, title, issues in PROPOSED:
+        ident += 1
+        explain = (f'<a href="{key}/explain.html">Explanation</a>'
+                   if os.path.exists(os.path.join(ROOT, key, "explain.html")) else "")
         link = spec_link(key)
         discuss = f'<a href="{link}">On GitHub</a>' if link else ""
         github = "<br>".join(f'issue <a href="{INCHI_URL}/issues/{n}">#{n}</a>' for n in issues)
-        rows.append(f'<tr data-term="{spec_term(key)}"><td>{html.escape(title)}</td>'
-                    '<td colspan="3"><i>Proposed: no specification yet, see the issue</i></td>'
+        rows.append(f'<tr id="f{ident}" data-term="{spec_term(key)}"><td class="id">{ident}</td>'
+                    f'<td class="name">{html.escape(title)}</td><td>{explain}</td>'
+                    '<td colspan="2"><i>Proposed: no examples or specification yet</i></td>'
                     f'<td>{github}</td><td>{discuss}</td></tr>')
 
     page = LANDING.format(rows="\n".join(rows), comments=snippet(""))

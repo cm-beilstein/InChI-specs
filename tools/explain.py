@@ -3,7 +3,8 @@
 Usage (from the repo root; RDKit >= 2024 needed):
   INCHI_NEW=/path/to/atropisomers/inchi-1 python tools/explain.py [spec ...]
 
-  spec: enhanced-stereo, allenes, double-bond-ez, atropisomers (default: all)
+  spec: enhanced-stereo, allenes, double-bond-ez, atropisomers,
+        impossible-ring-stereo (default: all)
 
 Each spec has a module tools/explain_<name>.py whose parts() returns the
 $fields of <spec>/explain.template.html; tools/explain.css is inlined as
@@ -44,6 +45,7 @@ SPEC_MODULES = {
     "allenes": "explain_allenes",
     "double-bond-ez": "explain_ez",
     "atropisomers": "explain_atropisomers",
+    "impossible-ring-stereo": "explain_ring",
 }
 
 

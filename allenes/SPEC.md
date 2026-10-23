@@ -2,13 +2,13 @@
 
 | | |
 |---|---|
-| **Doc version** | 0.5 |
-| **Date** | 2026-10-09 |
+| **Doc version** | 0.6 |
+| **Date** | 2026-10-23 |
 | **Status** | draft |
 | **Author** | C. Müller |
 | **Reviewers** | TBD (InChI Trust / project 2019-017-2-800 TG) |
 | **Requirement prefix** | `AL-` |
-| **Change history** | 0.1 (2026-07-09) — initial spec; verified against `dev`. 0.2 (2026-07-10) — consolidated: merged normative MUSTs into §2, requirements/gates/NFRs into one table (§4). 0.3 (2026-07-10) — readability pass: added At-a-glance, split requirements from gates, tightened prose. 0.4 (2026-10-08) — implemented on `feature/allenes` (from `feature/enh-stereo-hardening`): AL-R3 single stereobond (under `-EnhancedStereochemistry` only), AL-R7 test suite `test_allenes` (gates A1–A6). AL-R4–R6 measured to work without code change. Fixed: A1 STEABS names the *central* atom; `1B` prefix whenever the option is on; undefined axis is omitted, not `?`; collection membership keys on the central atom; line references replaced by function names. 0.5 (2026-10-09) — `-EnhancedStereochemistry` is now the only switch (`-Atropisomers` removed, Spec 4 0.5). A group on a terminal atom lost `/s` (`/t2-/m0`): fixed with Spec 1 ES-R32 (`072d35c`; on `feature/allenes` as `f6fc3ef`), gated by `group_on_terminal_atom_is_ignored`. |
+| **Change history** | 0.1 (2026-07-09) — initial spec; verified against `dev`. 0.2 (2026-07-10) — consolidated: merged normative MUSTs into §2, requirements/gates/NFRs into one table (§4). 0.3 (2026-07-10) — readability pass: added At-a-glance, split requirements from gates, tightened prose. 0.4 (2026-10-08) — implemented on `feature/allenes` (from `feature/enh-stereo-hardening`): AL-R3 single stereobond (under `-EnhancedStereochemistry` only), AL-R7 test suite `test_allenes` (gates A1–A6). AL-R4–R6 measured to work without code change. Fixed: A1 STEABS names the *central* atom; `1B` prefix whenever the option is on; undefined axis is omitted, not `?`; collection membership keys on the central atom; line references replaced by function names. 0.5 (2026-10-09) — `-EnhancedStereochemistry` is now the only switch (`-Atropisomers` removed, Spec 4 0.5). A group on a terminal atom lost `/s` (`/t2-/m0`): fixed with Spec 1 ES-R32 (`072d35c`; on `feature/allenes` as `f6fc3ef`), gated by `group_on_terminal_atom_is_ignored`. 0.6 (2026-10-23) — Spec 1 ES-R33 (a group holding every centre of a meso component is ignored) on `feature/allenes` as `5dcf7f0`. Measured on hepta-3,4-diene-2,6-diol: applies with an allene axis in the component; an undefined axis (`3?`) does not count as a centre. New open question: a defined axis between enantiomorphic ends (§5). |
 
 > Normative keywords (MUST/SHOULD/MAY) per [RFC 2119](../README.md#requirement-conventions-normative);
 > shared glossary and conventions in the [README](../README.md).
@@ -143,6 +143,15 @@ All in `INCHI-1-TEST/tests/test_unit/test_allenes.cpp`; molecules from [DECK] sl
 - **Resolved — enhanced-on-`/t` reuse.** Works unchanged when the collection names the central
   atom; a terminal atom is ignored (§2, user decision 2026-10-08: document, do not map). Until
   0.5 "ignored" also dropped `/s` (`/t2-/m0`); fixed with Spec 1 ES-R32.
+- **Resolved — meso components (Spec 1 ES-R33).** The allene axis is an ordinary `/t` entry, so
+  standard InChI's meso decision includes it. Hepta-3,4-diene-2,6-diol, (2R,6S), axis drawn
+  flat: `/t3?,6-,7+` with no group, with `STERAC1` and with `STEREL1` over C2, C4, C6
+  (before: `/s3`, `/s2`). Chiral drawings keep their group (`/t3?,6-,7-/s3`).
+- **Pseudo-asymmetric axis? (unverified).** The same diol with (2R,6S) and a *defined* axis gives
+  `/t3-,6-,7+/m0/s1` in standard InChI, i.e. chiral. An X-CH=C=CH-X allene whose ends are mirror
+  images should have a pseudo-asymmetric axis and be achiral (like a tetrahedral r/s centre).
+  If so, standard InChI's allene parity misses this case, and ES-R33 cannot apply because the
+  meso decision says chiral. To be checked against a 3D model or CIP software.
 - **Cumulene length.** `MAX_CUMULENE_LEN=2` and a hard loop cap of 20 bound support; confirm
   the project's intended maximum (AL-R8).
 - **A-big** (slide 21) not materialised: no molfile available.

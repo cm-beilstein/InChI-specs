@@ -11,10 +11,10 @@ encoding of stereoconfiguration by InChI tools").
 | # | Spec | Feature | Status | Branch |
 |---|------|---------|--------|--------|
 | 1 | [enhanced-stereo](enhanced-stereo/SPEC.md) | V3000 ABS/OR/AND enhanced stereo for tetrahedral centres (grouped `/s` layer) | **Implemented** — v1.3; open: groups on a meso subset (§5.S) | `atropisomers` (base: `feature/enh-stereo-hardening`) |
-| 2 | [allenes](allenes/SPEC.md) | Axial chirality of allenes/cumulenes + single-stereobond + enhanced OR/AND | **Implemented** — v0.5; open: cumulene length, slide-21 molecule | `atropisomers` (from `feature/allenes`) |
-| 3 | [double-bond-ez](double-bond-ez/SPEC.md) | Enhanced OR/AND for C=C double bonds (grouped `/b` layer) | **Implemented** — v0.4; open: reading grouped `/b` back, fixed-H/isotopic `/b` | `atropisomers` (from `feature/double-bond-ez`) |
+| 2 | [allenes](allenes/SPEC.md) | Axial chirality of allenes/cumulenes + single-stereobond + enhanced OR/AND | **Implemented** — v0.6; open: cumulene length, slide-21 molecule, pseudo-asymmetric axis | `atropisomers` (from `feature/allenes`) |
+| 3 | [double-bond-ez](double-bond-ez/SPEC.md) | Enhanced OR/AND for C=C double bonds (grouped `/b` layer) | **Implemented** — v0.5; open: reading grouped `/b` back, fixed-H/isotopic `/b` | `atropisomers` (from `feature/double-bond-ez`) |
 | 4 | [atropisomers](atropisomers/SPEC.md) | Axial chirality about a hindered single bond | **Implemented** — v0.6 (detection, `/t`+`/m`); open: reparse round-trip, C–N/N–N axes | `atropisomers` |
-| 5 | — | Detect physically impossible ring stereo (in/out bridgeheads, trans fusion) | **Proposed** — [IUPAC-InChI/InChI#287](https://github.com/IUPAC-InChI/InChI/issues/287), to be discussed | — |
+| 5 | [explanation](impossible-ring-stereo/explain.html) | Detect physically impossible ring stereo (in/out bridgeheads, trans fusion) | **Proposed** — [IUPAC-InChI/InChI#287](https://github.com/IUPAC-InChI/InChI/issues/287), to be discussed | — |
 
 The four implemented ones run under one option, `-EnhancedStereochemistry`, with prefix `InChI=1B/`. Branch
 `atropisomers` contains all of them.

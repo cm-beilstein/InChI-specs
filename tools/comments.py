@@ -74,7 +74,7 @@ SNIPPET = """<style>
 
   // Molecules and specs: rows carrying data-term
   document.querySelectorAll("tr[data-term]").forEach(tr => {
-    (tr.querySelector("td.pic") || tr.cells[0]).appendChild(button(tr.dataset.term, tr, true));
+    tr.querySelector("td.pic, td.name").appendChild(button(tr.dataset.term, tr, true));
   });
 
   // Explain sections: h2 with an id, on pages that are not example tables
