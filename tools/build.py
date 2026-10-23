@@ -469,8 +469,7 @@ are open for discussion.</p>
 </table>
 <p>Source of this site: <a href="https://github.com/cm-beilstein/InChI-specs">cm-beilstein/InChI-specs</a>.
 Implementation: <a href="https://github.com/IUPAC-InChI/InChI">IUPAC-InChI/InChI</a>, one
-branch per feature (see table); branch <code>atropisomers</code> combines all implemented
-features.</p>
+branch per feature (see table).</p>
 {comments}</body>
 </html>
 """
