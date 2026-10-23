@@ -8,6 +8,8 @@
 | **Author** | Christoph Mueller |
 | **Reviewers** | TBD |
 | **Requirement prefix** | `VR-` |
+| **Readiness** | ready with open points — combining subversion letters, metalloids, letter lookup table undecided (§5), confirmed 2026-10-23 |
+| **Kick-off documents** | [`docs/inchi-versioning/`](../docs/inchi-versioning/) |
 | **Change history** | 0.1 (2026-10-23) — initial spec from [#285](https://github.com/IUPAC-InChI/InChI/issues/285) and PR [#280](https://github.com/IUPAC-InChI/InChI/pull/280); measured against `dev` `b40eeee` (old: `68afb20`). |
 
 > Normative keywords (MUST/SHOULD/MAY) per [RFC 2119](../README.md#requirement-conventions-normative);

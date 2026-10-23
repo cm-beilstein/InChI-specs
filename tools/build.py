@@ -493,6 +493,9 @@ def landing(counts):
                if docs else []))
         text = spec_text(key)
 
+        # Spec header; a proposal without spec carries it in site.json
+        ready = readiness(text) or readiness("| **Readiness** | " + spec.get("readiness", "") + " |")
+
         track = spec["tracking"]
         github = "<br>".join(
             ([f'branch <a href="{INCHI_URL}/tree/{track["branch"]}"><code>{track["branch"]}</code></a>']
@@ -505,7 +508,7 @@ def landing(counts):
         status = "" if spec["status"] == "implemented" else f' <i>({spec["status"]})</i>'
         rows.append(f'<tr id="f{ident}" data-term="{spec_term(key)}"><td class="id">{ident}</td>'
                     f'<td class="name">{html.escape(spec["title"])}{status}</td>'
-                    f'<td>{readiness(text) or "not assessed"}</td><td>{progress(text)}</td>'
+                    f'<td>{ready or "not assessed"}</td><td>{progress(text)}</td>'
                     f'<td>{explain}</td><td>{examples}</td><td>{technical}</td>'
                     f'<td>{github}</td><td>{discuss}</td></tr>')
 

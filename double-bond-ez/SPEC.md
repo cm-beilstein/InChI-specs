@@ -8,6 +8,8 @@
 | **Author** | C. Müller |
 | **Reviewers** | TBD (InChI Trust / project 2019-017-2-800 TG) |
 | **Requirement prefix** | `EZ-` |
+| **Readiness** | ready with open points — fixed-H and isotopic grouped `/b` undecided, confirmed 2026-10-23 |
+| **Kick-off documents** | [`docs/stereochemistry/`](../docs/stereochemistry/) |
 | **Change history** | 0.1 (2026-07-09) — initial spec; verified against `dev`. 0.2 (2026-07-10) — consolidated: requirements/gates/deliverables/NFRs merged into one table (§4); ABNF grammar retained (§6). 0.3 (2026-07-10) — readability pass: added At-a-glance, split requirements from gates, tightened prose. 0.4 (2026-10-08) — implemented on `feature/double-bond-ez`. User decisions: EZ-R8 digits `2`/`3`; a group keeps the relative geometry of its bonds (`/s`-style normalisation, the lowest bond reads `-`); several groups use the `/s` block layout, comma-joined to the flat list (`/b12-5+,2(16-14-),3(15-10-,17-11-)(18-13-)`). Corrected: the trailing `-` of a deck pair is the normalised parity, not a sign on both atoms; `1B` prefix whenever the option is on; group numbers are never emitted. Found: component order with enhanced classes depends on input order (§5, shared with Spec 1). 0.5 (2026-10-23) — Spec 1 ES-R33 (a group holding every centre of a meso component is ignored) on `feature/double-bond-ez` as `575496e`. No effect on `/b`: E/Z does not change under mirroring, and the meso test reads only `/t`. Measured over 1,588 files: only tetrahedral meso cases changed. |
 
 > Normative keywords (MUST/SHOULD/MAY) per [RFC 2119](../README.md#requirement-conventions-normative);
