@@ -70,6 +70,8 @@ true as the spec.
   output breaks the build instead of silently making the page wrong. State geometry
   (cis/trans, R/S) only when checked, e.g. with a 3D embedding.
 - Each `<h2 id="…">` gets its own comment thread; ids are permanent thread names.
+- The last section is `<h2 id="use">How to use it</h2>`: input, command line with real
+  output via `explain.cli(mol, options, name)`, the library call.
 
 ## Comments (giscus)
 
@@ -87,6 +89,7 @@ Headless Chromium: `~/.cache/ms-playwright/chromium_headless_shell-*/*/chrome-he
 ```
 python tools/rebuild.py          # RDKit python; builds needed binaries (cached)
 python tools/audit.py <key>      # ok/MISSING per document
+python tools/doc_check.py <key> --option <Name>   # Doxygen + user docs in ../InChI
 git diff --stat                  # only intended pages changed?
 ```
 

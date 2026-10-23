@@ -2,7 +2,7 @@
 
 import html
 
-from explain import inchi, mark, picture, stereo_tail, warning
+from explain import cli, inchi, mark, picture, stereo_tail, warning
 
 UP, DOWN = 1, 3
 
@@ -183,6 +183,15 @@ def hero():
     return dict(hero_pic=picture(deck(), numbers=False), hero_rows="".join(rows))
 
 
+def usage():
+    """How to use it: the deck allene, racemic axis (label on the central atom)."""
+    racemic = deck(coll=[("STERAC1", [CENTRE])])
+    with_option = cli(racemic, ["-EnhancedStereochemistry"], "allene.mol")
+    without = cli(racemic, [], "allene.mol")
+    assert "/s3" in with_option, with_option
+    return dict(use_cli=with_option, use_std=without)
+
+
 def parts():
-    return dict(**hero(), **flow(), gallery=gallery(), ignored=ignored(),
+    return dict(**usage(), **hero(), **flow(), gallery=gallery(), ignored=ignored(),
                 vials_or=vials(OR), vials_and=vials(AND))

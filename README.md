@@ -59,6 +59,7 @@ comments refer to them. New molecules get the next free number. `#m13` links to 
 | `python tools/rebuild.py` | builds the InChI revisions named in `site.json` (cached in `~/.cache/inchi-specs/`), regenerates explanation, examples and landing pages |
 | `python tools/audit.py <key>` | lists every document of a feature as ok or MISSING |
 | `python tools/new_discussion.py <key>` | creates the feature's general discussion once |
+| `python tools/doc_check.py <key> --option <Name>` | in `../InChI`: new or changed functions without Doxygen comment, and whether an option is in the help text, README, CHANGELOG, User Guide and API Reference |
 
 Python with RDKit ≥ 2024 (e.g. `~/.venvs/inchi-specs`), an InChI clone at `../InChI`, `gh`
 logged in. `rebuild.py` only fetches and adds temporary worktrees in the clone; it leaves
@@ -79,8 +80,9 @@ Two [Claude Code](https://claude.com/claude-code) skills in `skills/` run this w
 link them into `~/.claude/skills/` to use them:
 
 - **inchi-feature-check** — takes an issue/PR/feature through kick-off documents,
-  readiness, datasets, unit tests, code, spec, site entry with discussion, examples and
-  explanation, and creates what is missing.
+  readiness, datasets, unit tests, code, Doxygen and user documentation, spec, site entry
+  with discussion, examples and explanation (ending in "How to use it"), and creates what
+  is missing.
 - **inchi-feature-update** — after a code change, finds every affected document (including
   sibling specs) and updates it from measurements.
 

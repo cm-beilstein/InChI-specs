@@ -104,6 +104,18 @@ strings that start <code>1BB</code>, <code>1NB</code>, <code>1SB</code> or <code
 </ul>
 <p>Your view counts: use the Comment buttons on this page or the general discussion below.</p>
 
+<h2 id="use">How to use it</h2>
+<p><b>No option needed.</b> The new prefixes and InChIKey flags come with InChI 2026.x.
+For sodium chloride:</p>
+$use_cli
+<p><b>The old metal rules.</b> To reproduce identifiers made by older versions, e.g. to
+match an existing database, add <code>-LegacyMetalHandling</code>. The result is a
+non-standard InChI:</p>
+$use_legacy
+<p><b>Reading.</b> InChI 2026.x reads all prefixes, including the old <code>InChI=1/</code>,
+which it writes back as <code>InChI=1N/</code>. Software built on InChI 1.07 or older
+cannot read the new prefixes (see above).</p>
+
 <footer>
 <p>Every InChI and InChIKey on this page is computed by InChI (<code>dev</code>, before and
 after PR <a href="https://github.com/IUPAC-InChI/InChI/pull/280">#280</a>), not typed in.

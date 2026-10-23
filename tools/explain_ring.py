@@ -8,7 +8,7 @@ import html
 import os
 import re
 
-from explain import SPECS, inchi, mark, picture, stereo_tail, warning
+from explain import cli, SPECS, inchi, mark, picture, stereo_tail, warning
 
 DATA = os.path.join(SPECS, "impossible-ring-stereo", "datasets")
 
@@ -57,5 +57,14 @@ def fused():
                 trans_pic=picture(TRANS, numbers=False), trans_tail=mark(trans_tail))
 
 
+def usage():
+    """What a user sees today for the impossible drawing."""
+    block = open(os.path.join(DATA, "bicyclononane_in_out.mol")).read()
+    block = re.sub(r"M  V30 BEGIN COLLECTION\n.*?M  V30 END COLLECTION\n", "", block, flags=re.S)
+    today = cli(block, [], "bicyclononane_in_out.mol")
+    assert "Ambiguous stereo" in today, today
+    return dict(use_cli=today)
+
+
 def parts():
-    return dict(**bridged(), **fused())
+    return dict(**usage(), **bridged(), **fused())

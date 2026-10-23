@@ -7,7 +7,7 @@ the before/after rows, its 'old' binary (INCHI_OLD, set by rebuild.py).
 import html
 
 from build import inchi_key, run_cli
-from explain import EXE, OLD_EXE, molblock, picture, run_inchi
+from explain import cli, EXE, OLD_EXE, molblock, picture, run_inchi
 
 ETHANOL = "CCO"
 NACL = "[Na+].[Cl-]"
@@ -124,6 +124,15 @@ def old_reader():
     return dict(reader_in=code(new), reader_out=code(read))
 
 
+def usage():
+    """How to use it: no option needed; -LegacyMetalHandling for the old rules."""
+    default = cli(NACL, [], "nacl.mol")
+    legacy = cli(NACL, LEGACY, "nacl.mol")
+    assert "InChI=1BB/" in default and "BB-" in default, default
+    assert "InChI=1N/" in legacy and "NA-" in legacy, legacy
+    return dict(use_cli=default, use_legacy=legacy)
+
+
 def parts():
     assert OLD_EXE, "INCHI_OLD must name the old binary; run tools/rebuild.py"
-    return dict(grid_rows=grid(), **metals(), **metalloids(), **nonstandard(), **old_reader())
+    return dict(**usage(), grid_rows=grid(), **metals(), **metalloids(), **nonstandard(), **old_reader())

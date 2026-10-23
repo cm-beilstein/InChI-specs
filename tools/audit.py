@@ -54,6 +54,9 @@ def main(key):
         ("explanation template", has("explain.template.html")),
         ("explanation module", f'"{key}":' in explain),
         ("explanation page", has("explain.html")),
+        ("explanation: 'How to use it' section",
+         'id="use"' in (open(os.path.join(folder, "explain.template.html")).read()
+                        if has("explain.template.html") else "")),
         ("example table in molecules.py", re.search(rf'\("{key}", ""\)', molecules) is not None),
         ("examples page", has("examples", "index.html")),
         ("landing row", f'data-term="{key} · general"' in landing),

@@ -4,7 +4,7 @@ import html
 import re
 
 import build
-from explain import ENH, EXE, inchi, isomer, label_chip, mark, molblock, picture, run_cli, stereo_tail
+from explain import cli, ENH, EXE, inchi, isomer, label_chip, mark, molblock, picture, run_cli, stereo_tail
 
 # Sorbic acid, CH3-C5H=C4H-C3H=C2H-C1OOH. Double bonds in SMILES order:
 #   db 0 = C4=C5 (canonical 3-2), db 1 = C2=C3 (canonical 5-4)
@@ -259,6 +259,15 @@ def retinal():
     return dict(retinal_pic=pic, retinal_tail=mark_ez(got))
 
 
+def usage():
+    """How to use it: (2E,4E)-sorbic acid, both bonds in one AND group."""
+    mixture = sorbic("EE", [("STEBRAC1", [C23, C45])])
+    with_option = cli(mixture, ["-EnhancedStereochemistry"], "sorbic.mol")
+    without = cli(mixture, [], "sorbic.mol")
+    assert "/b3(" in with_option, with_option
+    return dict(use_cli=with_option, use_std=without)
+
+
 def parts():
-    return dict(**hero(), **basics(), **flow(), **rules(), **gallery(), **centres(),
+    return dict(**usage(), **hero(), **basics(), **flow(), **rules(), **gallery(), **centres(),
                 **multi(), **ignored(), **retinal())

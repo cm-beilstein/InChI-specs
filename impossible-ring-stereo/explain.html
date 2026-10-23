@@ -151,6 +151,10 @@ footer { margin-top: 5rem; border-top: 1px solid var(--rule); padding-top: 1rem;
   .case-pic { max-width: 300px; }
   .strings { grid-template-columns: 1fr; }
 }
+
+/* 'How to use it': a measured command line and its output */
+.cli { background: var(--ink); color: #e8ecf1; font-family: var(--mono); font-size: .88rem;
+       padding: .9rem 1.1rem; border-radius: 8px; overflow-x: auto; margin: .8rem 0; }
 </style>
 </head>
 <body>
@@ -1112,6 +1116,16 @@ as it is: InChI identifies what was drawn, not what was meant. Fixing the drawin
 the person or program that made it.</p>
 <p>Your view counts: is a warning enough, are the size limits right, which cases are missing?
 Use the Comment buttons on this page or the general discussion below.</p>
+
+<h2 id="use">How to use it</h2>
+<p>Nothing to switch on yet. Today InChI answers the impossible drawing with a general
+warning only:</p>
+<pre class="cli">$ inchi-1 bicyclononane_in_out.mol -STDIO -AuxNone -Key
+InChI=1S/C8H16N2O3S/c1-14(11,12)10-7-2-6(9)3-8(10)5-13-4-7/h6-8H,2-5,9H2,1H3/t7-,8-/m0/s1
+InChIKey=KQSRGMGLOXLLJM-YUMQZZPRSA-N
+Warning (Ambiguous stereo: center(s))   (log)</pre>
+<p>With the proposal, the log would also say what is wrong and name the bridgehead atoms;
+the InChI would stay the same.</p>
 
 <footer>
 <p>Every InChI on this page is computed by InChI with standard options, not typed in.

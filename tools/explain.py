@@ -74,6 +74,18 @@ def warning(mol):
     return next((l.split(" structure")[0] for l in log if l.startswith("Warning")), "")
 
 
+def cli(mol, opts, name, exe=None):
+    """A command line and what it prints, measured: '$ inchi-1 <name> -STDIO
+    -AuxNone -Key <opts>' and its InChI and InChIKey lines, warnings marked as
+    such. For the 'How to use it' sections."""
+    args = ["-AuxNone", "-Key"] + list(opts)
+    out, log = run_cli(exe or EXE, molblock(mol), args)
+    lines = [l for l in out if l.startswith(("InChI=", "InChIKey="))]
+    warns = [l.split(" structure")[0] for l in log if l.startswith("Warning")]
+    text = ["$ " + " ".join(["inchi-1", name, "-STDIO"] + args)] + lines + [w + "   (log)" for w in warns]
+    return '<pre class="cli">' + html.escape("\n".join(text)) + "</pre>"
+
+
 def stereo_tail(s):
     """'/t3-,4-/m1/s1' from a full InChI: everything from the first stereo
     layer (/b or /t) on; '' when there is none."""

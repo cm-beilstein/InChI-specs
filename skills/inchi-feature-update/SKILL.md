@@ -46,13 +46,18 @@ becomes an open issue marked unverified.
 Then the repo `README.md`: status column of each touched spec, new source documents,
 molecule-ID range.
 
+And the documentation in the InChI repo: `python tools/doc_check.py <key> --option <name>`
+for each affected feature. New or changed functions need their Doxygen block, a new or
+changed option its help text, README, CHANGELOG, User Guide and API Reference entries.
+
 ## 4. Update the site
 
 - `tools/site.json`: the `new` revision of each affected feature (pinned hash containing
   the change), `old` if the comparison base moved, tracking (new issues, PRs, branches).
 - Examples: add molecules that show the new behaviour at the end of `TABLES` (IDs are
   global and permanent). Existing rows simply re-render.
-- Explanation pages: the generators assert their strings, so a behaviour change fails the
+- Explanation pages, including "How to use it" when options or input change: the
+  generators assert their strings, so a behaviour change fails the
   build. Fix the text and the assert together; the page must explain the new behaviour,
   not just stop failing.
 

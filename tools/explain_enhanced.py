@@ -4,7 +4,7 @@ import html
 import os
 import re
 
-from explain import (ENH, EXE, S_GROUP, SPECS, draw, inchi, isomer, label_chip,
+from explain import (cli, ENH, EXE, S_GROUP, SPECS, draw, inchi, isomer, label_chip,
                      mark, mark_s, picture, run_inchi, stereo_tail, warning)
 
 # 3-chlorobutan-2-ol, CH3-C2H(OH)-C3H(Cl)-CH3; SMILES atoms 1 = C2, 3 = C3
@@ -151,9 +151,19 @@ def biovia():
     return dict(biovia_pic=draw(block, canon), biovia_tail=mark(tail), biovia_rows="".join(groups))
 
 
+def usage():
+    """How to use it: the racemate from the gallery, with and without the option."""
+    racemate = ISOMERS["RR"] + " |&1:1,3|"
+    with_option = cli(racemate, ["-EnhancedStereochemistry"], "racemate.mol")
+    without = cli(racemate, [], "racemate.mol")
+    assert "InChI=1B/" in with_option and "/s3" in with_option, with_option
+    assert "InChI=1S/" in without and "/m" in without, without
+    return dict(use_cli=with_option, use_std=without)
+
+
 def parts():
     iso_svgs = {k: isomer(s) for k, s in ISOMERS.items()}
-    out = dict(gallery=gallery(iso_svgs), **flow(), **multi(), **ignored(), **meso(), **biovia())
+    out = dict(**usage(), gallery=gallery(iso_svgs), **flow(), **multi(), **ignored(), **meso(), **biovia())
 
     # Hero: the three labellings that standard InChI cannot separate
     hero = []

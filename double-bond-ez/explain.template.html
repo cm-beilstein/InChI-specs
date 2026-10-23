@@ -249,6 +249,20 @@ without a label. Grey numbers are canonical.</p>
   <tr><td><code class="c-and">3(16-8-)</code></td><td>and: E/Z mixture</td><td>atoms 16 and 8</td></tr>
 </table></div>
 
+<h2 id="use">How to use it</h2>
+<p><b>Input.</b> A V3000 molfile whose double bonds are drawn E or Z and listed in bond
+collections: <code>STEBABS</code>, <code>STEBREL<i>n</i></code>, <code>STEBRAC<i>n</i></code>,
+each with <code>BONDS=(…)</code>, the bond indices of the molfile.</p>
+<p><b>Command line.</b> Add <code>-EnhancedStereochemistry</code>. (2E,4E)-Sorbic acid,
+both bonds in one &amp; group:</p>
+$use_cli
+<p>Without the option the bond collections are ignored:</p>
+$use_std
+<p>From a program, pass the option to the InChI library like any other, e.g.
+<code>MakeINCHIFromMolfileText(molfile, "-EnhancedStereochemistry", &amp;output)</code>
+or in the options string of <code>GetINCHI</code>. The InChI starts with
+<code>InChI=1B/</code>: a beta feature, so the format can still change.</p>
+
 <footer>
 <p>Every InChI on this page is computed by the prototype (branch <code>atropisomers</code>,
 option <code>-EnhancedStereochemistry</code>), not typed in. Full rules: specification

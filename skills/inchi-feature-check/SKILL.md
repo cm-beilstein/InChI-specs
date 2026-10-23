@@ -1,6 +1,6 @@
 ---
 name: inchi-feature-check
-description: Check that an InChI feature, fix or proposal is complete end to end and create whatever is missing - kick-off documents, whether the information suffices to implement it, datasets, unit tests, the code change, its specification, and its entry on the InChI Specifications site (https://cm-beilstein.github.io/InChI-specs/) with general discussion, old-vs-new examples page and explanation page for chemists. Use whenever the user points at an IUPAC-InChI/InChI issue or PR, or names an InChI feature, and asks to check it, complete it, document it, "put it on the site", add a spec/examples/explanation for it, or whether it is covered or done. Also use when starting work on a new InChI feature. To refresh documents that already exist after a code change, use inchi-feature-update instead.
+description: Check that an InChI feature, fix or proposal is complete end to end and create whatever is missing - kick-off documents, whether the information suffices to implement it, datasets, unit tests, the code change, Doxygen comments and user documentation (help text, README, User Guide, API reference), its specification, and its entry on the InChI Specifications site (https://cm-beilstein.github.io/InChI-specs/) with general discussion, old-vs-new examples page and explanation page for chemists. Use whenever the user points at an IUPAC-InChI/InChI issue or PR, or names an InChI feature, and asks to check it, complete it, document it, "put it on the site", add a spec/examples/explanation for it, or whether it is covered or done. Also use when starting work on a new InChI feature. To refresh documents that already exist after a code change, use inchi-feature-update instead.
 ---
 
 # InChI feature check
@@ -8,8 +8,8 @@ description: Check that an InChI feature, fix or proposal is complete end to end
 Walk one feature through a fixed chain and fill every gap:
 
 ```
-issue/PR ─▶ kick-off docs + readiness ─▶ datasets ─▶ unit tests ─▶ code ─▶ SPEC.md
-         ─▶ site entry + discussion ─▶ examples ─▶ explanation ─▶ rebuild, verify ─▶ publish
+issue/PR ─▶ kick-off docs + readiness ─▶ datasets ─▶ unit tests ─▶ code ─▶ code + user docs
+         ─▶ SPEC.md ─▶ site entry + discussion ─▶ examples ─▶ explanation ─▶ rebuild, verify ─▶ publish
 ```
 
 Each link depends on the one before: a spec describes code that tests pin; examples and
@@ -92,11 +92,36 @@ the behaviour is missing: a bug gets fixed (test first); a feature or a design c
 goes to the user first. A proposal without code is fine: mark it `"status": "proposed"`
 and continue with the documents, which then describe today's behaviour and the target.
 
-## 6. Specification
+## 6. Documentation in the code and for users
+
+Code is not done until people can find out how to use it. Run
+
+```
+python tools/doc_check.py <key> --option <OptionName>    # once per option the feature adds
+```
+
+It compares the spec's `old` and `new` revisions in `../InChI` (git objects only) and
+reports:
+
+- **Doxygen.** Every C function the change adds needs a `/** … */` block directly above
+  its definition, in the repo's style (`@brief`, `@param`, `@return`). MISSING lines must be
+  fixed. Watch for blocks that a later edit separated from their function (a `typedef`
+  inserted in between attaches the comment to the typedef). "legacy" lines are old
+  functions without docs that the change touched: add one when the change is large.
+- **User documentation** of each option at the `new` revision: command-line help
+  (`HelpCommandLineParms` in `ichiparm.c`), `README.md` (options section), `INCHI-1-DOC/CHANGELOG.md`,
+  User Guide (`INCHI-1-DOC/UserGuide/InChI_UserGuide.md`) and API Reference
+  (`INCHI-1-DOC/APIReference/InChI_API_Reference.md`). A feature without an option (like
+  versioning) still needs its behaviour described in README, CHANGELOG and User Guide.
+
+Write what is missing in the InChI repo, on the feature's branch (or a docs branch from
+`dev` for merged code), in a scratch worktree; ask before pushing. Proposals skip this step.
+
+## 7. Specification
 
 `<key>/SPEC.md`. If missing, create it from `references/spec-template.md`: problem with a
 measured example, target behaviour (rules + decisions from the thread, with who decided),
-implementation table by function name, requirements with gates (the tests from step 2),
+implementation table by function name, requirements with gates (the tests from step 4),
 open issues (the undecided points from the thread), worked examples. Measure every string
 with a named binary. If it exists, check it matches the current code; if not, follow
 inchi-feature-update for the spec.
@@ -112,7 +137,7 @@ that passes but is not merged yet is 🟡 "not yet in the repo", with where it l
 requirement whose only gate that is stays 🟡 too. The landing page's "Done" column counts
 these markers, so they must be true.
 
-## 7. Site entry and discussion
+## 8. Site entry and discussion
 
 Add the feature to `tools/site.json` (fields in `references/site.md`): title, status,
 `old`/`new` revisions (last commit without / first commit with the change; pinned hashes),
@@ -122,7 +147,7 @@ file by hand in its existing compact style (a `json.dump` rewrite reformats ever
 
 Then `python tools/new_discussion.py <key>` (asks GitHub; needs `gh` with write access).
 
-## 8. Examples page
+## 9. Examples page
 
 A proposal skips this step (`audit.py` says n/a): old vs. new needs a new InChI. Its
 explanation page shows today's output instead.
@@ -138,16 +163,21 @@ to get subtly wrong (cisplatin as `N[Pt](N)(Cl)Cl` gives NH2 ligands; the dative
 from site.json `dataRev`, which may predate the feature; copy such molblocks into
 `<key>/datasets/` and read them from there.
 
-## 9. Explanation page
+## 10. Explanation page
 
 `<key>/explain.template.html` plus `tools/explain_<name>.py`, registered in `SPEC_MODULES`
 in `tools/explain.py`. Audience: chemists who never read C. Lead with what changes for
 them, show measured examples side by side, explain rules in plain words, end with what is
 open. Assert every computed string in the generator. `explain.EXE` is the spec's `new`
-binary, `explain.OLD_EXE` its `old` one (empty for proposals), for before/after rows. For a proposal, say at the top that
+binary, `explain.OLD_EXE` its `old` one (empty for proposals), for before/after rows.
+
+Every page ends with `<h2 id="use">How to use it</h2>`: what the input must contain and
+how to draw it, the command line with its real output (`explain.cli(mol, options, name)`
+runs it and returns the block), the same without the option where that shows the
+difference, and the library call. A proposal shows what a user sees today. For a proposal, say at the top that
 nothing is implemented. One `<h2 id>` per topic: each becomes a comment thread.
 
-## 10. Rebuild and verify
+## 11. Rebuild and verify
 
 ```
 python tools/rebuild.py      # needs a Python with RDKit
@@ -166,7 +196,7 @@ The examples page and landing texts are shared by all features. If a sentence th
 not fit the new feature (e.g. stereo labels on a non-stereo page), fix the generator
 (`tools/build.py`) instead of living with it, and check the other pages stay the same.
 
-## 11. Publish
+## 12. Publish
 
 Update the repo `README.md` with the change: the feature's row in the spec table (status,
 readiness), "Source documents" for new kick-off documents, and the molecule-ID range.
@@ -195,6 +225,8 @@ End with one table, one row per link of the chain:
 | Readiness | — | proposed: ready with open points (A, B) |
 | Datasets | 2 molfiles in the issue | `datasets/` + `DATASETS.md` |
 | Unit tests | `test_x.cpp` (12 tests, pass) | — |
+| Doxygen | 2 new functions without comment | added `/** @brief … */` (branch `x`) |
+| User docs | option missing from help and User Guide | added (branch `x`) |
 | Specification | missing | created `<key>/SPEC.md` v0.1 |
 
 and the open decisions for the user.

@@ -151,6 +151,10 @@ footer { margin-top: 5rem; border-top: 1px solid var(--rule); padding-top: 1rem;
   .case-pic { max-width: 300px; }
   .strings { grid-template-columns: 1fr; }
 }
+
+/* 'How to use it': a measured command line and its output */
+.cli { background: var(--ink); color: #e8ecf1; font-family: var(--mono); font-size: .88rem;
+       padding: .9rem 1.1rem; border-radius: 8px; overflow-x: auto; margin: .8rem 0; }
 </style>
 </head>
 <body>
@@ -802,6 +806,24 @@ strings that start <code>1BB</code>, <code>1NB</code>, <code>1SB</code> or <code
   letters altogether.</li>
 </ul>
 <p>Your view counts: use the Comment buttons on this page or the general discussion below.</p>
+
+<h2 id="use">How to use it</h2>
+<p><b>No option needed.</b> The new prefixes and InChIKey flags come with InChI 2026.x.
+For sodium chloride:</p>
+<pre class="cli">$ inchi-1 nacl.mol -STDIO -AuxNone -Key
+InChI=1BB/ClH.Na/h1H;/q;+1/p-1
+InChIKey=FAPWRFPIFSIZLT-UHFFFAOYBB-M
+Warning (Proton(s) added/removed)   (log)</pre>
+<p><b>The old metal rules.</b> To reproduce identifiers made by older versions, e.g. to
+match an existing database, add <code>-LegacyMetalHandling</code>. The result is a
+non-standard InChI:</p>
+<pre class="cli">$ inchi-1 nacl.mol -STDIO -AuxNone -Key -LegacyMetalHandling
+InChI=1N/ClH.Na/h1H;/q;+1/p-1
+InChIKey=FAPWRFPIFSIZLT-UHFFFAOYNA-M
+Warning (Proton(s) added/removed)   (log)</pre>
+<p><b>Reading.</b> InChI 2026.x reads all prefixes, including the old <code>InChI=1/</code>,
+which it writes back as <code>InChI=1N/</code>. Software built on InChI 1.07 or older
+cannot read the new prefixes (see above).</p>
 
 <footer>
 <p>Every InChI and InChIKey on this page is computed by InChI (<code>dev</code>, before and

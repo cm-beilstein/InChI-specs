@@ -236,6 +236,22 @@ or groups and two &amp; groups. Grey numbers are canonical.</p>
   </table></div>
   <p><code class="c-abs">/m1</code> is present because centre 15 is absolute.</p></div>
 
+<h2 id="use">How to use it</h2>
+<p><b>Input.</b> A V3000 molfile with stereo collections: <code>STEABS</code> (abs),
+<code>STEREL<i>n</i></code> (or<i>n</i>), <code>STERAC<i>n</i></code> (&amp;<i>n</i>). Editors and
+toolkits write them when you set the labels; the datasets of this spec hold such files from
+BIOVIA, Ketcher, Indigo, RDKit, OpenChemLib and CDPKit. RDKit also writes them from
+CXSMILES like <code>C[C@H](O)CC |&amp;1:1|</code>.</p>
+<p><b>Command line.</b> Add <code>-EnhancedStereochemistry</code>. The racemate from the
+gallery:</p>
+$use_cli
+<p>Without the option InChI ignores the labels and reads the wedges as absolute:</p>
+$use_std
+<p>From a program, pass the option to the InChI library like any other, e.g.
+<code>MakeINCHIFromMolfileText(molfile, "-EnhancedStereochemistry", &amp;output)</code>
+or in the options string of <code>GetINCHI</code>. The InChI starts with
+<code>InChI=1B/</code>: a beta feature, so the format can still change.</p>
+
 <footer>
 <p>Every InChI on this page is computed by the prototype (branch <code>atropisomers</code>,
 option <code>-EnhancedStereochemistry</code>), not typed in. Full rules: specification

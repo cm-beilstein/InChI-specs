@@ -6,7 +6,7 @@ from rdkit import Chem
 from rdkit.Chem.Draw import rdMolDraw2D
 
 import build
-from explain import inchi, mark, picture, stereo_tail, warning
+from explain import cli, inchi, mark, picture, stereo_tail, warning
 from molecules import ATROPISOMERS, UP, DOWN
 
 # Dataset / unit-test molecules by their comparison-table title
@@ -191,5 +191,14 @@ def not_detected():
     return dict(missed="".join(rows))
 
 
+def usage():
+    """How to use it: the biaryl drawn (M), with and without the option."""
+    with_option = cli(M_DRAWN, ["-EnhancedStereochemistry"], "biaryl.mol")
+    without = cli(M_DRAWN, [], "biaryl.mol")
+    assert "/t" in with_option and "/m" in with_option, with_option
+    assert "/t" not in without, without
+    return dict(use_cli=with_option, use_std=without)
+
+
 def parts():
-    return dict(**hero(), **flow(), **gallery(), **enhanced(), **not_detected())
+    return dict(**usage(), **hero(), **flow(), **gallery(), **enhanced(), **not_detected())
