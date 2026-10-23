@@ -8,17 +8,17 @@
 Molecule IDs are global over all tables, in TABLES order, so they stay
 stable when a spec's pages move (comments refer to them, e.g. #286).
 
-Usage (from the repo root):
-  INCHI_OLD=/path/to/dev/inchi-1 INCHI_NEW=/path/to/atropisomers/inchi-1 \\
-      python tools/build.py
+Run through tools/rebuild.py, which builds the inchi-1 binaries named in
+tools/site.json and sets:
 
-  INCHI_OLD  inchi-1 built from IUPAC-InChI/InChI 'dev' (standard options)
-  INCHI_NEW  inchi-1 built from cm-beilstein's 'atropisomers' branch,
-             run with -EnhancedStereochemistry
+  INCHI_BINS     JSON {revision: path to inchi-1}
+  INCHI_SOURCES  directory holding InChI/ (checked out at site.json dataRev)
+                 and InChI-specs/, for molblocks read from tests and fixtures
 """
 
 import hashlib
 import html
+import json
 import math
 import os
 import re
@@ -36,33 +36,14 @@ from molecules import SPEC_OF, TABLES, UP, DOWN
 RDLogger.DisableLog("rdApp.*")
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CODE = os.path.dirname(ROOT)
+CODE = os.environ.get("INCHI_SOURCES", os.path.dirname(ROOT))
 
-# Specs in landing-page order; SPEC.md is private, so it links to the repo
-SPECS = [
-    ("enhanced-stereo", "Enhanced stereochemistry (ABS / OR / AND)"),
-    ("allenes", "Allenes"),
-    ("double-bond-ez", "Double-bond E/Z"),
-    ("atropisomers", "Atropisomers"),
-]
+# Specs in landing-page order, their status, tracking and the two InChI
+# versions their examples compare; SPEC.md links to the repo
+SITE = json.load(open(os.path.join(ROOT, "tools", "site.json")))
+SPECS = SITE["specs"]
+INCHI_URL = SITE["inchiRepo"]
 REPO_URL = "https://github.com/cm-beilstein/InChI-specs/blob/main"
-
-# Tracking in IUPAC-InChI/InChI per spec: branch, issues, pull requests
-INCHI_URL = "https://github.com/IUPAC-InChI/InChI"
-TRACKING = {
-    "enhanced-stereo": ("feature/enh-stereo-hardening", [172, 221, 286], [185, 251]),
-    "allenes": ("feature/allenes", [286], []),
-    "double-bond-ez": ("feature/double-bond-ez", [286], []),
-    "atropisomers": ("atropisomers", [173, 286], [198]),
-}
-
-# Proposed features, no spec folder yet: (key, title, issues)
-PROPOSED = [
-    ("impossible-ring-stereo",
-     "Physically impossible ring stereo (in/out bridgeheads, trans fusion)", [287]),
-]
-OLD_OPTS = []
-NEW_OPTS = ["-EnhancedStereochemistry"]
 SVG_W, SVG_H = 320, 240
 CANON_FONT_PX = 11
 CANON_GAP_PX = 9          # number to bare carbon
@@ -336,16 +317,38 @@ def canon_labels(d, mol, canon):
 
 # ------------------------------------------------------------------- HTML
 
-def mark_diff(old, new):
-    """Bold the part of 'new' after the common prefix with 'old' (after
-    the version prefix), so the change is visible at a glance."""
+def split_version(s):
+    """'InChI=1BB/C2H6O/...' -> ('InChI=1BB/', 'C2H6O/...')."""
+    i = s.find("/") + 1
+    return s[:i], s[i:]
+
+
+def mark_diff(old, new, version=False):
+    """Bold the part of 'new' after the common prefix with 'old' (after the
+    version prefix), so the change is visible at a glance. With 'version',
+    a changed version prefix is bold too (specs about the prefix itself)."""
     if old == new:
         return html.escape(new)
-    a, b = old[9:], new[9:]
+    old_v, old_b = split_version(old)
+    new_v, new_b = split_version(new)
+    head = f"<b>{html.escape(new_v)}</b>" if version and old_v != new_v else html.escape(new_v)
+    if old_b == new_b:
+        return head + html.escape(new_b)
     n = 0
-    while n < min(len(a), len(b)) and a[n] == b[n]:
+    while n < min(len(old_b), len(new_b)) and old_b[n] == new_b[n]:
         n += 1
-    return html.escape(new[:9 + n]) + "<b>" + html.escape(new[9 + n:]) + "</b>"
+    return head + html.escape(new_b[:n]) + "<b>" + html.escape(new_b[n:]) + "</b>"
+
+
+def describe(run):
+    """'atropisomers (09043c1), -EnhancedStereochemistry'"""
+    opts = " ".join(run["options"]) or "default options"
+    return f'<code>{html.escape(run["label"])}</code> ({run["rev"]}), <code>{html.escape(opts)}</code>'
+
+
+def inchi_key(exe, block, opts):
+    out, _ = run_cli(exe, block, opts + ["-Key"])
+    return next((l for l in out if l.startswith("InChIKey=")), "(no InChIKey)")
 
 
 PAGE = """<!DOCTYPE html>
@@ -369,15 +372,14 @@ td.pic img {{ display: block; margin: 0 auto .3rem; }}
 .inchi div {{ margin: .2rem 0; }}
 .tag {{ display: inline-block; width: 2.6rem; color: #888; }}
 .same {{ color: #888; }}
+.key {{ color: #555; }}
 b {{ color: #b00; }}
 </style>
 </head>
 <body>
 <nav>{links}</nav>
 <h1>{title}: old vs. new InChI</h1>
-<p><b>old</b>: InChI <code>dev</code> ({old_ver}), default options.
-<b>new</b>: branch <code>atropisomers</code> ({new_ver}, contains all four features),
-<code>-EnhancedStereochemistry</code>. The changed tail of the new InChI is in red.
+<p><b>old</b>: InChI {old}. <b>new</b>: InChI {new}. The changed part of the new InChI is in red.
 Small grey numbers in the pictures: canonical atom numbers of the new InChI
 (per component). Collection labels <code>abs</code>, <code>or<i>n</i></code>,
 <code>and<i>n</i></code>. Molecule IDs are shared by all specs.
@@ -407,9 +409,9 @@ td.id {{ text-align: right; }}
 <p>New features and extensions of InChI, developed in
 <a href="https://github.com/IUPAC-InChI/InChI">IUPAC-InChI/InChI</a>. Per feature: the
 technical specification, an explanation for chemists, old-vs-new examples, and how the new
-InChI is built step by step. Implemented features run behind the option
-<code>-EnhancedStereochemistry</code> (prefix <code>InChI=1B/</code>); proposed ones are
-open for discussion.</p>
+InChI is built step by step. The stereo features run behind the option
+<code>-EnhancedStereochemistry</code> (prefix <code>InChI=1B/</code>); proposed features
+are open for discussion.</p>
 <p>Comments are welcome: per feature, on every molecule and on every explanation section
 (GitHub account needed).</p>
 <table>
@@ -426,35 +428,33 @@ features.</p>
 
 
 def landing(counts):
-    """Root index.html: one row per spec with its documents."""
+    """Root index.html: one row per spec with what exists of its documents."""
     rows = []
-    ident = 0
-    for spec, title in SPECS:
-        ident += 1
-        workflow = (f'<br><a href="{spec}/workflow.html">How it is built, step by step</a>'
-                    if os.path.exists(os.path.join(ROOT, spec, "workflow.html")) else "")
-        link = spec_link(spec)
-        discuss = f'<a href="{link}">On GitHub</a>' if link else ""
-        branch, issues, prs = TRACKING[spec]
-        github = (f'branch <a href="{INCHI_URL}/tree/{branch}"><code>{branch}</code></a>'
-                  + "".join(f'<br>issue <a href="{INCHI_URL}/issues/{n}">#{n}</a>' for n in issues)
-                  + "".join(f'<br>PR <a href="{INCHI_URL}/pull/{n}">#{n}</a>' for n in prs))
-        rows.append(f'<tr id="f{ident}" data-term="{spec_term(spec)}"><td class="id">{ident}</td>'
-                    f'<td class="name">{html.escape(title)}</td>'
-                    f'<td><a href="{spec}/explain.html">Explanation</a></td>'
-                    f'<td><a href="{spec}/examples/">{counts[spec]} molecules, old vs. new</a></td>'
-                    f'<td><a href="{REPO_URL}/{spec}/SPEC.md">Specification</a>{workflow}</td>'
-                    f'<td>{github}</td><td>{discuss}</td></tr>')
-    for key, title, issues in PROPOSED:
-        ident += 1
-        explain = (f'<a href="{key}/explain.html">Explanation</a>'
-                   if os.path.exists(os.path.join(ROOT, key, "explain.html")) else "")
+    for ident, spec in enumerate(SPECS, 1):
+        key = spec["key"]
+        exists = lambda name: os.path.exists(os.path.join(ROOT, key, name))
+
+        explain = f'<a href="{key}/explain.html">Explanation</a>' if exists("explain.html") else ""
+        examples = (f'<a href="{key}/examples/">{counts[key]} molecules, old vs. new</a>'
+                    if counts.get(key) else "")
+        technical = "<br>".join(
+            ([f'<a href="{REPO_URL}/{key}/SPEC.md">Specification</a>'] if exists("SPEC.md") else [])
+            + (['<a href="{0}/workflow.html">How it is built, step by step</a>'.format(key)]
+               if exists("workflow.html") else []))
+
+        track = spec["tracking"]
+        github = "<br>".join(
+            ([f'branch <a href="{INCHI_URL}/tree/{track["branch"]}"><code>{track["branch"]}</code></a>']
+             if track.get("branch") else [])
+            + [f'issue <a href="{INCHI_URL}/issues/{n}">#{n}</a>' for n in track.get("issues", [])]
+            + [f'PR <a href="{INCHI_URL}/pull/{n}">#{n}</a>' for n in track.get("prs", [])])
+
         link = spec_link(key)
         discuss = f'<a href="{link}">On GitHub</a>' if link else ""
-        github = "<br>".join(f'issue <a href="{INCHI_URL}/issues/{n}">#{n}</a>' for n in issues)
+        status = "" if spec["status"] == "implemented" else f' <i>({spec["status"]})</i>'
         rows.append(f'<tr id="f{ident}" data-term="{spec_term(key)}"><td class="id">{ident}</td>'
-                    f'<td class="name">{html.escape(title)}</td><td>{explain}</td>'
-                    '<td colspan="2"><i>Proposed: no examples or specification yet</i></td>'
+                    f'<td class="name">{html.escape(spec["title"])}{status}</td>'
+                    f'<td>{explain}</td><td>{examples}</td><td>{technical}</td>'
                     f'<td>{github}</td><td>{discuss}</td></tr>')
 
     page = LANDING.format(rows="\n".join(rows), comments=snippet(""))
@@ -462,20 +462,25 @@ def landing(counts):
 
 
 def build():
-    old_exe, new_exe = os.environ["INCHI_OLD"], os.environ["INCHI_NEW"]
-    sections = {spec: [] for spec, _ in SPECS}
+    bins = json.loads(os.environ["INCHI_BINS"])
+    config = {spec["key"]: spec for spec in SPECS}
+    sections = {}
     ident = 0
 
     for key, title, entries in TABLES:
         spec, explain_anchor = SPEC_OF[key]
+        cfg = config[spec]
+        old_run, new_run = cfg["old"], cfg["new"]
+        show_key, version = cfg.get("inchiKey", False), cfg.get("markVersion", False)
         out = os.path.join(ROOT, spec, "examples")
         os.makedirs(os.path.join(out, "svg"), exist_ok=True)
         rows, sdf = [], []
         for entry in entries:
             ident += 1
             block = molblock(entry)
-            old, _ = run_inchi(old_exe, block, OLD_OPTS)
-            new, canon = run_inchi(new_exe, block, NEW_OPTS)
+            old_exe, new_exe = bins[old_run["rev"]], bins[new_run["rev"]]
+            old, _ = run_inchi(old_exe, block, old_run["options"])
+            new, canon = run_inchi(new_exe, block, new_run["options"])
 
             svg_name = f"svg/{key}-{ident}.svg"
             svg = draw(block, canon, entry.get("relayout", False))
@@ -484,11 +489,21 @@ def build():
             # Content hash in the URL: browsers reload a changed picture
             # despite GitHub Pages' 10-minute cache
             svg_url = svg_name + "?v=" + hashlib.sha1(svg.encode()).hexdigest()[:8]
-            sdf.append(block.rstrip("\n") + f"\n>  <ID>\n{ident}\n\n>  <OLD>\n{old}\n\n"
-                       f">  <NEW>\n{new}\n\n$$$$")
+            record = f"\n>  <ID>\n{ident}\n\n>  <OLD>\n{old}\n\n>  <NEW>\n{new}\n\n"
+
+            # InChIKey lines, for specs about the key or the version prefix
+            keys = ""
+            if show_key:
+                old_key = inchi_key(old_exe, block, old_run["options"])
+                new_key = inchi_key(new_exe, block, new_run["options"])
+                record += f">  <OLD_KEY>\n{old_key}\n\n>  <NEW_KEY>\n{new_key}\n\n"
+                keys = (f'<div class="key"><span class="tag">old</span>{html.escape(old_key)}</div>'
+                        f'<div class="key"><span class="tag">new</span>'
+                        f'{mark_diff(old_key, new_key, version)}</div>')
+            sdf.append(block.rstrip("\n") + record + "$$$$")
 
             # id: deep link (#m13); data-term: its comment thread
-            same = old[9:] == new[9:]
+            same = old == new if version else split_version(old)[1] == split_version(new)[1]
             rows.append(
                 f'<tr id="m{ident}" data-term="{spec} · molecule {ident}">'
                 f'<td class="id">{ident}</td>'
@@ -496,7 +511,7 @@ def build():
                 f'alt="molecule {ident}">{html.escape(entry["title"])}</td>'
                 f'<td class="inchi"><div><span class="tag">old</span>{html.escape(old)}</div>'
                 f'<div{" class=same" if same else ""}><span class="tag">new</span>'
-                f'{mark_diff(old, new)}</div></td></tr>')
+                f'{mark_diff(old, new, version)}</div>{keys}</td></tr>')
             print(f"{ident:3} {key:13} {new}", file=sys.stderr)
 
         open(os.path.join(out, f"{key}.sdf"), "w").write("\n".join(sdf) + "\n")
@@ -508,27 +523,26 @@ def build():
             links.append('<a href="../workflow.html">How the new InChI is built: '
                          'step by step, with examples from this table</a>')
 
-        sections[spec].append(
+        sections.setdefault(spec, []).append(
             (len(entries), f'<h2 id="{key}">{html.escape(title)} ({len(entries)})</h2>\n'
                            f'<p>{"<br>".join(links)}</p>\n'
                            '<table><tr><th>ID</th><th>Molecule</th><th>InChI</th></tr>\n'
                            + "\n".join(rows) + "\n</table>"))
 
     # One examples page per spec
-    for spec, title in SPECS:
+    for spec, parts in sections.items():
+        cfg = config[spec]
         links = ['<a href="../../">InChI Specifications</a>',
                  '<a href="../explain.html">Explanation</a>',
                  f'<a href="{REPO_URL}/{spec}/SPEC.md">Specification</a>']
         if spec_link(spec):
             links.append(f'<a href="{spec_link(spec)}">Discussion</a>')
-        page = PAGE.format(w=SVG_W + 20, title=html.escape(title), links="".join(links),
-                           tables="\n".join(s for _, s in sections[spec]),
-                           comments=snippet(spec),
-                           old_ver=os.environ.get("INCHI_OLD_REV", "dev"),
-                           new_ver=os.environ.get("INCHI_NEW_REV", "atropisomers"))
+        page = PAGE.format(w=SVG_W + 20, title=html.escape(cfg["title"]), links="".join(links),
+                           tables="\n".join(s for _, s in parts), comments=snippet(spec),
+                           old=describe(cfg["old"]), new=describe(cfg["new"]))
         open(os.path.join(ROOT, spec, "examples", "index.html"), "w").write(page)
 
-    landing({spec: sum(n for n, _ in sections[spec]) for spec, _ in SPECS})
+    landing({spec: sum(n for n, _ in parts) for spec, parts in sections.items()})
 
 
 if __name__ == "__main__":
