@@ -102,6 +102,20 @@ Extraction notes (both are upstream transcription artefacts, not InChI bugs):
 | `propanol_13C_or.mol` | centre stereogenic only through ¹³C, OR | §8.4b, ES-R30 |
 | `chloromethylbutane_13C_and_or.mol` | AND on a main-layer centre, OR on an isotope-only one | §8.4b, ES-R30 |
 
+## 2026-10-23 additions (1.3 meso groups, ES-R33)
+
+`meso/` — the meso case John Mayfield raised in
+[IUPAC-InChI/InChI#286](https://github.com/IUPAC-InChI/InChI/issues/286). Measured on
+`atropisomers` 09043c1 (contains the ES-R33 fix).
+
+| file | what it exercises | SPEC |
+|------|-------------------|------|
+| `meso/mol_file_2c.mol` | trans-cyclohexane-1,4-diol drawn in Indigo, one `STERAC1` over both centres (johnmay case 2c): `/t5-,6-` with `-EnhancedStereochemistry`, same as standard (`/t5-,6-/s3` before the fix) | §5 resolved-T, §8.4b, ES-R33 |
+
+The other meso cases (2d, 2f, 2g and butane-2,3-diol) are inline molblocks in
+`test_enhancedStereo.cpp` (`..._meso_group_is_dropped`, `DISABLED_..._meso_subset_group_is_dropped`)
+and molecules 108–115 of the examples page.
+
 ## Active gates
 
 ### `fixtures/enh_stereo_test_file_1.sdf` — 33 molecules (**gate G2**)
