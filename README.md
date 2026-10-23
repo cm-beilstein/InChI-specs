@@ -15,6 +15,7 @@ encoding of stereoconfiguration by InChI tools").
 | 3 | [double-bond-ez](double-bond-ez/SPEC.md) | Enhanced OR/AND for C=C double bonds (grouped `/b` layer) | **Implemented** — v0.5; open: reading grouped `/b` back, fixed-H/isotopic `/b` | `atropisomers` (from `feature/double-bond-ez`) |
 | 4 | [atropisomers](atropisomers/SPEC.md) | Axial chirality about a hindered single bond | **Implemented** — v0.6 (detection, `/t`+`/m`); open: reparse round-trip, C–N/N–N axes | `atropisomers` |
 | 5 | [explanation](impossible-ring-stereo/explain.html) | Detect physically impossible ring stereo (in/out bridgeheads, trans fusion) | **Proposed** — [IUPAC-InChI/InChI#287](https://github.com/IUPAC-InChI/InChI/issues/287), to be discussed | — |
+| 6 | [inchi-versioning](inchi-versioning/SPEC.md) | Version prefix `1S`/`1B`/`1N` + subversion `B` (Molecular Inorganics), InChIKey flags `SA`…`NB` | **Implemented** — v0.1 (#280); open: combining letters, metalloids, lookup table | `dev` |
 
 The four implemented ones run under one option, `-EnhancedStereochemistry`, with prefix `InChI=1B/`. Branch
 `atropisomers` contains all of them.
@@ -31,7 +32,7 @@ plus its branch, issues and pull requests in IUPAC-InChI/InChI (`TRACKING` in `t
 | `<spec>/examples/` | old vs. new InChI per molecule (`index.html`, `<table>.sdf`, `svg/`) | `tools/build.py` from `tools/molecules.py` |
 | `<spec>/workflow.html` | chemists: the new InChI built step by step | [archify](https://github.com/tt-a1i/archify) from `tools/workflow/<table>.json` |
 
-Molecule IDs are global over all specs (1–115 at present) and never renumbered: issue
+Molecule IDs are global over all specs (1–129 at present) and never renumbered: issue
 comments refer to them. New molecules get the next free number. `#m13` links to molecule 13.
 
 Rebuild (RDKit needed; `../InChI` checked out on `atropisomers`):

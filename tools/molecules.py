@@ -246,12 +246,37 @@ MESO = [
          smiles=RING_ETHER + " |o1:1,4|"),
 ]
 
+# Version prefix and InChIKey flags (GitHub #285, PR #280). Default options:
+# a metal atom (Molecular Inorganics table) makes 1BB/..BB, also when the
+# layers stay the same; everything else must stay 1S/..SA.
+CISPLATIN = "[NH3]->[Pt](<-[NH3])(Cl)Cl"
+
+VERSIONING = [
+    dict(title="ethanol: organic, must not change", smiles="CCO"),
+    dict(title="L-alanine: organic with stereo, must not change", smiles="C[C@H](N)C(=O)O"),
+    dict(title="cisplatin (#285), dative N-Pt bonds: new layers and prefix", smiles=CISPLATIN),
+    dict(title="edge: NaCl (#285), same layers, new prefix", smiles="[Na+].[Cl-]"),
+    dict(title="sodium acetate: salt, prefix only", smiles="CC(=O)[O-].[Na+]"),
+    dict(title="methyllithium (unit test): Li-C bond kept", smiles="C[Li]"),
+    dict(title="methylmagnesium bromide: bonds kept", smiles="C[Mg]Br"),
+    dict(title="ferrocene, ionic drawing: prefix only",
+         smiles="[cH-]1cccc1.[cH-]1cccc1.[Fe+2]"),
+    dict(title="tin(IV) chloride: bonds kept", smiles="Cl[Sn](Cl)(Cl)Cl"),
+    dict(title="edge: SbCl3, Sb counted as metal", smiles="Cl[Sb](Cl)Cl"),
+    dict(title="edge: AsCl3, As not a metal: unchanged", smiles="Cl[As](Cl)Cl"),
+    dict(title="edge: GeCl4, Ge not a metal: unchanged", smiles="Cl[Ge](Cl)(Cl)Cl"),
+    dict(title="edge: TeCl4, Te not a metal: unchanged", smiles="Cl[Te](Cl)(Cl)Cl"),
+    dict(title="edge: ethanol + NaCl: one metal marks the whole InChI",
+         smiles="CCO.[Na+].[Cl-]"),
+]
+
 TABLES = [
     ("enhanced", "Enhanced stereochemistry (ABS / OR / AND)", ENHANCED),
     ("allenes", "Allenes", ALLENES),
     ("ez", "Double-bond E/Z", EZ),
     ("atropisomers", "Atropisomers", ATROPISOMERS),
     ("meso", "Meso compounds: groups that change nothing", MESO),
+    ("versioning", "Version prefix and InChIKey flags", VERSIONING),
 ]
 
 # Spec folder of each table, and its section on that spec's explain page.
@@ -262,4 +287,5 @@ SPEC_OF = {
     "ez": ("double-bond-ez", ""),
     "atropisomers": ("atropisomers", ""),
     "meso": ("enhanced-stereo", "#meso"),
+    "versioning": ("inchi-versioning", ""),
 }

@@ -1,0 +1,134 @@
+<svg version='1.1' baseProfile='full'
+              xmlns='http://www.w3.org/2000/svg'
+                      xmlns:rdkit='http://www.rdkit.org/xml'
+                      xmlns:xlink='http://www.w3.org/1999/xlink'
+                  xml:space='preserve'
+width='320px' height='240px' viewBox='0 0 320 240'>
+<!-- END OF HEADER -->
+<path class='bond-0 atom-0 atom-1' d='M 262.2,98.8 L 169.6,45.2' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' />
+<path class='bond-1 atom-1 atom-2' d='M 169.6,45.2 L 128.0,69.2' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' />
+<path class='bond-1 atom-1 atom-2' d='M 128.0,69.2 L 86.3,93.2' style='fill:none;fill-rule:evenodd;stroke:#FF0000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' />
+<path d='M 174.2,47.9 L 169.6,45.2 L 167.5,46.4' style='fill:none;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;' />
+<path class='atom-2' d='M 58.5 92.3
+L 60.2 92.3
+L 60.2 97.7
+L 66.8 97.7
+L 66.8 92.3
+L 68.5 92.3
+L 68.5 105.1
+L 66.8 105.1
+L 66.8 99.2
+L 60.2 99.2
+L 60.2 105.1
+L 58.5 105.1
+L 58.5 92.3
+' fill='#FF0000'/>
+<path class='atom-2' d='M 71.1 98.6
+Q 71.1 95.6, 72.6 93.9
+Q 74.1 92.2, 76.9 92.2
+Q 79.8 92.2, 81.3 93.9
+Q 82.8 95.6, 82.8 98.6
+Q 82.8 101.7, 81.3 103.5
+Q 79.7 105.3, 76.9 105.3
+Q 74.1 105.3, 72.6 103.5
+Q 71.1 101.8, 71.1 98.6
+M 76.9 103.8
+Q 78.9 103.8, 79.9 102.5
+Q 81.0 101.2, 81.0 98.6
+Q 81.0 96.1, 79.9 94.9
+Q 78.9 93.6, 76.9 93.6
+Q 75.0 93.6, 73.9 94.9
+Q 72.9 96.1, 72.9 98.6
+Q 72.9 101.2, 73.9 102.5
+Q 75.0 103.8, 76.9 103.8
+' fill='#FF0000'/>
+<path class='atom-3' d='M 59.8 181.4
+L 64.0 188.2
+Q 64.4 188.9, 65.1 190.1
+Q 65.7 191.3, 65.8 191.3
+L 65.8 181.4
+L 67.5 181.4
+L 67.5 194.2
+L 65.7 194.2
+L 61.2 186.8
+Q 60.7 185.9, 60.2 185.0
+Q 59.6 184.0, 59.4 183.7
+L 59.4 194.2
+L 57.8 194.2
+L 57.8 181.4
+L 59.8 181.4
+' fill='#000000'/>
+<path class='atom-3' d='M 69.8 191.7
+Q 69.8 190.2, 71.0 189.4
+Q 72.2 188.6, 74.4 188.6
+L 75.7 188.6
+L 75.7 188.2
+Q 75.7 187.1, 75.2 186.6
+Q 74.8 186.1, 73.6 186.1
+Q 72.9 186.1, 72.3 186.3
+Q 71.7 186.4, 70.8 186.8
+L 70.3 185.6
+Q 72.0 184.8, 73.7 184.8
+Q 75.6 184.8, 76.5 185.6
+Q 77.4 186.4, 77.4 188.3
+L 77.4 194.2
+L 76.1 194.2
+Q 76.1 194.1, 76.0 193.8
+Q 76.0 193.6, 75.9 193.1
+Q 74.6 194.4, 72.9 194.4
+Q 71.5 194.4, 70.6 193.7
+Q 69.8 192.9, 69.8 191.7
+M 71.5 191.7
+Q 71.5 192.3, 71.9 192.7
+Q 72.4 193.1, 73.2 193.1
+Q 73.9 193.1, 74.6 192.7
+Q 75.3 192.4, 75.7 191.8
+L 75.7 189.9
+L 74.5 189.9
+Q 73.0 189.9, 72.2 190.3
+Q 71.5 190.8, 71.5 191.7
+' fill='#000000'/>
+<path class='atom-3' d='M 79.7 185.3
+L 81.9 185.3
+L 81.9 182.9
+L 82.9 182.9
+L 82.9 185.3
+L 85.2 185.3
+L 85.2 186.2
+L 82.9 186.2
+L 82.9 188.5
+L 81.9 188.5
+L 81.9 186.2
+L 79.7 186.2
+L 79.7 185.3
+' fill='#000000'/>
+<path class='atom-4' d='M 157.6 188.3
+Q 157.6 185.1, 159.1 183.4
+Q 160.6 181.8, 163.4 181.8
+Q 166.0 181.8, 167.4 183.6
+L 166.3 184.6
+Q 165.2 183.2, 163.4 183.2
+Q 161.5 183.2, 160.5 184.5
+Q 159.4 185.8, 159.4 188.3
+Q 159.4 190.8, 160.5 192.1
+Q 161.6 193.4, 163.6 193.4
+Q 165.0 193.4, 166.6 192.5
+L 167.2 193.9
+Q 166.5 194.3, 165.5 194.6
+Q 164.5 194.8, 163.4 194.8
+Q 160.6 194.8, 159.1 193.1
+Q 157.6 191.4, 157.6 188.3
+' fill='#00CC00'/>
+<path class='atom-4' d='M 168.8 181.0
+L 170.4 181.0
+L 170.4 194.6
+L 168.8 194.6
+L 168.8 181.0
+' fill='#00CC00'/>
+<path class='atom-4' d='M 172.6 183.6
+L 176.9 183.6
+L 176.9 184.5
+L 172.6 184.5
+L 172.6 183.6
+' fill='#00CC00'/>
+<text x="270.0" y="103.3" font-size="11" fill="#666" font-family="sans-serif" text-anchor="middle" dominant-baseline="central">1</text><text x="169.6" y="36.2" font-size="11" fill="#666" font-family="sans-serif" text-anchor="middle" dominant-baseline="central">2</text><text x="63.9" y="106.1" font-size="11" fill="#666" font-family="sans-serif" text-anchor="middle" dominant-baseline="central">3</text><text x="73.2" y="198.4" font-size="11" fill="#666" font-family="sans-serif" text-anchor="middle" dominant-baseline="central">1</text><text x="180.2" y="198.4" font-size="11" fill="#666" font-family="sans-serif" text-anchor="middle" dominant-baseline="central">1</text></svg>

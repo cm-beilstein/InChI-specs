@@ -8,6 +8,7 @@
     "allenes": 6,
     "double-bond-ez": 7,
     "atropisomers": 8,
-    "impossible-ring-stereo": 10
+    "impossible-ring-stereo": 10,
+    "inchi-versioning": 11
   }
 }

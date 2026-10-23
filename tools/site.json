@@ -40,6 +40,16 @@
       "status": "proposed",
       "new": {"rev": "09043c1", "label": "atropisomers", "options": []},
       "tracking": {"issues": [287], "prs": []}
+    },
+    {
+      "key": "inchi-versioning",
+      "title": "Versioning of InChI and InChIKey",
+      "status": "implemented",
+      "old": {"rev": "68afb20", "label": "dev", "options": []},
+      "new": {"rev": "b40eeee", "label": "dev", "options": []},
+      "inchiKey": true,
+      "markVersion": true,
+      "tracking": {"branch": "dev", "issues": [285], "prs": [280]}
     }
   ]
 }
