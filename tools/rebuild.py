@@ -7,8 +7,10 @@ Builds every inchi-1 revision named in tools/site.json once (cached in
 ~/.cache/inchi-specs/<rev>/inchi-1), checks out site.json 'dataRev' for the
 molblocks that tests and fixtures provide, then runs tools/build.py and,
 per spec with an explain module, tools/explain.py with that spec's 'new'
-binary (INCHI_NEW) and its 'old' one (INCHI_OLD). Prints which generated
-files changed (git status).
+binary (INCHI_NEW) and its 'old' one (INCHI_OLD), and renders each workflow
+diagram tools/workflow/<table>.json to <key>/workflow.html with archify
+(a checkout at ../archify and node; skipped with a note if either is
+missing). Prints which generated files changed (git status).
 
 Touches the InChI clone only through 'git fetch' and temporary detached
 worktrees (removed again); its checked-out branch and files stay as they are.
@@ -20,6 +22,7 @@ worktrees (removed again); its checked-out branch and files stay as they are.
 import argparse
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -28,6 +31,7 @@ TOOLS = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(TOOLS)
 CACHE = os.path.join(os.path.expanduser("~"), ".cache", "inchi-specs")
 CLI_SOURCE = "INCHI-1-SRC/INCHI_EXE/inchi-1/src"
+ARCHIFY = os.path.join(os.path.dirname(ROOT), "archify", "archify", "bin", "archify.mjs")
 
 
 def run(cmd, **kw):
@@ -69,6 +73,23 @@ def binary(inchi, rev):
     return exe
 
 
+def workflows():
+    """Render tools/workflow/<table>.json to the table's feature folder."""
+    from molecules import SPEC_OF
+    folder = os.path.join(TOOLS, "workflow")
+    sources = sorted(f for f in os.listdir(folder) if f.endswith(".json"))
+    if not sources:
+        return
+    if not os.path.exists(ARCHIFY) or shutil.which("node") is None:
+        print(f"skipped {len(sources)} workflow diagrams: need node and {ARCHIFY}", file=sys.stderr)
+        return
+    for source in sources:
+        key = SPEC_OF[source[:-len(".json")]][0]
+        run(["node", ARCHIFY, "render", "workflow", os.path.join(folder, source),
+             os.path.join(ROOT, key, "workflow.html"), "--quality", "showcase"],
+            stdout=subprocess.DEVNULL)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--inchi", default=os.path.join(os.path.dirname(ROOT), "InChI"))
@@ -107,6 +128,8 @@ def main():
                 run([sys.executable, os.path.join(TOOLS, "explain.py"), key], cwd=ROOT,
                     env=dict(env, INCHI_NEW=bins[spec["new"]["rev"]], INCHI_OLD=old))
 
+            # Workflow diagrams before the landing page, which links them
+            workflows()
             run([sys.executable, os.path.join(TOOLS, "build.py")], cwd=ROOT, env=env,
                 stderr=subprocess.DEVNULL)
         finally:

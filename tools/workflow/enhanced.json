@@ -21,7 +21,7 @@
         }
       }
     },
-    "output": "workflow/enhanced.html"
+    "output": "enhanced-stereo/workflow.html"
   },
   "lanes": [
     {

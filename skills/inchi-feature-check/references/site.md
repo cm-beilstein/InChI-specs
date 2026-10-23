@@ -12,7 +12,7 @@ next to this repo (`../InChI`).
 | `SPEC.md` | developers | hand, from `references/spec-template.md` |
 | `explain.template.html` → `explain.html` | chemists | `tools/explain.py` + `tools/explain_<name>.py` |
 | `examples/index.html`, `examples/<table>.sdf`, `examples/svg/` | both | `tools/build.py` from `tools/molecules.py` |
-| `workflow.html` (optional) | chemists | archify, from `tools/workflow/<table>.json` |
+| `workflow.html` (optional) | chemists | `tools/rebuild.py` renders `tools/workflow/<table>.json` with archify (`../archify`, node) |
 | `datasets/`, `datasets/DATASETS.md` | developers | molecules the spec, tests and pages use; DATASETS.md lists each with source and purpose, linked from SPEC.md |
 
 Kick-off documents: `docs/<topic>/`, shared by features of one topic (`"docs"` in site.json).

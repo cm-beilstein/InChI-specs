@@ -21,7 +21,7 @@
         }
       }
     },
-    "output": "workflow/ez.html"
+    "output": "double-bond-ez/workflow.html"
   },
   "lanes": [
     {

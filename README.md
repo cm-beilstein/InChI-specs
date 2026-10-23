@@ -27,7 +27,7 @@ index.html                 landing page (generated)
 <key>/SPEC.md              specification, for developers
 <key>/explain.html         explanation for chemists (generated from explain.template.html)
 <key>/examples/            old vs. new InChI per molecule (generated)
-<key>/workflow.html        how the new InChI is built, step by step (optional)
+<key>/workflow.html        how the new InChI is built, step by step (optional; from tools/workflow/)
 <key>/datasets/            molecules the spec, tests and pages use; DATASETS.md lists them
 docs/<topic>/              kick-off documents (issue attachments, decks, papers)
 tools/                     generators and helpers, below
@@ -56,7 +56,7 @@ comments refer to them. New molecules get the next free number. `#m13` links to 
 
 | Command | Does |
 |---|---|
-| `python tools/rebuild.py` | builds the InChI revisions named in `site.json` (cached in `~/.cache/inchi-specs/`), regenerates explanation, examples and landing pages |
+| `python tools/rebuild.py` | builds the InChI revisions named in `site.json` (cached in `~/.cache/inchi-specs/`), regenerates explanation, examples and landing pages, and renders the workflow diagrams from `tools/workflow/*.json` (needs node and archify at `../archify`) |
 | `python tools/audit.py <key>` | lists every document of a feature as ok or MISSING |
 | `python tools/new_discussion.py <key>` | creates the feature's general discussion once |
 | `python tools/doc_check.py <key> --option <Name>` | in `../InChI`: new or changed functions without Doxygen comment, and whether an option is in the help text, README, CHANGELOG, User Guide and API Reference |

@@ -21,7 +21,7 @@
         }
       }
     },
-    "output": "workflow/atropisomers.html"
+    "output": "atropisomers/workflow.html"
   },
   "lanes": [
     {

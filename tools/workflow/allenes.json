@@ -21,7 +21,7 @@
         }
       }
     },
-    "output": "workflow/allenes.html"
+    "output": "allenes/workflow.html"
   },
   "lanes": [
     {
