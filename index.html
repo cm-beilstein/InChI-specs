@@ -14,22 +14,25 @@ th { background: #f3f3f3; }
 </head>
 <body>
 <h1>InChI Specifications</h1>
-<p>Four extensions of InChI for stereochemistry, all behind the option
-<code>-EnhancedStereochemistry</code> (prefix <code>InChI=1B/</code>).
-Per extension: the technical specification, an explanation for chemists,
-old-vs-new examples, and how the new InChI is built step by step.
-Comments are welcome: per extension, on every molecule and on every
-explanation section (GitHub account needed).</p>
+<p>New features and extensions of InChI, developed in
+<a href="https://github.com/IUPAC-InChI/InChI">IUPAC-InChI/InChI</a>. Per feature: the
+technical specification, an explanation for chemists, old-vs-new examples, and how the new
+InChI is built step by step. Implemented features run behind the option
+<code>-EnhancedStereochemistry</code> (prefix <code>InChI=1B/</code>); proposed ones are
+open for discussion.</p>
+<p>Comments are welcome: per feature, on every molecule and on every explanation section
+(GitHub account needed).</p>
 <table>
-<tr><th>Extension</th><th>For chemists</th><th>Examples</th><th>Technical</th><th>GitHub</th><th>Discussion</th></tr>
+<tr><th>Feature</th><th>For chemists</th><th>Examples</th><th>Technical</th><th>GitHub</th><th>Discussion</th></tr>
 <tr data-term="enhanced-stereo · general"><td>Enhanced stereochemistry (ABS / OR / AND)</td><td><a href="enhanced-stereo/explain.html">Explanation</a></td><td><a href="enhanced-stereo/examples/">38 molecules, old vs. new</a></td><td><a href="https://github.com/cm-beilstein/InChI-specs/blob/main/enhanced-stereo/SPEC.md">Specification</a><br><a href="enhanced-stereo/workflow.html">How it is built, step by step</a></td><td>branch <a href="https://github.com/IUPAC-InChI/InChI/tree/feature/enh-stereo-hardening"><code>feature/enh-stereo-hardening</code></a><br>issue <a href="https://github.com/IUPAC-InChI/InChI/issues/172">#172</a><br>issue <a href="https://github.com/IUPAC-InChI/InChI/issues/221">#221</a><br>issue <a href="https://github.com/IUPAC-InChI/InChI/issues/286">#286</a><br>PR <a href="https://github.com/IUPAC-InChI/InChI/pull/185">#185</a><br>PR <a href="https://github.com/IUPAC-InChI/InChI/pull/251">#251</a></td><td><a href="https://github.com/cm-beilstein/InChI-specs/discussions/5">On GitHub</a></td></tr>
 <tr data-term="allenes · general"><td>Allenes</td><td><a href="allenes/explain.html">Explanation</a></td><td><a href="allenes/examples/">24 molecules, old vs. new</a></td><td><a href="https://github.com/cm-beilstein/InChI-specs/blob/main/allenes/SPEC.md">Specification</a><br><a href="allenes/workflow.html">How it is built, step by step</a></td><td>branch <a href="https://github.com/IUPAC-InChI/InChI/tree/feature/allenes"><code>feature/allenes</code></a><br>issue <a href="https://github.com/IUPAC-InChI/InChI/issues/286">#286</a></td><td><a href="https://github.com/cm-beilstein/InChI-specs/discussions/6">On GitHub</a></td></tr>
 <tr data-term="double-bond-ez · general"><td>Double-bond E/Z</td><td><a href="double-bond-ez/explain.html">Explanation</a></td><td><a href="double-bond-ez/examples/">25 molecules, old vs. new</a></td><td><a href="https://github.com/cm-beilstein/InChI-specs/blob/main/double-bond-ez/SPEC.md">Specification</a><br><a href="double-bond-ez/workflow.html">How it is built, step by step</a></td><td>branch <a href="https://github.com/IUPAC-InChI/InChI/tree/feature/double-bond-ez"><code>feature/double-bond-ez</code></a><br>issue <a href="https://github.com/IUPAC-InChI/InChI/issues/286">#286</a></td><td><a href="https://github.com/cm-beilstein/InChI-specs/discussions/7">On GitHub</a></td></tr>
 <tr data-term="atropisomers · general"><td>Atropisomers</td><td><a href="atropisomers/explain.html">Explanation</a></td><td><a href="atropisomers/examples/">28 molecules, old vs. new</a></td><td><a href="https://github.com/cm-beilstein/InChI-specs/blob/main/atropisomers/SPEC.md">Specification</a><br><a href="atropisomers/workflow.html">How it is built, step by step</a></td><td>branch <a href="https://github.com/IUPAC-InChI/InChI/tree/atropisomers"><code>atropisomers</code></a><br>issue <a href="https://github.com/IUPAC-InChI/InChI/issues/173">#173</a><br>issue <a href="https://github.com/IUPAC-InChI/InChI/issues/286">#286</a><br>PR <a href="https://github.com/IUPAC-InChI/InChI/pull/198">#198</a></td><td><a href="https://github.com/cm-beilstein/InChI-specs/discussions/8">On GitHub</a></td></tr>
+<tr data-term="impossible-ring-stereo · general"><td>Physically impossible ring stereo (in/out bridgeheads, trans fusion)</td><td colspan="3"><i>Proposed: no specification yet, see the issue</i></td><td>issue <a href="https://github.com/IUPAC-InChI/InChI/issues/287">#287</a></td><td><a href="https://github.com/cm-beilstein/InChI-specs/discussions/10">On GitHub</a></td></tr>
 </table>
 <p>Source: <a href="https://github.com/cm-beilstein/InChI-specs">cm-beilstein/InChI-specs</a>.
 Prototype: <a href="https://github.com/IUPAC-InChI/InChI">IUPAC-InChI/InChI</a>; branch
-<code>atropisomers</code> contains all four extensions.</p>
+<code>atropisomers</code> contains all implemented features.</p>
 <style>
 .cmt-btn { font: inherit; font-size: .8rem; margin-left: .6rem; padding: .1rem .5rem;
            border: 1px solid #bbb; border-radius: 4px; background: #fff; color: #444;

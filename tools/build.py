@@ -55,6 +55,12 @@ TRACKING = {
     "double-bond-ez": ("feature/double-bond-ez", [286], []),
     "atropisomers": ("atropisomers", [173, 286], [198]),
 }
+
+# Proposed features, no spec folder yet: (key, title, issues)
+PROPOSED = [
+    ("impossible-ring-stereo",
+     "Physically impossible ring stereo (in/out bridgeheads, trans fusion)", [287]),
+]
 OLD_OPTS = []
 NEW_OPTS = ["-EnhancedStereochemistry"]
 SVG_W, SVG_H = 320, 240
@@ -397,19 +403,21 @@ th {{ background: #f3f3f3; }}
 </head>
 <body>
 <h1>InChI Specifications</h1>
-<p>Four extensions of InChI for stereochemistry, all behind the option
-<code>-EnhancedStereochemistry</code> (prefix <code>InChI=1B/</code>).
-Per extension: the technical specification, an explanation for chemists,
-old-vs-new examples, and how the new InChI is built step by step.
-Comments are welcome: per extension, on every molecule and on every
-explanation section (GitHub account needed).</p>
+<p>New features and extensions of InChI, developed in
+<a href="https://github.com/IUPAC-InChI/InChI">IUPAC-InChI/InChI</a>. Per feature: the
+technical specification, an explanation for chemists, old-vs-new examples, and how the new
+InChI is built step by step. Implemented features run behind the option
+<code>-EnhancedStereochemistry</code> (prefix <code>InChI=1B/</code>); proposed ones are
+open for discussion.</p>
+<p>Comments are welcome: per feature, on every molecule and on every explanation section
+(GitHub account needed).</p>
 <table>
-<tr><th>Extension</th><th>For chemists</th><th>Examples</th><th>Technical</th><th>GitHub</th><th>Discussion</th></tr>
+<tr><th>Feature</th><th>For chemists</th><th>Examples</th><th>Technical</th><th>GitHub</th><th>Discussion</th></tr>
 {rows}
 </table>
 <p>Source: <a href="https://github.com/cm-beilstein/InChI-specs">cm-beilstein/InChI-specs</a>.
 Prototype: <a href="https://github.com/IUPAC-InChI/InChI">IUPAC-InChI/InChI</a>; branch
-<code>atropisomers</code> contains all four extensions.</p>
+<code>atropisomers</code> contains all implemented features.</p>
 {comments}</body>
 </html>
 """
@@ -432,6 +440,14 @@ def landing(counts):
                     f'<td><a href="{spec}/examples/">{counts[spec]} molecules, old vs. new</a></td>'
                     f'<td><a href="{REPO_URL}/{spec}/SPEC.md">Specification</a>{workflow}</td>'
                     f'<td>{github}</td><td>{discuss}</td></tr>')
+    for key, title, issues in PROPOSED:
+        link = spec_link(key)
+        discuss = f'<a href="{link}">On GitHub</a>' if link else ""
+        github = "<br>".join(f'issue <a href="{INCHI_URL}/issues/{n}">#{n}</a>' for n in issues)
+        rows.append(f'<tr data-term="{spec_term(key)}"><td>{html.escape(title)}</td>'
+                    '<td colspan="3"><i>Proposed: no specification yet, see the issue</i></td>'
+                    f'<td>{github}</td><td>{discuss}</td></tr>')
+
     page = LANDING.format(rows="\n".join(rows), comments=snippet(""))
     open(os.path.join(ROOT, "index.html"), "w").write(page)
 
