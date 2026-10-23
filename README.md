@@ -19,7 +19,8 @@ All four run under one option, `-EnhancedStereochemistry`, with prefix `InChI=1B
 
 ## Site
 
-https://cm-beilstein.github.io/InChI-specs/ — per spec, four documents:
+[InChI Specifications](https://cm-beilstein.github.io/InChI-specs/) — per spec, four documents,
+plus its branch, issues and pull requests in IUPAC-InChI/InChI (`TRACKING` in `tools/build.py`):
 
 | File | For | Built by |
 |---|---|---|
@@ -44,8 +45,13 @@ Every molecule and every explain section has a **Comment** button that opens its
 [giscus](https://giscus.app) thread, stored in this repo's Discussions, titled e.g.
 `enhanced-stereo · molecule 13` or `enhanced-stereo · explain · meso`. Commenting needs a
 GitHub account. Setup: Discussions on, giscus app installed, a discussion category for the
-threads; then fill `tools/giscus.json` (`repo`, `repoId`, `category`, `categoryId`, shown on
-https://giscus.app) and rebuild. With `repo` empty the pages have no buttons.
+threads (here: Announcements, so only giscus opens threads; everyone can reply); then fill
+`tools/giscus.json` (`repo`, `repoId`, `category`, `categoryId`, shown on https://giscus.app)
+and rebuild. With `repo` empty the pages have no buttons.
+
+Each spec also has a general discussion (`<spec> · general`, numbers in
+`specDiscussions` of `tools/giscus.json`), linked from every page and opened in place by
+the landing page's Comment buttons.
 
 ## Source documents
 

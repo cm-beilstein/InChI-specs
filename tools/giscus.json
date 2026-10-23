@@ -1,6 +1,12 @@
 {
-  "repo": "",
-  "repoId": "",
-  "category": "",
-  "categoryId": ""
+  "repo": "cm-beilstein/InChI-specs",
+  "repoId": "R_kgDOTTJBSg",
+  "category": "Announcements",
+  "categoryId": "DIC_kwDOTTJBSs4DJaHb",
+  "specDiscussions": {
+    "enhanced-stereo": 5,
+    "allenes": 6,
+    "double-bond-ez": 7,
+    "atropisomers": 8
+  }
 }

@@ -29,7 +29,7 @@ SPECS = os.path.dirname(TOOLS)
 
 import build  # noqa: E402
 from build import REPO_URL, from_smiles, run_inchi, run_cli, draw  # noqa: E402,F401
-from comments import snippet  # noqa: E402
+from comments import snippet, spec_link  # noqa: E402
 
 # Drawings show "&1" as structure editors do, not the comparison table's "and1"
 build.COLL_LABEL["RAC"] = "&"
@@ -139,6 +139,9 @@ def render(spec, parts):
     template = string.Template(open(os.path.join(folder, "explain.template.html")).read())
     style = open(os.path.join(TOOLS, "explain.css")).read()
     page = template.substitute(parts, style=style, spec_url=f"{REPO_URL}/{spec}/SPEC.md")
+    if spec_link(spec):
+        page = page.replace("</footer>", f'<p>General discussion of this extension: '
+                            f'<a href="{spec_link(spec)}">on GitHub</a>.</p>\n</footer>')
     page = page.replace("</body>", snippet(spec) + "</body>")
     open(os.path.join(folder, "explain.html"), "w").write(page)
 

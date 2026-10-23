@@ -4130,7 +4130,75 @@ L 245.0 44.1
 option <code>-EnhancedStereochemistry</code>), not typed in. Full rules: specification
 <a href="https://github.com/cm-beilstein/InChI-specs/blob/main/atropisomers/SPEC.md">Atropisomers</a>. More examples, old vs. new:
 <a href="examples/">comparison table</a>.</p>
+<p>General discussion of this extension: <a href="https://github.com/cm-beilstein/InChI-specs/discussions/8">on GitHub</a>.</p>
 </footer>
 </main>
+<style>
+.cmt-btn { font: inherit; font-size: .8rem; margin-left: .6rem; padding: .1rem .5rem;
+           border: 1px solid #bbb; border-radius: 4px; background: #fff; color: #444;
+           cursor: pointer; vertical-align: middle; }
+.cmt-btn:hover { background: #f3f3f3; }
+.cmt-box { padding: .5rem 0; }
+</style>
+<script>
+(function () {
+  const CFG = {"repo": "cm-beilstein/InChI-specs", "repoId": "R_kgDOTTJBSg", "category": "Announcements", "categoryId": "DIC_kwDOTTJBSs4DJaHb"};
+  const SPEC = "atropisomers";
+  let open = null;
+
+  // Close the open thread; open the one for 'term' after 'anchor'
+  function show(term, anchor, inRow) {
+    if (open) { open.remove(); }
+    const box = document.createElement("div");
+    box.className = "cmt-box";
+    const s = document.createElement("script");
+    s.src = "https://giscus.app/client.js";
+    s.async = true;
+    s.crossOrigin = "anonymous";
+    const attrs = { "repo": CFG.repo, "repo-id": CFG.repoId, "category": CFG.category,
+                    "category-id": CFG.categoryId, "mapping": "specific", "term": term,
+                    "strict": "1", "reactions-enabled": "1", "emit-metadata": "0",
+                    "input-position": "top", "theme": "light", "lang": "en" };
+    for (const k in attrs) { s.setAttribute("data-" + k, attrs[k]); }
+    box.appendChild(s);
+
+    // Rows get a full-width row below; sections a block below the heading
+    if (inRow) {
+      const tr = document.createElement("tr");
+      const td = document.createElement("td");
+      td.colSpan = anchor.children.length;
+      td.appendChild(box);
+      tr.appendChild(td);
+      anchor.after(tr);
+      open = tr;
+    } else {
+      anchor.after(box);
+      open = box;
+    }
+  }
+
+  function button(term, anchor, inRow) {
+    const b = document.createElement("button");
+    b.className = "cmt-btn";
+    b.type = "button";
+    b.textContent = "Comment";
+    b.title = "Discuss: " + term;
+    b.addEventListener("click", () => show(term, anchor, inRow));
+    return b;
+  }
+
+  // Molecules and specs: rows carrying data-term
+  document.querySelectorAll("tr[data-term]").forEach(tr => {
+    (tr.querySelector("td.pic") || tr.cells[0]).appendChild(button(tr.dataset.term, tr, true));
+  });
+
+  // Explain sections: h2 with an id, on pages that are not example tables
+  if (!document.querySelector("tr[data-term]")) {
+    document.querySelectorAll("h2[id]").forEach(h => {
+      h.appendChild(button(SPEC + " · explain · " + h.id, h, false));
+    });
+  }
+})();
+</script>
 </body>
 </html>

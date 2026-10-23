@@ -8,6 +8,7 @@ giscus app installed (https://giscus.app). With 'repo' empty the pages
 get no buttons.
 
 Discussion titles, e.g.:
+  enhanced-stereo · general           one per spec, see spec_term()
   enhanced-stereo · molecule 13
   enhanced-stereo · explain · meso
 """
@@ -71,9 +72,9 @@ SNIPPET = """<style>
     return b;
   }
 
-  // Molecules: rows carrying data-term
+  // Molecules and specs: rows carrying data-term
   document.querySelectorAll("tr[data-term]").forEach(tr => {
-    tr.querySelector("td.pic").appendChild(button(tr.dataset.term, tr, true));
+    (tr.querySelector("td.pic") || tr.cells[0]).appendChild(button(tr.dataset.term, tr, true));
   });
 
   // Explain sections: h2 with an id, on pages that are not example tables
@@ -87,9 +88,26 @@ SNIPPET = """<style>
 """
 
 
+def config():
+    return json.load(open(CONFIG)) if os.path.exists(CONFIG) else {}
+
+
 def snippet(spec):
     """HTML to insert before </body>; '' when giscus is not configured."""
-    cfg = json.load(open(CONFIG)) if os.path.exists(CONFIG) else {}
+    cfg = config()
     if not cfg.get("repo"):
         return ""
-    return SNIPPET % dict(config=json.dumps(cfg), spec=json.dumps(spec))
+    widget = {k: cfg[k] for k in ("repo", "repoId", "category", "categoryId")}
+    return SNIPPET % dict(config=json.dumps(widget), spec=json.dumps(spec))
+
+
+def spec_term(spec):
+    """Title of a spec's general discussion."""
+    return f"{spec} · general"
+
+
+def spec_link(spec):
+    """URL of a spec's general discussion on GitHub; '' if not created."""
+    cfg = config()
+    number = cfg.get("specDiscussions", {}).get(spec)
+    return f"https://github.com/{cfg['repo']}/discussions/{number}" if number else ""

@@ -30,7 +30,7 @@ from rdkit import Chem, RDLogger
 from rdkit.Chem import rdDepictor
 from rdkit.Chem.Draw import rdMolDraw2D
 
-from comments import snippet
+from comments import snippet, spec_link, spec_term
 from molecules import SPEC_OF, TABLES, UP, DOWN
 
 RDLogger.DisableLog("rdApp.*")
@@ -46,6 +46,15 @@ SPECS = [
     ("atropisomers", "Atropisomers"),
 ]
 REPO_URL = "https://github.com/cm-beilstein/InChI-specs/blob/main"
+
+# Tracking in IUPAC-InChI/InChI per spec: branch, issues, pull requests
+INCHI_URL = "https://github.com/IUPAC-InChI/InChI"
+TRACKING = {
+    "enhanced-stereo": ("feature/enh-stereo-hardening", [172, 221, 286], [185, 251]),
+    "allenes": ("feature/allenes", [286], []),
+    "double-bond-ez": ("feature/double-bond-ez", [286], []),
+    "atropisomers": ("atropisomers", [173, 286], [198]),
+}
 OLD_OPTS = []
 NEW_OPTS = ["-EnhancedStereochemistry"]
 SVG_W, SVG_H = 320, 240
@@ -377,7 +386,7 @@ LANDING = """<!DOCTYPE html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>InChI stereo extensions</title>
+<title>InChI Specifications</title>
 <style>
 body {{ font-family: system-ui, sans-serif; margin: 2rem auto; max-width: 900px;
        padding: 0 1rem; color: #222; line-height: 1.5; }}
@@ -387,21 +396,21 @@ th {{ background: #f3f3f3; }}
 </style>
 </head>
 <body>
-<h1>InChI stereo extensions</h1>
+<h1>InChI Specifications</h1>
 <p>Four extensions of InChI for stereochemistry, all behind the option
 <code>-EnhancedStereochemistry</code> (prefix <code>InChI=1B/</code>).
 Per extension: the technical specification, an explanation for chemists,
 old-vs-new examples, and how the new InChI is built step by step.
-Comments are welcome on every molecule and explanation section
-(GitHub account needed).</p>
+Comments are welcome: per extension, on every molecule and on every
+explanation section (GitHub account needed).</p>
 <table>
-<tr><th>Extension</th><th>For chemists</th><th>Examples</th><th>Technical</th></tr>
+<tr><th>Extension</th><th>For chemists</th><th>Examples</th><th>Technical</th><th>GitHub</th><th>Discussion</th></tr>
 {rows}
 </table>
 <p>Source: <a href="https://github.com/cm-beilstein/InChI-specs">cm-beilstein/InChI-specs</a>.
-Prototype: <a href="https://github.com/IUPAC-InChI/InChI">IUPAC-InChI/InChI</a>, branch
-<code>atropisomers</code>.</p>
-</body>
+Prototype: <a href="https://github.com/IUPAC-InChI/InChI">IUPAC-InChI/InChI</a>; branch
+<code>atropisomers</code> contains all four extensions.</p>
+{comments}</body>
 </html>
 """
 
@@ -412,11 +421,19 @@ def landing(counts):
     for spec, title in SPECS:
         workflow = (f'<br><a href="{spec}/workflow.html">How it is built, step by step</a>'
                     if os.path.exists(os.path.join(ROOT, spec, "workflow.html")) else "")
-        rows.append(f'<tr><td>{html.escape(title)}</td>'
+        link = spec_link(spec)
+        discuss = f'<a href="{link}">On GitHub</a>' if link else ""
+        branch, issues, prs = TRACKING[spec]
+        github = (f'branch <a href="{INCHI_URL}/tree/{branch}"><code>{branch}</code></a>'
+                  + "".join(f'<br>issue <a href="{INCHI_URL}/issues/{n}">#{n}</a>' for n in issues)
+                  + "".join(f'<br>PR <a href="{INCHI_URL}/pull/{n}">#{n}</a>' for n in prs))
+        rows.append(f'<tr data-term="{spec_term(spec)}"><td>{html.escape(title)}</td>'
                     f'<td><a href="{spec}/explain.html">Explanation</a>{workflow}</td>'
                     f'<td><a href="{spec}/examples/">{counts[spec]} molecules, old vs. new</a></td>'
-                    f'<td><a href="{REPO_URL}/{spec}/SPEC.md">Specification</a></td></tr>')
-    open(os.path.join(ROOT, "index.html"), "w").write(LANDING.format(rows="\n".join(rows)))
+                    f'<td><a href="{REPO_URL}/{spec}/SPEC.md">Specification</a></td>'
+                    f'<td>{github}</td><td>{discuss}</td></tr>')
+    page = LANDING.format(rows="\n".join(rows), comments=snippet(""))
+    open(os.path.join(ROOT, "index.html"), "w").write(page)
 
 
 def build():
@@ -474,9 +491,11 @@ def build():
 
     # One examples page per spec
     for spec, title in SPECS:
-        links = ['<a href="../../">All extensions</a>',
+        links = ['<a href="../../">InChI Specifications</a>',
                  '<a href="../explain.html">Explanation</a>',
                  f'<a href="{REPO_URL}/{spec}/SPEC.md">Specification</a>']
+        if spec_link(spec):
+            links.append(f'<a href="{spec_link(spec)}">Discussion</a>')
         page = PAGE.format(w=SVG_W + 20, title=html.escape(title), links="".join(links),
                            tables="\n".join(s for _, s in sections[spec]),
                            comments=snippet(spec),
