@@ -14,7 +14,7 @@ encoding of stereoconfiguration by InChI tools").
 | 2 | [allenes](allenes/SPEC.md) | Axial chirality of allenes/cumulenes + single-stereobond + enhanced OR/AND | **Implemented** — v0.6; open: cumulene length, slide-21 molecule, pseudo-asymmetric axis | open points | `atropisomers` (from `feature/allenes`) |
 | 3 | [double-bond-ez](double-bond-ez/SPEC.md) | Enhanced OR/AND for C=C double bonds (grouped `/b` layer) | **Implemented** — v0.5; open: reading grouped `/b` back, fixed-H/isotopic `/b` | open points | `atropisomers` (from `feature/double-bond-ez`) |
 | 4 | [atropisomers](atropisomers/SPEC.md) | Axial chirality about a hindered single bond | **Implemented** — v0.6 (detection, `/t`+`/m`); open: reparse round-trip, C–N/N–N axes | open points | `atropisomers` |
-| 5 | [explanation](impossible-ring-stereo/explain.html) | Detect physically impossible ring stereo (in/out bridgeheads, trans fusion) | **Proposed** — [IUPAC-InChI/InChI#287](https://github.com/IUPAC-InChI/InChI/issues/287), to be discussed | open points | — |
+| 5 | [impossible-ring-stereo](impossible-ring-stereo/SPEC.md) | Warn on physically impossible ring stereo (in/out bridgeheads, trans fusion) | **Proposed** — v0.1, [IUPAC-InChI/InChI#287](https://github.com/IUPAC-InChI/InChI/issues/287); open: ring-size limits, warning text | open points | — |
 | 6 | [inchi-versioning](inchi-versioning/SPEC.md) | Version prefix `1S`/`1B`/`1N` + subversion `B` (Molecular Inorganics), InChIKey flags `SA`…`NB` | **Implemented** — v0.1 (#280); open: combining letters, metalloids, lookup table | open points | `dev` |
 
 `#` is the spec number and the landing row (`#f<n>`). Specs 1–4 run under one option,
@@ -109,6 +109,12 @@ Kick-off documents live in `docs/<topic>/`, one folder per topic. Stereochemistr
   Princeton, 2018): atropisomer fundamentals, scaffold taxonomy, descriptors (CIP `aR`/`aS` vs
   helical `M`/`P`), rotational barriers. **Background only** — no InChI encoding content, **not
   vendored**. Referenced as **[ATROP-BG]**.
+
+Impossible ring stereo (spec 5), in [`docs/impossible-ring-stereo/`](docs/impossible-ring-stereo/):
+
+- [`docs/impossible-ring-stereo/issue-287.md`](docs/impossible-ring-stereo/issue-287.md) — snapshot of
+  [IUPAC-InChI/InChI#287](https://github.com/IUPAC-InChI/InChI/issues/287) with its comments: problem,
+  example molfile, proposed detection rules.
 
 Versioning (spec 6), in [`docs/inchi-versioning/`](docs/inchi-versioning/):
 

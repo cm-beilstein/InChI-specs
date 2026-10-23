@@ -101,7 +101,11 @@ open issues (the undecided points from the thread), worked examples. Measure eve
 with a named binary. If it exists, check it matches the current code; if not, follow
 inchi-feature-update for the spec.
 
-Add or update the feature's row in the repo README table; its `#` is the spec number
+A proposal gets a spec too: target behaviour, requirements (all ❌ open), planned gates
+and the open points. The explanation page is no substitute; it is written for chemists.
+
+Add or update the feature's row in the repo README table. Its "Spec" column is always
+`[<key>](<key>/SPEC.md)`, never another page. Its `#` is the spec number
 ("Spec <n>") and the landing row `#f<n>`. Update the README's molecule-ID range when
 examples are added. Mark a gate ✅ only when its test is in the repo and passes; a test
 that passes but is not merged yet is 🟡 "not yet in the repo", with where it lives, and a
@@ -119,6 +123,9 @@ file by hand in its existing compact style (a `json.dump` rewrite reformats ever
 Then `python tools/new_discussion.py <key>` (asks GitHub; needs `gh` with write access).
 
 ## 8. Examples page
+
+A proposal skips this step (`audit.py` says n/a): old vs. new needs a new InChI. Its
+explanation page shows today's output instead.
 
 Add a table to `tools/molecules.py`, at the **end** of `TABLES`, and its `SPEC_OF` line.
 5–15 molecules: those that show the change, those that must not change, edge cases and

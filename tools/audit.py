@@ -36,6 +36,7 @@ def main(key):
                 if f != "DATASETS.md" and f not in datasets_md] if has("datasets") else []
     explain = open(os.path.join(TOOLS, "explain.py")).read()
     landing = open(os.path.join(ROOT, "index.html")).read()
+    readme = open(os.path.join(ROOT, "README.md")).read()
 
     checks = [
         ("site.json entry", spec is not None),
@@ -56,16 +57,22 @@ def main(key):
         ("example table in molecules.py", re.search(rf'\("{key}", ""\)', molecules) is not None),
         ("examples page", has("examples", "index.html")),
         ("landing row", f'data-term="{key} · general"' in landing),
+        ("README row links the spec", f"| [{key}]({key}/SPEC.md) |" in readme),
     ]
 
+    # A proposal has no new InChI yet, so nothing to compare old against
+    proposed = bool(spec and spec["status"] == "proposed")
+    not_applicable = {"example table in molecules.py", "examples page"} if proposed else set()
+    checks = [(name, ok if name not in not_applicable else None) for name, ok in checks]
+
     for name, ok in checks:
-        print(f"{'ok' if ok else 'MISSING':8} {name}")
+        print(f"{'n/a' if ok is None else 'ok' if ok else 'MISSING':8} {name}")
     if spec:
         for side in ("old", "new"):
             if side in spec:
                 run = spec[side]
                 print(f"{'':8} {side}: {run['label']} {run['rev']} {' '.join(run['options'])}")
-    return 0 if all(ok for _, ok in checks) else 1
+    return 0 if all(ok is not False for _, ok in checks) else 1
 
 
 if __name__ == "__main__":

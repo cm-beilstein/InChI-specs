@@ -42,8 +42,8 @@
       "key": "impossible-ring-stereo",
       "title": "Physically impossible ring stereo (in/out bridgeheads, trans fusion)",
       "status": "proposed",
-      "readiness": "ready with open points — warn-only behaviour agreed in #287; ring-size limits unverified, confirmed 2026-10-23",
       "new": {"rev": "09043c1", "label": "atropisomers", "options": []},
+      "docs": "impossible-ring-stereo",
       "tracking": {"issues": [287], "prs": []}
     },
     {
