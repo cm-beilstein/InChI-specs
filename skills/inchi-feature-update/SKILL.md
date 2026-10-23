@@ -1,6 +1,6 @@
 ---
 name: inchi-feature-update
-description: Bring every document of the InChI Specifications site up to date after a code change in IUPAC-InChI/InChI - a bug fix, a cherry-pick to other branches, changed output, a merged PR, a new decision in an issue. Updates the affected SPEC.md files (version, change history, requirements, open issues, gates, test counts, worked examples), sibling specs that share the changed code, the examples and explanation pages, site.json revisions and tracking, and the README status. Use whenever the user fixed or changed InChI behaviour and says "update the specs/docs/site", asks "did you update the specs for X", cherry-picks a fix, or a PR for a documented feature lands. For a feature with no documents yet, use inchi-feature-check.
+description: Bring every document of the InChI Specifications site up to date after a code change in IUPAC-InChI/InChI - a bug fix, a cherry-pick to other branches, changed output, a merged PR - or after a new decision, open question or reviewer comment in an issue. Updates the affected SPEC.md files (version, change history, requirements, open issues, gates, test counts, worked examples), sibling specs that share the changed code, the examples and explanation pages, site.json revisions and tracking, and the README status. Use whenever the user fixed or changed InChI behaviour and says "update the specs/docs/site", asks "did you update the specs for X", cherry-picks a fix, or a PR for a documented feature lands. For a feature with no documents yet, use inchi-feature-check.
 ---
 
 # InChI feature update
@@ -17,6 +17,10 @@ It shares its references with inchi-feature-check; read
 - Behaviour: run the binary before and after over all fixtures and datasets (test
   fixtures, `*/datasets/`, `*/examples/*.sdf`) and diff the InChIs. This is the ground
   truth for what changed; an empty or unexpected diff needs explaining before writing.
+- No code change, only a decision or new information (an issue comment, a working-group
+  ruling, a new open question): skip the commits, but still measure today's behaviour for
+  the cases the decision concerns, so the spec states facts, and record who said what with
+  a link to the comment. A readiness change is proposed to the user, as always.
 
 ## 2. Find the affected features
 
