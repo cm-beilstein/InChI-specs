@@ -1,13 +1,13 @@
 {
   "inchiRepo": "https://github.com/IUPAC-InChI/InChI",
-  "dataRev": "09043c1",
+  "dataRev": "3e5b496",
   "specs": [
     {
       "key": "enhanced-stereo",
       "title": "Enhanced stereochemistry (ABS / OR / AND)",
       "status": "implemented",
       "old": {"rev": "fbf1e01", "label": "dev", "options": []},
-      "new": {"rev": "09043c1", "label": "atropisomers", "options": ["-EnhancedStereochemistry"]},
+      "new": {"rev": "3e5b496", "label": "atropisomers", "options": ["-EnhancedStereochemistry"]},
       "docs": "stereochemistry",
       "tracking": {"branch": "feature/enh-stereo-hardening", "issues": [172, 221, 286], "prs": [185, 251]}
     },
@@ -16,7 +16,7 @@
       "title": "Allenes",
       "status": "implemented",
       "old": {"rev": "fbf1e01", "label": "dev", "options": []},
-      "new": {"rev": "09043c1", "label": "atropisomers", "options": ["-EnhancedStereochemistry"]},
+      "new": {"rev": "3e5b496", "label": "atropisomers", "options": ["-EnhancedStereochemistry"]},
       "docs": "stereochemistry",
       "tracking": {"branch": "feature/allenes", "issues": [286], "prs": []}
     },
@@ -25,7 +25,7 @@
       "title": "Double-bond E/Z",
       "status": "implemented",
       "old": {"rev": "fbf1e01", "label": "dev", "options": []},
-      "new": {"rev": "09043c1", "label": "atropisomers", "options": ["-EnhancedStereochemistry"]},
+      "new": {"rev": "3e5b496", "label": "atropisomers", "options": ["-EnhancedStereochemistry"]},
       "docs": "stereochemistry",
       "tracking": {"branch": "feature/double-bond-ez", "issues": [286], "prs": []}
     },
@@ -34,7 +34,7 @@
       "title": "Atropisomers",
       "status": "implemented",
       "old": {"rev": "fbf1e01", "label": "dev", "options": []},
-      "new": {"rev": "09043c1", "label": "atropisomers", "options": ["-EnhancedStereochemistry"]},
+      "new": {"rev": "3e5b496", "label": "atropisomers", "options": ["-EnhancedStereochemistry"]},
       "docs": "stereochemistry",
       "tracking": {"branch": "atropisomers", "issues": [173, 286], "prs": [198]}
     },
