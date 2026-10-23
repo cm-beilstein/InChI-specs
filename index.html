@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>InChI stereo extensions</title>
+<style>
+body { font-family: system-ui, sans-serif; margin: 2rem auto; max-width: 900px;
+       padding: 0 1rem; color: #222; line-height: 1.5; }
+table { border-collapse: collapse; width: 100%; }
+th, td { border: 1px solid #ccc; padding: .5rem .7rem; text-align: left; vertical-align: top; }
+th { background: #f3f3f3; }
+</style>
+</head>
+<body>
+<h1>InChI stereo extensions</h1>
+<p>Four extensions of InChI for stereochemistry, all behind the option
+<code>-EnhancedStereochemistry</code> (prefix <code>InChI=1B/</code>).
+Per extension: the technical specification, an explanation for chemists,
+old-vs-new examples, and how the new InChI is built step by step.
+Comments are welcome on every molecule and explanation section
+(GitHub account needed).</p>
+<table>
+<tr><th>Extension</th><th>For chemists</th><th>Examples</th><th>Technical</th></tr>
+<tr><td>Enhanced stereochemistry (ABS / OR / AND)</td><td><a href="enhanced-stereo/explain.html">Explanation</a><br><a href="enhanced-stereo/workflow.html">How it is built, step by step</a></td><td><a href="enhanced-stereo/examples/">38 molecules, old vs. new</a></td><td><a href="https://github.com/cm-beilstein/InChI-specs/blob/main/enhanced-stereo/SPEC.md">Specification</a></td></tr>
+<tr><td>Allenes</td><td><a href="allenes/explain.html">Explanation</a><br><a href="allenes/workflow.html">How it is built, step by step</a></td><td><a href="allenes/examples/">24 molecules, old vs. new</a></td><td><a href="https://github.com/cm-beilstein/InChI-specs/blob/main/allenes/SPEC.md">Specification</a></td></tr>
+<tr><td>Double-bond E/Z</td><td><a href="double-bond-ez/explain.html">Explanation</a><br><a href="double-bond-ez/workflow.html">How it is built, step by step</a></td><td><a href="double-bond-ez/examples/">25 molecules, old vs. new</a></td><td><a href="https://github.com/cm-beilstein/InChI-specs/blob/main/double-bond-ez/SPEC.md">Specification</a></td></tr>
+<tr><td>Atropisomers</td><td><a href="atropisomers/explain.html">Explanation</a><br><a href="atropisomers/workflow.html">How it is built, step by step</a></td><td><a href="atropisomers/examples/">28 molecules, old vs. new</a></td><td><a href="https://github.com/cm-beilstein/InChI-specs/blob/main/atropisomers/SPEC.md">Specification</a></td></tr>
+</table>
+<p>Source: <a href="https://github.com/cm-beilstein/InChI-specs">cm-beilstein/InChI-specs</a>.
+Prototype: <a href="https://github.com/IUPAC-InChI/InChI">IUPAC-InChI/InChI</a>, branch
+<code>atropisomers</code>.</p>
+</body>
+</html>

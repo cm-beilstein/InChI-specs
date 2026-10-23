@@ -15,11 +15,37 @@ of what is done vs. missing.
 | 4 | [atropisomers](atropisomers/SPEC.md) | Axial chirality about a hindered single bond | **Implemented** — v0.6 (detection, `/t`+`/m`); open: reparse round-trip, C–N/N–N axes | `atropisomers` |
 
 All four run under one option, `-EnhancedStereochemistry`, with prefix `InChI=1B/`. Branch
-`atropisomers` contains all of them. Old vs. new InChI for representative molecules, with
-step-by-step diagrams for chemists: https://cm-beilstein.github.io/InChI-enh-Stereo/
-Chemist-oriented walkthrough per spec: `<spec>/explain.html` (built by `tools/explain.py`;
-[enhanced-stereo](enhanced-stereo/explain.html), [allenes](allenes/explain.html),
-[double-bond-ez](double-bond-ez/explain.html), [atropisomers](atropisomers/explain.html)).
+`atropisomers` contains all of them.
+
+## Site
+
+https://cm-beilstein.github.io/InChI-specs/ — per spec, four documents:
+
+| File | For | Built by |
+|---|---|---|
+| `<spec>/SPEC.md` | developers: requirements, gates, open issues | hand |
+| `<spec>/explain.html` | chemists: what the labels mean, how they reach the InChI | `tools/explain.py` from `explain.template.html` |
+| `<spec>/examples/` | old vs. new InChI per molecule (`index.html`, `<table>.sdf`, `svg/`) | `tools/build.py` from `tools/molecules.py` |
+| `<spec>/workflow.html` | chemists: the new InChI built step by step | [archify](https://github.com/tt-a1i/archify) from `tools/workflow/<table>.json` |
+
+Molecule IDs are global over all specs (1–115 at present) and never renumbered: issue
+comments refer to them. New molecules get the next free number. `#m13` links to molecule 13.
+
+Rebuild (RDKit needed; `../InChI` checked out on `atropisomers`):
+
+```
+INCHI_OLD=/path/dev/inchi-1 INCHI_NEW=/path/atropisomers/inchi-1 python tools/build.py
+INCHI_NEW=/path/atropisomers/inchi-1 python tools/explain.py
+```
+
+### Comments
+
+Every molecule and every explain section has a **Comment** button that opens its own
+[giscus](https://giscus.app) thread, stored in this repo's Discussions, titled e.g.
+`enhanced-stereo · molecule 13` or `enhanced-stereo · explain · meso`. Commenting needs a
+GitHub account. Setup: Discussions on, giscus app installed, a discussion category for the
+threads; then fill `tools/giscus.json` (`repo`, `repoId`, `category`, `categoryId`, shown on
+https://giscus.app) and rebuild. With `repo` empty the pages have no buttons.
 
 ## Source documents
 

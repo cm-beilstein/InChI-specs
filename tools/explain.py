@@ -7,8 +7,7 @@ Usage (from the repo root; RDKit >= 2024 needed):
 
 Each spec has a module tools/explain_<name>.py whose parts() returns the
 $fields of <spec>/explain.template.html; tools/explain.css is inlined as
-$style. Molfile, InChI and drawing helpers come from the sibling checkout
-../InChI-enh-Stereo (tools/build.py).
+$style. Molfile, InChI and drawing helpers come from tools/build.py.
 
 Every InChI on a page is measured here, never typed in. Standard strings
 come from the same binary without -EnhancedStereochemistry.
@@ -27,10 +26,10 @@ from rdkit.Chem.Draw import rdMolDraw2D
 
 TOOLS = os.path.dirname(os.path.abspath(__file__))
 SPECS = os.path.dirname(TOOLS)
-sys.path.insert(0, os.path.join(os.path.dirname(SPECS), "InChI-enh-Stereo", "tools"))
 
 import build  # noqa: E402
-from build import from_smiles, run_inchi, run_cli, draw  # noqa: E402,F401
+from build import REPO_URL, from_smiles, run_inchi, run_cli, draw  # noqa: E402,F401
+from comments import snippet  # noqa: E402
 
 # Drawings show "&1" as structure editors do, not the comparison table's "and1"
 build.COLL_LABEL["RAC"] = "&"
@@ -139,7 +138,9 @@ def render(spec, parts):
     folder = os.path.join(SPECS, spec)
     template = string.Template(open(os.path.join(folder, "explain.template.html")).read())
     style = open(os.path.join(TOOLS, "explain.css")).read()
-    open(os.path.join(folder, "explain.html"), "w").write(template.substitute(parts, style=style))
+    page = template.substitute(parts, style=style, spec_url=f"{REPO_URL}/{spec}/SPEC.md")
+    page = page.replace("</body>", snippet(spec) + "</body>")
+    open(os.path.join(folder, "explain.html"), "w").write(page)
 
 
 def main(specs):
