@@ -400,12 +400,55 @@ LANDING = """<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>InChI Specifications</title>
 <style>
+:root {{ --line: #e3e6ea; --muted: #667; --soft: #f6f8fa; --accent: #0b5cad; }}
 body {{ font-family: system-ui, sans-serif; margin: 2rem auto; max-width: 1150px;
        padding: 0 1rem; color: #222; line-height: 1.5; }}
-table {{ border-collapse: collapse; width: 100%; }}
-th, td {{ border: 1px solid #ccc; padding: .5rem .7rem; text-align: left; vertical-align: top; }}
-th {{ background: #f3f3f3; }}
-td.id {{ text-align: right; }}
+a {{ color: var(--accent); text-decoration: none; }}
+a:hover {{ text-decoration: underline; }}
+.specs {{ border-collapse: separate; border-spacing: 0; width: 100%;
+          border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }}
+.specs th, .specs td {{ padding: .8rem .9rem; text-align: left; vertical-align: top;
+                        border-bottom: 1px solid var(--line); }}
+.specs tr:last-child td {{ border-bottom: 0; }}
+.specs th {{ background: var(--soft); font-size: .75rem; text-transform: uppercase;
+             letter-spacing: .05em; color: var(--muted); }}
+.specs tbody tr:hover {{ background: #fafbfc; }}
+td.id {{ color: var(--muted); font-variant-numeric: tabular-nums; width: 1.5rem; }}
+td.name {{ font-weight: 600; width: 22%; }}
+.pill {{ display: inline-block; font-size: .72rem; font-weight: 500; padding: 0 .5rem;
+         border-radius: 999px; border: 1px solid var(--line); background: var(--soft);
+         color: var(--muted); white-space: nowrap; }}
+.pill.warn {{ background: #fff6db; border-color: #f0d68a; color: #7a5a00; }}
+.pill.ok {{ background: #e5f6e8; border-color: #a6d9b0; color: #1d6b31; }}
+.pill.bad {{ background: #fde8e8; border-color: #f2b3b3; color: #a12020; }}
+.meter {{ font-size: .78rem; color: var(--muted); margin-top: .45rem; }}
+.meter i {{ display: block; height: 5px; border-radius: 3px; background: var(--line);
+            margin-top: .15rem; overflow: hidden; }}
+.meter i b {{ display: block; height: 100%; background: #3a9a55; }}
+.group + .group {{ margin-top: .6rem; }}
+.cols {{ display: flex; gap: 2rem; }}
+.meter {{ white-space: nowrap; }}
+.chips a {{ white-space: nowrap; }}
+.cols .group + .group {{ margin-top: 0; }}
+td.name .cmt-btn {{ font-weight: normal; }}
+/* Phones: one card per feature */
+@media (max-width: 760px) {{
+  .specs thead {{ display: none; }}
+  .specs tr, .specs td {{ display: block; width: auto; }}
+  .specs td {{ border-bottom: 0; padding: .4rem .9rem; }}
+  .specs tr {{ border-bottom: 1px solid var(--line); padding: .5rem 0; }}
+  td.id {{ display: none; }}
+  .cols {{ flex-wrap: wrap; row-gap: .6rem; }}
+}}
+.group h4 {{ margin: 0 0 .2rem; font-size: .7rem; text-transform: uppercase;
+             letter-spacing: .05em; color: var(--muted); font-weight: 600; }}
+.group ul {{ list-style: none; margin: 0; padding: 0; }}
+.group li {{ white-space: nowrap; }}
+.chips {{ display: flex; flex-wrap: wrap; gap: .3rem; }}
+.chips a {{ font-size: .8rem; padding: 0 .45rem; border-radius: 4px;
+            border: 1px solid var(--line); background: var(--soft); }}
+.chips a:hover {{ border-color: var(--accent); text-decoration: none; }}
+.chips code {{ font-size: .78rem; }}
 </style>
 </head>
 <body>
@@ -418,9 +461,11 @@ InChI is built step by step. The stereo features run behind the option
 are open for discussion.</p>
 <p>Comments are welcome: per feature, on every molecule and on every explanation section
 (GitHub account needed).</p>
-<table>
-<tr><th>ID</th><th>Feature</th><th>Ready</th><th>Done</th><th>For chemists</th><th>Examples</th><th>Technical</th><th>GitHub</th><th>Discussion</th></tr>
+<table class="specs">
+<thead><tr><th>#</th><th>Feature</th><th>Status</th><th>Documents</th><th>Tracking</th></tr></thead>
+<tbody>
 {rows}
+</tbody>
 </table>
 <p>Source of this site: <a href="https://github.com/cm-beilstein/InChI-specs">cm-beilstein/InChI-specs</a>.
 Implementation: <a href="https://github.com/IUPAC-InChI/InChI">IUPAC-InChI/InChI</a>, one
@@ -431,8 +476,9 @@ features.</p>
 """
 
 
-READINESS = {"ready": "✅ ready", "ready with open points": "🟡 open points",
-             "not ready": "❌ not ready"}
+READINESS = {"ready": '<span class="pill ok">ready</span>',
+             "ready with open points": '<span class="pill warn">open points</span>',
+             "not ready": '<span class="pill bad">not ready</span>'}
 
 
 def spec_text(key):
@@ -469,7 +515,24 @@ def progress(text):
         gates += 1
         met += "✅" in item and "❌" not in item
 
-    return f"{done}/{reqs} requirements<br>{met}/{gates} gates" if reqs else ""
+    return meter(done, reqs, "requirements") + meter(met, gates, "gates") if reqs else ""
+
+
+def meter(n, total, label):
+    """'27/28 requirements' above a bar filled n/total."""
+    width = round(100 * n / total) if total else 0
+    return f'<div class="meter">{n}/{total} {label}<i><b style="width:{width}%"></b></i></div>'
+
+
+def group(title, items, cls=""):
+    """Titled list of links; '' items dropped, nothing when empty."""
+    items = [i for i in items if i]
+    if not items:
+        return ""
+    if cls == "chips":
+        return f'<div class="group"><h4>{title}</h4><div class="chips">{"".join(items)}</div></div>'
+    lis = "".join(f"<li>{i}</li>" for i in items)
+    return f'<div class="group"><h4>{title}</h4><ul>{lis}</ul></div>'
 
 
 def landing(counts):
@@ -479,38 +542,39 @@ def landing(counts):
         key = spec["key"]
         exists = lambda name: os.path.exists(os.path.join(ROOT, key, name))
 
-        explain = f'<a href="{key}/explain.html">Explanation</a>' if exists("explain.html") else ""
-        examples = (f'<a href="{key}/examples/">{counts[key]} molecules, old vs. new</a>'
-                    if counts.get(key) else "")
         docs = spec.get("docs")
-        technical = "<br>".join(
-            ([f'<a href="{REPO_URL}/{key}/SPEC.md">Specification</a>'] if exists("SPEC.md") else [])
-            + (['<a href="{0}/workflow.html">How it is built, step by step</a>'.format(key)]
-               if exists("workflow.html") else [])
-            + ([f'<a href="{REPO_URL}/{key}/datasets/DATASETS.md">Datasets</a>']
-               if exists(os.path.join("datasets", "DATASETS.md")) else [])
-            + ([f'<a href="{REPO_URL.replace("/blob/", "/tree/")}/docs/{docs}">Kick-off documents</a>']
-               if docs else []))
+        documents = group("For chemists", [
+            f'<a href="{key}/explain.html">Explanation</a>' if exists("explain.html") else "",
+            f'<a href="{key}/examples/">{counts[key]} examples, old vs. new</a>'
+            if counts.get(key) else ""]) + group("Technical", [
+            f'<a href="{REPO_URL}/{key}/SPEC.md">Specification</a>' if exists("SPEC.md") else "",
+            f'<a href="{key}/workflow.html">Build steps</a>' if exists("workflow.html") else "",
+            f'<a href="{REPO_URL}/{key}/datasets/DATASETS.md">Datasets</a>'
+            if exists(os.path.join("datasets", "DATASETS.md")) else "",
+            f'<a href="{REPO_URL.replace("/blob/", "/tree/")}/docs/{docs}">Kick-off documents</a>'
+            if docs else ""])
         text = spec_text(key)
 
         # Spec header; a proposal without spec carries it in site.json
         ready = readiness(text) or readiness("| **Readiness** | " + spec.get("readiness", "") + " |")
 
         track = spec["tracking"]
-        github = "<br>".join(
-            ([f'branch <a href="{INCHI_URL}/tree/{track["branch"]}"><code>{track["branch"]}</code></a>']
-             if track.get("branch") else [])
-            + [f'issue <a href="{INCHI_URL}/issues/{n}">#{n}</a>' for n in track.get("issues", [])]
-            + [f'PR <a href="{INCHI_URL}/pull/{n}">#{n}</a>' for n in track.get("prs", [])])
-
+        branch = track.get("branch")
         link = spec_link(key)
-        discuss = f'<a href="{link}">On GitHub</a>' if link else ""
-        status = "" if spec["status"] == "implemented" else f' <i>({spec["status"]})</i>'
+        tracking = (group("Branch", [f'<a href="{INCHI_URL}/tree/{branch}"><code>{branch}</code></a>'
+                                     if branch else ""], "chips")
+                    + group("Issues", [f'<a href="{INCHI_URL}/issues/{n}">#{n}</a>'
+                                       for n in track.get("issues", [])], "chips")
+                    + group("Pull requests", [f'<a href="{INCHI_URL}/pull/{n}">#{n}</a>'
+                                              for n in track.get("prs", [])], "chips")
+                    + group("Discussion", [f'<a href="{link}">On GitHub</a>' if link else ""]))
+
+        status = ("" if spec["status"] == "implemented"
+                  else f' <span class="pill">{spec["status"]}</span>')
         rows.append(f'<tr id="f{ident}" data-term="{spec_term(key)}"><td class="id">{ident}</td>'
                     f'<td class="name">{html.escape(spec["title"])}{status}</td>'
-                    f'<td>{ready or "not assessed"}</td><td>{progress(text)}</td>'
-                    f'<td>{explain}</td><td>{examples}</td><td>{technical}</td>'
-                    f'<td>{github}</td><td>{discuss}</td></tr>')
+                    f'<td>{ready or "not assessed"}{progress(text)}</td>'
+                    f'<td><div class="cols">{documents}</div></td><td>{tracking}</td></tr>')
 
     page = LANDING.format(rows="\n".join(rows), comments=snippet(""))
     open(os.path.join(ROOT, "index.html"), "w").write(page)
