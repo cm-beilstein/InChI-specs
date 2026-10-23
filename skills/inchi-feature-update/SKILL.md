@@ -60,6 +60,9 @@ changed option its help text, README, CHANGELOG, User Guide and API Reference en
   the change), `old` if the comparison base moved, tracking (new issues, PRs, branches).
 - Examples: add molecules that show the new behaviour at the end of `TABLES` (IDs are
   global and permanent). Existing rows simply re-render.
+- Workflow diagrams (`tools/workflow/<table>.json`): update steps and quoted rows when the
+  flow or the output changes; `tools/workflow_check.py` (run by `rebuild.py`) fails on
+  any quoted InChI the measured pages no longer contain.
 - Explanation pages, including "How to use it" when options or input change: the
   generators assert their strings, so a behaviour change fails the
   build. Fix the text and the assert together; the page must explain the new behaviour,

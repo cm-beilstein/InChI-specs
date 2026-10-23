@@ -90,6 +90,7 @@ Headless Chromium: `~/.cache/ms-playwright/chromium_headless_shell-*/*/chrome-he
 python tools/rebuild.py          # RDKit python; builds needed binaries (cached)
 python tools/audit.py <key>      # ok/MISSING per document
 python tools/doc_check.py <key> --option <Name>   # Doxygen + user docs in ../InChI
+python tools/workflow_check.py   # quoted strings in workflow diagrams are measured
 git diff --stat                  # only intended pages changed?
 ```
 

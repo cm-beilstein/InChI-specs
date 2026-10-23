@@ -58,6 +58,7 @@ comments refer to them. New molecules get the next free number. `#m13` links to 
 |---|---|
 | `python tools/rebuild.py` | builds the InChI revisions named in `site.json` (cached in `~/.cache/inchi-specs/`), regenerates explanation, examples and landing pages, and renders the workflow diagrams from `tools/workflow/*.json` (needs node and archify at `../archify`) |
 | `python tools/audit.py <key>` | lists every document of a feature as ok or MISSING |
+| `python tools/workflow_check.py` | every InChI quoted in a workflow diagram appears in the feature's measured pages (run by `rebuild.py`) |
 | `python tools/new_discussion.py <key>` | creates the feature's general discussion once |
 | `python tools/doc_check.py <key> --option <Name>` | in `../InChI`: new or changed functions without Doxygen comment, and whether an option is in the help text, README, CHANGELOG, User Guide and API Reference |
 

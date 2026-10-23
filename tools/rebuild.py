@@ -10,7 +10,9 @@ per spec with an explain module, tools/explain.py with that spec's 'new'
 binary (INCHI_NEW) and its 'old' one (INCHI_OLD), and renders each workflow
 diagram tools/workflow/<table>.json to <key>/workflow.html with archify
 (a checkout at ../archify and node; skipped with a note if either is
-missing). Prints which generated files changed (git status).
+missing). Fails if a diagram quotes an InChI the measured pages do not
+contain (tools/workflow_check.py). Prints which generated files changed
+(git status).
 
 Touches the InChI clone only through 'git fetch' and temporary detached
 worktrees (removed again); its checked-out branch and files stay as they are.
@@ -132,6 +134,9 @@ def main():
             workflows()
             run([sys.executable, os.path.join(TOOLS, "build.py")], cwd=ROOT, env=env,
                 stderr=subprocess.DEVNULL)
+
+            # Diagram strings are typed: each must appear in the measured pages
+            run([sys.executable, os.path.join(TOOLS, "workflow_check.py")], cwd=ROOT)
         finally:
             run(["git", "-C", inchi, "worktree", "remove", "--force",
                  os.path.join(sources, "InChI")])

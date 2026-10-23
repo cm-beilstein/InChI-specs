@@ -35,6 +35,10 @@ def main(key):
     unlisted = [f for f in sorted(os.listdir(os.path.join(folder, "datasets")))
                 if f != "DATASETS.md" and f not in datasets_md] if has("datasets") else []
     explain = open(os.path.join(TOOLS, "explain.py")).read()
+    sys.path.insert(0, TOOLS)
+    from molecules import SPEC_OF
+    workflow_sources = [t for t, (k, _) in SPEC_OF.items() if k == key
+                        and os.path.exists(os.path.join(TOOLS, "workflow", t + ".json"))]
     landing = open(os.path.join(ROOT, "index.html")).read()
     readme = open(os.path.join(ROOT, "README.md")).read()
 
@@ -57,6 +61,8 @@ def main(key):
         ("explanation: 'How to use it' section",
          'id="use"' in (open(os.path.join(folder, "explain.template.html")).read()
                         if has("explain.template.html") else "")),
+        ("workflow diagram (tools/workflow/<table>.json, workflow.html)",
+         bool(workflow_sources) and has("workflow.html")),
         ("example table in molecules.py", re.search(rf'\("{key}", ""\)', molecules) is not None),
         ("examples page", has("examples", "index.html")),
         ("landing row", f'data-term="{key} · general"' in landing),
@@ -65,7 +71,9 @@ def main(key):
 
     # A proposal has no new InChI yet, so nothing to compare old against
     proposed = bool(spec and spec["status"] == "proposed")
-    not_applicable = {"example table in molecules.py", "examples page"} if proposed else set()
+    not_applicable = ({"example table in molecules.py", "examples page",
+                       "workflow diagram (tools/workflow/<table>.json, workflow.html)"}
+                      if proposed else set())
     checks = [(name, ok if name not in not_applicable else None) for name, ok in checks]
 
     for name, ok in checks:

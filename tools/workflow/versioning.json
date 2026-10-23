@@ -1,0 +1,186 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Versioning: which InChI is this?",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "legend": {
+      "entries": {
+        "external": {
+          "label": "Your input"
+        },
+        "backend": {
+          "label": "InChI decides"
+        },
+        "security": {
+          "label": "Old rules on request"
+        },
+        "database": {
+          "label": "Written in prefix and key"
+        }
+      }
+    },
+    "output": "inchi-versioning/workflow.html"
+  },
+  "lanes": [
+    {
+      "id": "draw",
+      "label": "You give"
+    },
+    {
+      "id": "drop",
+      "label": "Old rules",
+      "variant": "exception"
+    },
+    {
+      "id": "read",
+      "label": "InChI decides"
+    },
+    {
+      "id": "out",
+      "label": "InChI writes"
+    }
+  ],
+  "mainPath": [
+    "mol",
+    "opts",
+    "metal",
+    "cls",
+    "prefix",
+    "key"
+  ],
+  "nodes": [
+    {
+      "id": "mol",
+      "lane": "draw",
+      "col": 0,
+      "type": "external",
+      "label": "Any structure",
+      "sublabel": "no option needed",
+      "width": 176,
+      "icon": "person"
+    },
+    {
+      "id": "opts",
+      "lane": "draw",
+      "col": 1,
+      "type": "external",
+      "label": "Options, if any",
+      "sublabel": "beta or non-standard ones",
+      "width": 176,
+      "icon": "flag"
+    },
+    {
+      "id": "metal",
+      "lane": "read",
+      "col": 2,
+      "type": "backend",
+      "label": "Metal atom?",
+      "sublabel": "MI element table: Sb yes; As, Ge, Te no",
+      "width": 176
+    },
+    {
+      "id": "cls",
+      "lane": "read",
+      "col": 3,
+      "type": "backend",
+      "label": "Calculation class",
+      "sublabel": "S standard · B beta · N non-standard",
+      "width": 176
+    },
+    {
+      "id": "legacy",
+      "lane": "drop",
+      "col": 2,
+      "type": "security",
+      "label": "-LegacyMetalHandling",
+      "sublabel": "old metal rules: 1N, old layers",
+      "width": 176
+    },
+    {
+      "id": "prefix",
+      "lane": "out",
+      "col": 4,
+      "type": "database",
+      "label": "InChI=1… prefix",
+      "sublabel": "1S · 1B · 1N, + second B with a metal",
+      "width": 176
+    },
+    {
+      "id": "key",
+      "lane": "out",
+      "col": 5,
+      "type": "database",
+      "label": "InChIKey flags",
+      "sublabel": "SA · BA · NA, or SB · BB · NB",
+      "width": 176
+    }
+  ],
+  "edges": [
+    {
+      "id": "v1",
+      "from": "mol",
+      "to": "opts"
+    },
+    {
+      "id": "v2",
+      "from": "opts",
+      "to": "metal",
+      "label": "read"
+    },
+    {
+      "id": "v3",
+      "from": "metal",
+      "to": "cls"
+    },
+    {
+      "id": "v4",
+      "from": "cls",
+      "to": "prefix",
+      "label": "class + B",
+      "role": "branch"
+    },
+    {
+      "id": "v5",
+      "from": "prefix",
+      "to": "key"
+    },
+    {
+      "id": "v6",
+      "from": "opts",
+      "to": "legacy",
+      "label": "on request",
+      "role": "branch",
+      "variant": "dashed"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Read rows 116 and 119",
+      "items": [
+        "Ethanol: InChI=1S/C2H6O/c1-2-3/h3H,2H2,1H3, unchanged",
+        "NaCl: InChI=1BB/ClH.Na/h1H;/q;+1/p-1",
+        "Same layers, new prefix: FAPWRFPIFSIZLT-UHFFFAOYBB-M"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Metal bonds kept (118)",
+      "items": [
+        "Cisplatin: InChI=1BB/Cl2H6N2Pt/c1-5(2,3)4/h3-4H3",
+        "Key changes completely: NKTISDOLGLLLMZ-UHFFFAOYBB-N"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Borderline elements",
+      "items": [
+        "SbCl3 counts as metal: InChI=1BB/Cl3Sb/c1-4(2)3 (125)",
+        "AsCl3, GeCl4, TeCl4 do not: 1S as before (126–128)",
+        "Final list: working group"
+      ]
+    }
+  ]
+}

@@ -9,7 +9,8 @@ Walk one feature through a fixed chain and fill every gap:
 
 ```
 issue/PR ─▶ kick-off docs + readiness ─▶ datasets ─▶ unit tests ─▶ code ─▶ code + user docs
-         ─▶ SPEC.md ─▶ site entry + discussion ─▶ examples ─▶ explanation ─▶ rebuild, verify ─▶ publish
+         ─▶ SPEC.md ─▶ site entry + discussion ─▶ examples ─▶ explanation ─▶ workflow
+         ─▶ rebuild, verify ─▶ publish
 ```
 
 Each link depends on the one before: a spec describes code that tests pin; examples and
@@ -177,7 +178,18 @@ runs it and returns the block), the same without the option where that shows the
 difference, and the library call. A proposal shows what a user sees today. For a proposal, say at the top that
 nothing is implemented. One `<h2 id>` per topic: each becomes a comment thread.
 
-## 11. Rebuild and verify
+## 11. Workflow diagram
+
+`<key>/workflow.html` shows chemists how the new InChI is built: what they draw, what
+InChI decides, what it writes, with example rows from the examples page. Write
+`tools/workflow/<table>.json` (`<table>` as in `SPEC_OF`), starting from an existing one:
+lanes "You draw / Ignored or dropped / InChI interprets / InChI writes", a node per
+decision, an error edge per case InChI ignores, and cards quoting measured rows by ID.
+`tools/rebuild.py` renders it with archify and runs `tools/workflow_check.py`: every
+InChI, InChIKey and layer fragment typed in the diagram must appear in the feature's
+examples data or explanation page, else the rebuild fails. Proposals skip this step.
+
+## 12. Rebuild and verify
 
 ```
 python tools/rebuild.py      # needs a Python with RDKit
@@ -196,7 +208,7 @@ The examples page and landing texts are shared by all features. If a sentence th
 not fit the new feature (e.g. stereo labels on a non-stereo page), fix the generator
 (`tools/build.py`) instead of living with it, and check the other pages stay the same.
 
-## 12. Publish
+## 13. Publish
 
 Update the repo `README.md` with the change: the feature's row in the spec table (status,
 readiness), "Source documents" for new kick-off documents, and the molecule-ID range.
@@ -228,5 +240,6 @@ End with one table, one row per link of the chain:
 | Doxygen | 2 new functions without comment | added `/** @brief … */` (branch `x`) |
 | User docs | option missing from help and User Guide | added (branch `x`) |
 | Specification | missing | created `<key>/SPEC.md` v0.1 |
+| Workflow diagram | missing | `tools/workflow/<table>.json`, rendered, strings checked |
 
 and the open decisions for the user.
