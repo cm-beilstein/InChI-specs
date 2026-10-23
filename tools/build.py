@@ -428,9 +428,9 @@ def landing(counts):
                   + "".join(f'<br>issue <a href="{INCHI_URL}/issues/{n}">#{n}</a>' for n in issues)
                   + "".join(f'<br>PR <a href="{INCHI_URL}/pull/{n}">#{n}</a>' for n in prs))
         rows.append(f'<tr data-term="{spec_term(spec)}"><td>{html.escape(title)}</td>'
-                    f'<td><a href="{spec}/explain.html">Explanation</a>{workflow}</td>'
+                    f'<td><a href="{spec}/explain.html">Explanation</a></td>'
                     f'<td><a href="{spec}/examples/">{counts[spec]} molecules, old vs. new</a></td>'
-                    f'<td><a href="{REPO_URL}/{spec}/SPEC.md">Specification</a></td>'
+                    f'<td><a href="{REPO_URL}/{spec}/SPEC.md">Specification</a>{workflow}</td>'
                     f'<td>{github}</td><td>{discuss}</td></tr>')
     page = LANDING.format(rows="\n".join(rows), comments=snippet(""))
     open(os.path.join(ROOT, "index.html"), "w").write(page)
