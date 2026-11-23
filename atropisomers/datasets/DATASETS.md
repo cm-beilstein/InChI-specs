@@ -39,7 +39,7 @@ InChI=1B/C12H6Br2Cl2/c13-7-3-1-5-9(15)11(7)12-8(14)4-2-6-10(12)16/h1-6H/t11-/m1/
 ```
 ([ATROP] shows `1S`; with the beta/enhanced mechanism the prefix is `1B`.)
 
-## Sub-project B invariant gates (`test_atropisomers`, 33/33)
+## Sub-project B invariant gates (`test_atropisomers`, 35/35)
 - [x] **Enantiomer pair (T6):** `gate_t6_enantiomer_flips_m` — wedges mirrored → `/m0` ↔ `/m1`.
       Whole dataset: skeleton 1 (mols 1–6, 39, 40), 2 (7–14, 36–38), 3 (17–21, 41, 42),
       4 (22–26) — every `M` → `/m0`, every `P` → `/m1`, 2D and 3D alike.
@@ -56,12 +56,16 @@ InChI=1B/C12H6Br2Cl2/c13-7-3-1-5-9(15)11(7)12-8(14)4-2-6-10(12)16/h1-6H/t11-/m1/
 - [x] **Backward compatibility:** `standard_output_unchanged`; CLI diff of
       `InChI_TestSet_ext.sdf` (2188) and all fixtures, no option and `-EnhancedStereochemistry`
       — zero differences.
+- [x] **C–N / N–N axes (T10, `57158c0`):** mols 27/28 → `/t19-/m0`, 29 → `/t21-/m0`,
+      30 → `/t21-/m1`, 31 → `/t18-,21-/m1` (axis + C2 centre), 33 → `/t13-/m1`,
+      45 → `/t12-,15-/m0` (axis + sp³ centre). `M` → `/m0`, `P` → `/m1` as for C–C.
 
 ## Dataset records that stay without an axial layer (by design)
 - **mols 15/16** (`2-0`): both wedges on the same side of the axis → degenerate geometry →
   undefined → omitted (warning).
-- **mols 27/28/33/45** C–N, **29/30** N–N axes: deferred (AT-R11). Mol 45 keeps its sp³ `/t12-`.
-- **mols 31/32**: no atropisomer; unchanged.
+- **mol 32**: 2,5-dihydropyrrole N is sp³ (not conjugated) → no axis.
+- **mol 31** is labelled "no atropisomers?" but gets an N–N axis since 0.8: indole–indoline N–N
+  axes are configurationally stable in the literature (SPEC §5).
 - **mols 46–49** (`Z,M` …): overcrowded alkene — the chirality axis is the C=C bond in a fused
   system, no single-bond candidate; only `/b24-23±` emitted.
 - **mol 22–26** (`8aM/P`): axis `/t19-` plus two undefined sp³ ring-fusion centres now shown as

@@ -84,9 +84,11 @@ something InChI computes. InChI decides from the structure alone, with the rules
   <div><h3>InChI looks for an axis</h3>
   <p>A bond is a candidate when all of these hold:</p>
   <ul class="checks">
-    <li>It is a single bond between two carbons.</li>
-    <li>Each carbon has three non-hydrogen neighbours and no H (a flat, aryl-like end).</li>
-    <li>The bond is not in a ring of 6 atoms or fewer.</li>
+    <li>It is a single bond between two carbons, a carbon and a nitrogen, or two nitrogens.</li>
+    <li>Each end has three non-hydrogen neighbours and no H (a flat, aryl-like end). A nitrogen
+    must be flat too: next to a C=O, S=O, C=C or in an aromatic ring, not a plain amine.</li>
+    <li>The bond is not in a ring of 6 atoms or fewer. A bond with a nitrogen end must not be in
+    a ring at all, and its carbon end must be a ring atom.</li>
   </ul>
   <p><span class="key axis"></span>axis &nbsp; <span class="key ortho"></span>the four ortho positions</p></div>
   <div class="step-pic">$flow_axis</div>
@@ -145,8 +147,8 @@ something InChI computes. InChI decides from the structure alone, with the rules
 
 <h2 id="rules">Rules at a glance</h2>
 <div class="rules">
-  <div class="rule"><h3>Carbon–carbon single bonds only</h3>
-    <p>Both ends flat, three-connected, without H. C–N, N–N and C–O axes are not detected yet.</p></div>
+  <div class="rule"><h3>C–C, C–N and N–N single bonds</h3>
+    <p>Both ends flat, three-connected, without H. C–O and C–S axes are not detected yet.</p></div>
   <div class="rule"><h3>Not in a small ring</h3>
     <p>A bond in a ring of 6 atoms or fewer is never an axis.</p></div>
   <div class="rule"><h3>Three of four ortho positions</h3>
@@ -192,7 +194,8 @@ an axis as on a stereocentre: <span class="chip c-and">&amp;1</span> for both fo
 
 <h2 id="limits">Limits of this version</h2>
 <ul>
-  <li>Only carbon–carbon axes. Anilides, N-aryl amides and similar C–N axes are not yet covered.</li>
+  <li>C–O and C–S axes (diaryl ethers, sulfides) and charged ends (N⁺, P⁺) are not yet covered.</li>
+  <li>C–N axes in an open chain (enamides) are not detected: the carbon end must be in a ring.</li>
   <li>InChI cannot yet turn the axis in <code>/t</code> back into a structure (InChI to molfile).</li>
   <li>The hindrance rule counts groups; it does not know rotation barriers. Some real
   atropisomers with only two ortho groups are missed.</li>

@@ -2,15 +2,15 @@
 
 | | |
 |---|---|
-| **Doc version** | 0.7 |
-| **Date** | 2026-10-23 |
+| **Doc version** | 0.8 |
+| **Date** | 2026-11-23 |
 | **Status** | draft |
 | **Author** | C. Müller |
 | **Reviewers** | TBD (InChI Trust / project 2019-017-2-800 TG) |
 | **Requirement prefix** | `AT-` |
-| **Readiness** | ready with open points — scope of C–N/N–N axes; reparse round-trip, confirmed 2026-10-23 |
+| **Readiness** | ready with open points — reparse round-trip; C–O/C–S and enhanced OR/AND on an axis deferred, confirmed 2026-11-23 |
 | **Kick-off documents** | [`docs/stereochemistry/`](../docs/stereochemistry/) |
-| **Change history** | 0.1 (2026-07-09) — initial; consolidates the former `.planning` design + plan; verified against branch `atropisomers`. 0.2 (2026-07-10) — consolidated: merged normative MUSTs into §2, requirements/gates/NFRs into one table (§4). 0.3 (2026-07-10) — readability pass: added At-a-glance, split requirements from gates, tightened prose. 0.4 (2026-10-08) — Sub-project B implemented on `atropisomers` (commits `6207f72`, `78fe01e`, `687a480`): native stereo-bond registration in `set_stereo_parity`, dissymmetry pruning by the canonical-equivalence pass, `/t`+`/m` emission on the lower-numbered atom, single-wedge axis, [ATROP] hindrance heuristic; placeholder emitter retired; gates T6–T7 pass; `test_dummy_14` root-caused (N–N axis, out of scope). Line references replaced by function names. 0.5 (2026-10-09) — `-Atropisomers` removed; detection runs under `-EnhancedStereochemistry` (`46f62cf`). Cyclic hindrance relaxation removed (`2ea128d`): a ring neighbour always counts as substituted, so ≥2 passed every endocyclic bond in a ring ≥7 (bare bridged biaryls, BIOVIA Appendix B `19?`, zearalenone `17?`); all axes now need ≥3. 0.6 (2026-10-09) — ≥3 also dropped the dataset's 8-ring lignans (mols 22–26, labelled M/P); an axis whose smallest ring has exactly 8 atoms needs only the 2 bridge positions (`844caac`). 0.7 (2026-10-23) — measured for Spec 1 §5.U (chiral-flag business rule): an axis reads the flag like a tetrahedral centre. No code change. |
+| **Change history** | 0.1 (2026-07-09) — initial; consolidates the former `.planning` design + plan; verified against branch `atropisomers`. 0.2 (2026-07-10) — consolidated: merged normative MUSTs into §2, requirements/gates/NFRs into one table (§4). 0.3 (2026-07-10) — readability pass: added At-a-glance, split requirements from gates, tightened prose. 0.4 (2026-10-08) — Sub-project B implemented on `atropisomers` (commits `6207f72`, `78fe01e`, `687a480`): native stereo-bond registration in `set_stereo_parity`, dissymmetry pruning by the canonical-equivalence pass, `/t`+`/m` emission on the lower-numbered atom, single-wedge axis, [ATROP] hindrance heuristic; placeholder emitter retired; gates T6–T7 pass; `test_dummy_14` root-caused (N–N axis, out of scope). Line references replaced by function names. 0.5 (2026-10-09) — `-Atropisomers` removed; detection runs under `-EnhancedStereochemistry` (`46f62cf`). Cyclic hindrance relaxation removed (`2ea128d`): a ring neighbour always counts as substituted, so ≥2 passed every endocyclic bond in a ring ≥7 (bare bridged biaryls, BIOVIA Appendix B `19?`, zearalenone `17?`); all axes now need ≥3. 0.6 (2026-10-09) — ≥3 also dropped the dataset's 8-ring lignans (mols 22–26, labelled M/P); an axis whose smallest ring has exactly 8 atoms needs only the 2 bridge positions (`844caac`). 0.7 (2026-10-23) — measured for Spec 1 §5.U (chiral-flag business rule): an axis reads the flag like a tetrahedral centre. No code change. 0.8 (2026-11-23) — C–N and N–N axes (AT-R11, `57158c0`): planar neutral N end, aryl C end, acyclic bond only; dataset mols 27–31, 33, 45 and `test_dummy_4/5/14` gain the axis; scope checked against the literature (§5). |
 
 > Normative keywords (MUST/SHOULD/MAY) per [RFC 2119](../README.md#requirement-conventions-normative);
 > shared glossary and conventions in the [README](../README.md).
@@ -24,15 +24,16 @@ Split into two sub-projects:
 - ✅ **Sub-project B — done:** the axis is a *native* stereo element (a chain-length-0 stereo
   bond on a single bond), so canonicalisation prunes non-dissymmetric ends, inverts it for `/m`
   and emits `/t` on the lower-numbered axis atom. Single-wedge drawings and 3D input work.
-  Gates T6–T7 pass; `test_atropisomers` 33/33.
-- ❌ **Missing:** AT-R11 (C–N / N–N / C–O axes, enhanced OR/AND on an axis), InChI→structure
+  Gates T6–T7 pass; `test_atropisomers` 35/35.
+- ✅ **C–N / N–N axes** (AT-R11, `57158c0`): anilides, N-aryl imides/lactams/sulfonamides,
+  N-aryl indoles/pyrroles, bi-indoles.
+- ❌ **Missing:** AT-R15 (C–O / C–S axes, enhanced OR/AND on an axis), InChI→structure
   round-trip of the axial layer, the "overcrowded alkene" cases (dataset mols 46–49).
-- ▶ **Next:** decide whether C–N axes (anilides, N-aryl amides — dataset mols 27/28/33/45)
-  enter scope; everything else is TG review.
+- ▶ **Next:** TG review.
 
 **Feature:** recognise a stereogenic single-bond axis (biaryl / aryl-amide type), compute its
 axial configuration, and encode it in the `/t`+`/m` layers (allene-analogous). · **Branch:**
-`atropisomers` · **Prefix:** `InChI=1B/…` (beta) · **v1 scope:** carbon–carbon axes only.
+`atropisomers` · **Prefix:** `InChI=1B/…` (beta) · **Scope:** C–C, C–N and N–N axes.
 **Sources:** [ATROP] (authoritative for recognition + encoding), [DECK] slides 3/13, [BNF]
 (atropisomer-in-`/t` parsing ambiguity), [ATROP-BG] (Metrano 2018 — background). ·
 **Consolidates** the former `.planning` design + plan (now retired; this is the single source
@@ -56,8 +57,8 @@ C(sp²)–C(sp³) and C(sp³)–C(sp³) cases. Configuration is named CIP `(aR)`
 `M`/`P`; InChI encodes neither name directly — it uses canonical odd/even parity in `/t` with
 `/m` distinguishing the enantiomeric pair (the `M`/`P` distinction). The stability threshold
 (Ōki: t½ > 1000 s) is chemistry, not something InChI computes — recognition is purely
-topological + geometric. **v1 is carbon-only** per [ATROP]; the C–N/C–O/C–S and heteroatom
-classes above are the explicit deferral list (§4, AT-R11).
+topological + geometric. [ATROP] restricts v1 to carbon; C–N and N–N axes were added in 0.8 (AT-R11).
+C–O/C–S and Si/N⁺/P⁺ remain deferred (AT-R15).
 
 ## 2. Target behaviour & normative rules (from [ATROP])
 
@@ -68,8 +69,11 @@ normative (each **MUST**).
 
 **Recognition — [ATROP] §1**
 - **Bonding/valence/element:** single bond between two atoms `A`; common case both ends
-  four-valent carbon (flat, no implicit H). Formally `A` may also be Si, N⁺, P⁺ — restrict to
-  C for v1. A minor class has three-valent `T` ends (mostly N).
+  four-valent carbon (flat, no implicit H). Formally `A` may also be Si, N⁺, P⁺ (deferred). A
+  three-valent N end qualifies when it is neutral, has no H and is planar, i.e. conjugated through
+  a neighbour other than the axis partner (amide, imide, urea, sulfonamide, pyrrole, indole,
+  aniline). The C end of a C–N axis must be a ring atom (aryl), which keeps the amide C(=O)–N
+  bond out; C–N and N–N axes must be acyclic (`is_atrop_axis_end`, `is_atrop_axis_bond`).
 - **Dissymmetry:** the two substituents `X` at *each* end must be pairwise distinguishable;
   structural stability heuristic ≈ "≥2 non-H substituents at ≥3 of the X positions" ([ATROP]'s
   cyclic special case, two X per end, is not applied: see §5). This is the property that makes the axis stereogenic.
@@ -145,6 +149,7 @@ Call site: the detector runs on `inp_ATOM` (`out_at`) in `CreateOneStructureINCh
 | `/t`: `Copy2StereoBondOrAllene` turns the axis into a stereo centre on the lower-numbered axis atom (`LinearCTStereoDble.at_num2`) | `ichimak2.c` | ✅ |
 | Placeholder `set_Atropisomer_t_m_layers` and its `ichiprt1.c` call removed | `strutil.c/.h`, `ichiprt1.c` | ✅ |
 | Hindrance heuristic (`ATROP_MIN_HINDERED` = 3, acyclic and cyclic) | `ichister.c` `count_hindered_ortho` | ✅ |
+| C–N / N–N ends: planar neutral N, aryl C, acyclic bond; the 8-ring exemption stays C–C (`57158c0`) | `ichister.c` `is_atrop_axis_end`, `is_atrop_axis_bond` | ✅ |
 
 Why chain length 0 and not a pseudo-allene chain: every cumulene walker (`ichimap1.c`,
 `Copy2StereoBondOrAllene`, `MarkAmbiguousStereo`) expects `chain_length` middle atoms of
@@ -171,15 +176,15 @@ uses parity, not CIP names).
 | AT-R13 | Re-bake baseline expected-InChI strings once layer lands | Must | B | ✅ (687a480) |
 | AT-R9 | Single-stereobond axis (shared with allenes AL-R3) | Should | B | ✅ `allene_one_wedge_z` under `-EnhancedStereochemistry` (6207f72) |
 | AT-R10 | Cyclic-axis handling (ring ≥7 vs ≤6) end-to-end | Should | B | ✅ ≤6 rings locked; 8-ring lignans mols 22–26 → `/t19-` (844caac); bare 7-ring `test_dummy_12` → no axis (2ea128d) |
-| AT-R11 | Enhanced OR/AND + non-C axis classes (C–N/C–O/C–S; Si/N⁺/P⁺) | Could | — | ❌ deferred |
+| AT-R11 | C–N and N–N axes | Could | B | ✅ (57158c0) |
+| AT-R15 | Enhanced OR/AND on an axis; C–O/C–S, Si/N⁺/P⁺ and acyclic enamide axes | Could | — | ❌ deferred |
 | AT-R14 | [ATROP] hindrance heuristic (≥3 substituted ortho positions; 2 in an 8-ring) | Should | B | ✅ (78fe01e, 2ea128d, 844caac) |
 
 ### Gates
 
 Dataset: `atropisomers_test_file_1_v2.sdf` (+ `_orig.sdf`); see
-[datasets/DATASETS.md](datasets/DATASETS.md). Test run: **33/33 pass**. `test_dummy_14`
-(formerly failing) is an N–N axis (2,2'-diethyl-1,1'-biindole); v1 is carbon-only, so no
-stereo and no warning — the test expected the warning of the retired placeholder.
+[datasets/DATASETS.md](datasets/DATASETS.md). Test run: **35/35 pass**. `test_dummy_14`
+is an N–N axis (2,2'-diethyl-1,1'-biindole) → `/t21-/m0/s1` since 0.8.
 
 - **T1** detection recall — every true axis (mol 1–4, 13, 14, 43 acyclic, 44 amide) is a candidate; the bare 7-ring bridged biaryl `test_dummy_12` is no longer an axis (2ea128d). ✅ (A)
 - **T2** negative guards — benzene / ≤6-ring bonds not flagged; no "must touch a ring" rule (mol 43 has zero rings). ✅ (A)
@@ -189,6 +194,7 @@ stereo and no warning — the test expected the warning of the retired placehold
 - **T6** enantiomer invariants — Ra/Sa share skeleton + `/t`, opposite `/m`; 3D rotamers at 44°, 90°, 120° → one InChI, −44° → the enantiomer; every dataset `M` label → `/m0`, every `P` → `/m1`, 2D and 3D alike. ✅ (B) Reparse round-trip ❌ open.
 - **T7** encoding — `C12H6Br2Cl2` biaryl → `…/t11-/m0/s1` and enantiomer `…/t11-/m1/s1` ([ATROP] §3). ✅ (B)
 - **T8** dissymmetry / hindrance — 2,6-dichloro end → no layer; 3,3'-bipyridine → no layer; symmetric amide `C7–N8` never an axis (C–N). ✅ (B)
+- **T10** C–N / N–N — dataset mols 27/28 → `/t19-/m0`, 29 → `/t21-/m0`, 30 → `/t21-/m1`, 33 → `/t13-/m1` (labels M → `/m0`, P → `/m1` as for C–C); sp³ pyrroline N (mol 32) → no axis; `test_dummy_4_cn_axis_anilide` → `/t18-/m0`; flat `test_dummy_5_cn_axis_flat_omitted` → omitted with warning. ✅ (`57158c0`)
 - **T9** single wedge — one-wedge draw equals the two-wedge draw; flat draw → omitted with warning. ✅ (B)
 
 ## 5. Open issues / risks
@@ -211,8 +217,22 @@ stereo and no warning — the test expected the warning of the retired placehold
 - **Overcrowded alkenes** (dataset mols 46–49, "Z,M"): the chirality axis *is* the C=C bond
   inside fused rings — no single-bond candidate exists. Out of scope for this spec.
 - **`/t` grammar ambiguity** ([BNF]) — resolved by the single-lower-atom encoding; keep it.
-- **Element scope** — v1 is carbon-only per [ATROP]; Si/N⁺/P⁺ and the three-valent-N class
-  are explicitly deferred.
+- **Element scope** — C, and since 0.8 planar neutral N (AT-R11). Si/N⁺/P⁺, C–O/C–S and
+  acyclic enamide C–N axes are deferred (AT-R15).
+- **C–N / N–N scope check (0.8, literature).** Isolable atropisomers are reported for every
+  admitted N class: N–N bi-indoles and indole–indoline axes (pyramidalised indoline N, strong
+  configurational stability) [Centonze 2023, anie.202303966]; N-aminoindoles (barriers
+  30–40 kcal/mol); o-tBu anilides (Curran 1994); N-(2,6-disubstituted phenyl)sulfonamides
+  (PMC9698006); N-aryl-N-methyl-2-tBu-6-methylanilines. Dataset mol 31 (labelled "no
+  atropisomers?") therefore gets its N–N axis: `/t18-,21-/m1/s1` (axis plus the C2 centre).
+  `test_dummy_5` is Merck's ATM inhibitor whose atropisomers are claimed in WO2020193660A1.
+- **Hindrance counts substituents, not size (C–N).** N-ethyl-N-phenyl-2,6-dihalo-anilines pass
+  ≥3 but are probably below the Ōki threshold; diarylamines need four ortho groups (Costil
+  2020). N-methyl anilides with a single ortho tBu score 2 and are missed. Same ceiling as C–C.
+- **Measured (0.8).** mcule 20k: 76 C–N/N–N candidates before pruning, 0 InChI strings
+  changed (flat 2D), 29 more "Omitted undefined stereo" warnings. Without the acyclic rule 11
+  bonds inside benzodiazepinone-type 7-rings passed. 12 C–C candidates in 7-rings predate 0.8,
+  unchecked. Allenes, E/Z and enhanced-stereo fixtures and examples: no diff.
 - **Reuse discipline** — parity must come from InChI's allene machinery, not new vector code
   (already honoured in A).
 - **Enhanced-stereo collections name the lower axis atom only.** `lookup_stereo_centre` finds
@@ -236,8 +256,8 @@ stereo and no warning — the test expected the warning of the retired placehold
 
 ## 6. Assumptions & dependencies
 
-- **A-1** v1 axes are **carbon–carbon single bonds**, both ends effectively sp² and
-  four-valent (no implicit H); C–N/C–O/C–S and Si/N⁺/P⁺ ends are deferred (§4, AT-R11).
+- **A-1** Axes are **C–C, C–N or N–N single bonds**, both ends sp²/planar without H;
+  C–O/C–S and Si/N⁺/P⁺ ends are deferred (§4, AT-R15).
 - **A-2** The axis is designated by wedge stereobonds or 3D coordinates; decorative
   stereobonds MUST be ignored; a single stereobond SHOULD suffice (shared with Spec 2 AL-R3).
 - **D-1** **Dissymmetry pruning depends on canonical ranks**, which exist only after

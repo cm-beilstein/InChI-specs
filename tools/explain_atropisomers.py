@@ -118,6 +118,10 @@ GALLERY = [
      "/t13-/m1/s1", "Axes need not involve aromatic rings: four branched groups hinder this C–C bond."),
     ("aryl N,N-dimethylamide, aryl-carbonyl axis", "Aryl–carbonyl axis of an amide",
      "/t11-/m1/s1", "The C=O carbon is a flat, three-connected end like an aryl carbon."),
+    ("N-aryl indole, C-N axis (M)", "Aryl–N axis (N-aryl indole)", "/t19-/m0/s1",
+     "A flat nitrogen can be an axis end: the indole N is planar, like an aryl carbon."),
+    ("N-N axis (M)", "N–N axis (2,2'-diethyl-1,1'-biindole)", "/t21-/m0/s1",
+     "Two indole nitrogens: the axis is cited on the lower-numbered N."),
     ("(M)-6,6'-dinitrodiphenic acid", "(M)-6,6'-dinitrodiphenic acid, a classic",
      "/t11-/m0/s1", "The first resolved atropisomer (Christie and Kenner, 1922)."),
 ]
@@ -167,9 +171,6 @@ NOT_DETECTED = [
      "Only two ortho positions are substituted, and the ring flips quickly at room temperature."),
     ("edge: 3,3'-bipyridine, too little hindrance", "3,3'-Bipyridine",
      "No ortho substituent: the rings rotate freely."),
-    ("edge: C-N axis (out of scope, v1 carbon only)", "Aryl–N axis (N-aryl indole)",
-     "Version 1 covers carbon–carbon axes only. C–N, N–N and C–O axes come later."),
-    ("edge: N-N axis (M)", "N–N axis (2,2'-diethyl-1,1'-biindole)", "Same: not carbon–carbon."),
     ("edge: overcrowded alkene (Z,M)", "Overcrowded alkene",
      "The twist is around a C=C bond, which InChI already records as E/Z in /b. No single-bond axis."),
 ]
