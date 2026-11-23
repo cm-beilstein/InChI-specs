@@ -108,7 +108,7 @@ def vials(how):
             '<span class="joiner">+</span><figure>' + b + '</figure></div></div>')
 
 
-def case(n, title, mol, meaning, expected, extra="", numbers=False):
+def case(n, title, mol, meaning, expected, extra=""):
     old, _ = inchi(mol, [])
     new, _ = inchi(mol)
     assert stereo_tail(new) == expected, (title, new)
@@ -118,7 +118,7 @@ def case(n, title, mol, meaning, expected, extra="", numbers=False):
 <article class="case">
   <div class="case-head"><span class="case-n">{n}</span>{html.escape(title)}</div>
   <div class="case-body">
-    <div class="case-pic">{picture(mol, numbers=numbers)}</div>
+    <div class="case-pic">{picture(mol)}</div>
     <div class="case-text">
       <p>{html.escape(meaning)}</p>
       {extra}
@@ -164,7 +164,7 @@ def flow():
         flow_draw=picture(deck(), numbers=False),
         flow_one=picture(deck([(4, 6, UP)]), numbers=False),
         flow_numbered=picture(deck()),
-        flow_label=picture(deck(coll=[("STERAC1", [CENTRE])]), numbers=False),
+        flow_label=picture(deck(coll=[("STERAC1", [CENTRE])])),
         flow_skeleton=html.escape(full[:full.index("/t")]),
         flow_result=mark(stereo_tail(full)),
         flow_mirror=mark(stereo_tail(mirror)),
@@ -183,7 +183,7 @@ def hero():
         new, _ = inchi(mol)
         rows.append(f'<tr><th scope="row">{label}</th><td class="inchi muted">{tail_or_none(old)}</td>'
                     f'<td class="inchi">{mark(stereo_tail(new))}</td></tr>')
-    return dict(hero_pic=picture(deck(), numbers=False), hero_rows="".join(rows))
+    return dict(hero_pic=picture(deck()), hero_rows="".join(rows))
 
 
 def usage():
@@ -241,7 +241,7 @@ CHAIN_CASES = [
 
 
 def chain_gallery():
-    return "".join(case(n, t, m, w, e, numbers=True) for n, (t, m, w, e) in enumerate(CHAIN_CASES, 1))
+    return "".join(case(n, t, m, w, e) for n, (t, m, w, e) in enumerate(CHAIN_CASES, 1))
 
 
 def cumulenes():
