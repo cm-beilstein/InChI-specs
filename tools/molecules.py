@@ -272,14 +272,35 @@ VERSIONING = [
 ]
 
 # Longer cumulenes (AL-R8, [CUMUL]): methyl at each end, built in 3D.
-# Odd chains have E/Z, even chains an axis; MAX_CUMULENE_LEN=2 stops at [3].
+# Odd chains have E/Z, even chains an axis; standard InChI stops at [3],
+# -EnhancedStereochemistry at [5].
 CUMULENES = [
     dict(title="[3]cumulene hexa-2,3,4-triene (Z): E/Z in /b", sdf=(CUMULENE_SDF, 0)),
     dict(title="[3]cumulene hexa-2,3,4-triene (E)", sdf=(CUMULENE_SDF, 1)),
-    dict(title="limitation: [4]cumulene, axis not encoded (AL-R8)", sdf=(CUMULENE_SDF, 2)),
-    dict(title="limitation: [4]cumulene, mirror image, same InChI", sdf=(CUMULENE_SDF, 3)),
-    dict(title="limitation: [5]cumulene (Z), E/Z not encoded (AL-R8)", sdf=(CUMULENE_SDF, 4)),
-    dict(title="limitation: [5]cumulene (E), same InChI", sdf=(CUMULENE_SDF, 5)),
+    dict(title="[4]cumulene hepta-2,3,4,5-tetraene: axis on the central atom", sdf=(CUMULENE_SDF, 2)),
+    dict(title="[4]cumulene, mirror image: /m flips", sdf=(CUMULENE_SDF, 3)),
+    dict(title="[5]cumulene octa-2,3,4,5,6-pentaene (Z): E/Z in /b", sdf=(CUMULENE_SDF, 4)),
+    dict(title="[5]cumulene (E)", sdf=(CUMULENE_SDF, 5)),
+]
+
+# Reviewer examples (A. Yerin, 2026-11-19): C-N / N-N axes and a wedged
+# 1,3-diaxis phenylene that needs only two ortho groups per axis
+ATROP_REVIEW = [
+    dict(title="1,3-diaxis phenylene (Yerin), two ortho groups per axis, wedged",
+         smiles="Clc1ccccc1-c1cccc(N2C=NC(C)=C(C)C2=O)c1C",
+         wedges=[(6, 5, UP), (11, 10, UP)]),
+    dict(title="1,3-diaxis phenylene, mirror image",
+         smiles="Clc1ccccc1-c1cccc(N2C=NC(C)=C(C)C2=O)c1C",
+         wedges=[(6, 5, DOWN), (11, 10, DOWN)]),
+    dict(title="marinopyrrole A, N-C axis (Yerin)",
+         smiles="Oc1ccccc1C(=O)c1cc(Cl)c(Cl)n1-c1c(C(=O)c2ccccc2O)[nH]c(Cl)c1Cl",
+         wedges=[(15, 13, UP)]),
+    dict(title="1,1'-biindole 4a, N-N axis (Yerin)",
+         smiles="COC(=O)c1c(C)n(-n2ccc3ccccc32)c2ccccc12",
+         wedges=[(7, 5, UP)]),
+    dict(title="N-aminoindole carbamate 7d, N-N axis (Yerin)",
+         smiles="COC(=O)c1c(C)n(N(C)C(=O)OC(C)(C)C)c2ccccc12",
+         wedges=[(7, 5, UP)]),
 ]
 
 TABLES = [
@@ -290,6 +311,7 @@ TABLES = [
     ("meso", "Meso compounds: groups that change nothing", MESO),
     ("versioning", "Version prefix and InChIKey flags", VERSIONING),
     ("cumulenes", "Longer cumulenes", CUMULENES),
+    ("atrop_review", "Atropisomers: reviewer examples", ATROP_REVIEW),
 ]
 
 # Spec folder of each table, and its section on that spec's explain page.
@@ -302,4 +324,5 @@ SPEC_OF = {
     "meso": ("enhanced-stereo", "#meso"),
     "versioning": ("inchi-versioning", ""),
     "cumulenes": ("allenes", "#cumulenes"),
+    "atrop_review": ("atropisomers", "#rules"),
 }

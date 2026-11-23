@@ -171,15 +171,16 @@ $ignored
 <p>An allene has two cumulated double bonds. Longer chains alternate: with an even number of
 double bonds the end groups sit in perpendicular planes and the chain is an axis, like an allene;
 with an odd number they share a plane, and the chain has E/Z isomers, like an ordinary double
-bond. InChI follows chains up to three double bonds. Beyond that, both isomers get one InChI.
-Each pair below has a methyl group at both ends:</p>
+bond. Standard InChI follows chains up to three double bonds; with
+<code>-EnhancedStereochemistry</code> it follows them up to five, so both kinds get their stereo
+layer. Each pair below has a methyl group at both ends:</p>
 <table class="plain">
-<tr><th>Chain</th><th>Stereo</th><th>The two isomers</th></tr>
+<tr><th>Chain</th><th>Stereo</th><th>Standard InChI</th><th>New InChI</th></tr>
 $cumulene_rows
 </table>
-<p>Whether longer chains should count is open: their isomers interconvert faster as the chain
-grows (review: Hernández-Camacho &amp; Barquera-Lozada, <i>Beilstein J. Org. Chem.</i> 2026,
-22, 1358).</p>
+<p>Longer chains interconvert faster, but a chemist may still need to name one isomer
+(review: Hernández-Camacho &amp; Barquera-Lozada, <i>Beilstein J. Org. Chem.</i> 2026, 22, 1358).
+Six or more double bonds get no stereo.</p>
 
 <h2 id="use">How to use it</h2>
 <p><b>Input.</b> A molfile with a wedge at one or both ends of the allene. To mark the axis

@@ -10,10 +10,10 @@ encoding of stereoconfiguration by InChI tools").
 
 | # | Spec | Feature | Status | Ready | Branch |
 |---|------|---------|--------|-------|--------|
-| 1 | [enhanced-stereo](enhanced-stereo/SPEC.md) | V3000 ABS/OR/AND enhanced stereo for tetrahedral centres (grouped `/s` layer) | **Implemented** — v1.4; open: chiral-flag business rule (§5.U), groups on a meso subset (§5.S) | open points | `atropisomers` (base: `feature/enh-stereo-hardening`) |
-| 2 | [allenes](allenes/SPEC.md) | Axial chirality of allenes/cumulenes + single-stereobond + enhanced OR/AND | **Implemented** — v0.7; open: cumulene length, slide-21 molecule, pseudo-asymmetric axis | open points | `atropisomers` (from `feature/allenes`) |
-| 3 | [double-bond-ez](double-bond-ez/SPEC.md) | Enhanced OR/AND for C=C double bonds (grouped `/b` layer) | **Implemented** — v0.6; open: reading grouped `/b` back, fixed-H/isotopic `/b` | open points | `atropisomers` (from `feature/double-bond-ez`) |
-| 4 | [atropisomers](atropisomers/SPEC.md) | Axial chirality about a hindered single bond | **Implemented** — v1.0 (C–C, C–N, N–N axes in `/t`+`/m`; round-trip); open: C–O/C–S, OR/AND on an axis | open points | `atropisomers` |
+| 1 | [enhanced-stereo](enhanced-stereo/SPEC.md) | V3000 ABS/OR/AND enhanced stereo for tetrahedral centres (grouped `/s` layer) | **Implemented** — v1.5 (round trip InChI↔structure); open: chiral-flag business rule (§5.U), groups on a meso subset (§5.S) | open points | `atropisomers` (base: `feature/enh-stereo-hardening`) |
+| 2 | [allenes](allenes/SPEC.md) | Axial chirality of allenes/cumulenes + single-stereobond + enhanced OR/AND | **Implemented** — v0.9 (cumulenes up to five C=C, enhanced only); open: slide-21 molecule, pseudo-asymmetric axis | open points | `atropisomers` (from `feature/allenes`) |
+| 3 | [double-bond-ez](double-bond-ez/SPEC.md) | Enhanced OR/AND for C=C double bonds (grouped `/b` layer) | **Implemented** — v0.7 (grouped `/b` read back); open: fixed-H/isotopic `/b`, bond groups through the API | open points | `atropisomers` (from `feature/double-bond-ez`) |
+| 4 | [atropisomers](atropisomers/SPEC.md) | Axial chirality about a hindered single bond | **Implemented** — v1.1 (C–C, C–N, N–N axes in `/t`+`/m`; round-trip; wedged axes with two ortho groups); open: C–O/C–S, OR/AND on an axis | open points | `atropisomers` |
 | 5 | [impossible-ring-stereo](impossible-ring-stereo/SPEC.md) | Warn on physically impossible ring stereo (in/out bridgeheads, trans fusion) | **Proposed** — v0.1, [IUPAC-InChI/InChI#287](https://github.com/IUPAC-InChI/InChI/issues/287); open: ring-size limits, warning text | open points | — |
 | 6 | [inchi-versioning](inchi-versioning/SPEC.md) | Version prefix `1S`/`1B`/`1N` + subversion `B` (Molecular Inorganics), InChIKey flags `SA`…`NB` | **Implemented** — v0.1 (#280); open: combining letters, metalloids, lookup table | open points | `dev` |
 
@@ -117,6 +117,9 @@ Kick-off documents live in `docs/<topic>/`, one folder per topic. Stereochemistr
   [doi:10.3762/bjoc.22.110](https://doi.org/10.3762/bjoc.22.110) — review: even-*n* cumulenes are
   axially chiral, odd-*n* show E/Z; rotational barriers fall with chain length. **Background
   only**, not vendored. Referenced as **[CUMUL]**.
+- `Enhanced stereo AY 20261119.docx` — reviewer
+  comments on the four stereo features (A. Yerin, 2026-11-19), not vendored. Referenced as
+  **[REVIEW-AY]**.
 
 Impossible ring stereo (spec 5), in [`docs/impossible-ring-stereo/`](docs/impossible-ring-stereo/):
 

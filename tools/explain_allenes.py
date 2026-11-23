@@ -84,9 +84,10 @@ IGNORED = [
     ("Three double bonds (butatriene)", dict(smiles="ClC=C=C=CCl"),
      "An even number of cumulated carbons: the ends are coplanar. This is E/Z, written in /b.",
      "/b4-3+", False),
-    ("Four double bonds (pentatetraene)",
-     dict(smiles="ClC=C=C=C=CCl", wedges=[(1, 0, UP), (5, 6, DOWN)]),
-     "Axially chiral like an allene, but longer than InChI supports. No stereo is written.",
+    ("Six double bonds (heptahexaene)",
+     dict(smiles="ClC=C=C=C=C=C=CCl", wedges=[(1, 0, UP), (7, 8, UP)]),
+     "Axially chiral like an allene, but longer than InChI supports (five double bonds with "
+     "-EnhancedStereochemistry, three in standard InChI). No stereo is written.",
      "", False),
 ]
 
@@ -194,22 +195,28 @@ def usage():
     return dict(use_cli=with_option, use_std=without)
 
 
-# (record pair in cumulenes.sdf, chain, stereo kind, expected tails of the pair)
+# (record pair in cumulenes.sdf, chain, stereo kind, standard tails, new tails)
 CUMULENE_ROWS = [
-    ((0, 1), "[3]cumulene", "E/Z", ("/b4-3-", "/b4-3+")),
-    ((2, 3), "[4]cumulene", "axis", ("", "")),
-    ((4, 5), "[5]cumulene", "E/Z", ("", "")),
+    ((0, 1), "[3]cumulene", "E/Z", ("/b4-3-", "/b4-3+"), ("/b4-3-", "/b4-3+")),
+    ((2, 3), "[4]cumulene", "axis", ("", ""), ("/t7-/m1/s1", "/t7-/m0/s1")),
+    ((4, 5), "[5]cumulene", "E/Z", ("", ""), ("/b4-3-", "/b4-3+")),
 ]
 
 
 def cumulenes():
-    """Chains beyond MAX_CUMULENE_LEN=2: both isomers get one InChI (AL-R8)."""
+    """Longer chains (AL-R8): standard InChI stops at three double bonds,
+    -EnhancedStereochemistry at five."""
     rows = []
-    for (a, b), chain, kind, expected in CUMULENE_ROWS:
-        tails = tuple(stereo_tail(inchi(build.read_sdf_record(CUMULENE_SDF, i))[0]) for i in (a, b))
-        assert tails == expected, (chain, tails)
-        shown = " / ".join(mark(t) for t in tails) if any(tails) else "no stereo layer for either"
-        rows.append(f"<tr><td>{chain}</td><td>{kind}</td><td class=\"inchi\">{shown}</td></tr>")
+    for (a, b), chain, kind, std_expected, new_expected in CUMULENE_ROWS:
+        blocks = [build.read_sdf_record(CUMULENE_SDF, i) for i in (a, b)]
+        new = tuple(stereo_tail(inchi(m)[0]) for m in blocks)
+        std = tuple(stereo_tail(inchi(m, [])[0]) for m in blocks)
+        assert new == new_expected and std == std_expected, (chain, new, std)
+
+        def shown(tails):
+            return " / ".join(mark(t) for t in tails) if any(tails) else "no stereo, same InChI"
+        rows.append(f"<tr><td>{chain}</td><td>{kind}</td><td class=\"inchi\">{shown(std)}</td>"
+                    f"<td class=\"inchi\">{shown(new)}</td></tr>")
     return dict(cumulene_rows="".join(rows))
 
 

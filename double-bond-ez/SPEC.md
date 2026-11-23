@@ -2,15 +2,15 @@
 
 | | |
 |---|---|
-| **Doc version** | 0.6 |
-| **Date** | 2026-10-23 |
+| **Doc version** | 0.7 |
+| **Date** | 2026-11-23 |
 | **Status** | draft |
 | **Author** | C. Müller |
 | **Reviewers** | TBD (InChI Trust / project 2019-017-2-800 TG) |
 | **Requirement prefix** | `EZ-` |
 | **Readiness** | ready with open points — fixed-H and isotopic grouped `/b` undecided, confirmed 2026-10-23 |
 | **Kick-off documents** | [`docs/stereochemistry/`](../docs/stereochemistry/) |
-| **Change history** | 0.1 (2026-07-09) — initial spec; verified against `dev`. 0.2 (2026-07-10) — consolidated: requirements/gates/deliverables/NFRs merged into one table (§4); ABNF grammar retained (§6). 0.3 (2026-07-10) — readability pass: added At-a-glance, split requirements from gates, tightened prose. 0.4 (2026-10-08) — implemented on `feature/double-bond-ez`. User decisions: EZ-R8 digits `2`/`3`; a group keeps the relative geometry of its bonds (`/s`-style normalisation, the lowest bond reads `-`); several groups use the `/s` block layout, comma-joined to the flat list (`/b12-5+,2(16-14-),3(15-10-,17-11-)(18-13-)`). Corrected: the trailing `-` of a deck pair is the normalised parity, not a sign on both atoms; `1B` prefix whenever the option is on; group numbers are never emitted. Found: component order with enhanced classes depends on input order (§5, shared with Spec 1). 0.5 (2026-10-23) — Spec 1 ES-R33 (a group holding every centre of a meso component is ignored) on `feature/double-bond-ez` as `575496e`. No effect on `/b`: E/Z does not change under mirroring, and the meso test reads only `/t`. Measured over 1,588 files: only tetrahedral meso cases changed. 0.6 (2026-10-23) — measured for Spec 1 §5.U (chiral-flag business rule): no effect on `/b`; (2E,4E)-sorbic acid gives `/b3-2+,5-4+` with flag 1 or 0, with or without `-SUCF`. No code change. |
+| **Change history** | 0.1 (2026-07-09) — initial spec; verified against `dev`. 0.2 (2026-07-10) — consolidated: requirements/gates/deliverables/NFRs merged into one table (§4); ABNF grammar retained (§6). 0.3 (2026-07-10) — readability pass: added At-a-glance, split requirements from gates, tightened prose. 0.4 (2026-10-08) — implemented on `feature/double-bond-ez`. User decisions: EZ-R8 digits `2`/`3`; a group keeps the relative geometry of its bonds (`/s`-style normalisation, the lowest bond reads `-`); several groups use the `/s` block layout, comma-joined to the flat list (`/b12-5+,2(16-14-),3(15-10-,17-11-)(18-13-)`). Corrected: the trailing `-` of a deck pair is the normalised parity, not a sign on both atoms; `1B` prefix whenever the option is on; group numbers are never emitted. Found: component order with enhanced classes depends on input order (§5, shared with Spec 1). 0.5 (2026-10-23) — Spec 1 ES-R33 (a group holding every centre of a meso component is ignored) on `feature/double-bond-ez` as `575496e`. No effect on `/b`: E/Z does not change under mirroring, and the meso test reads only `/t`. Measured over 1,588 files: only tetrahedral meso cases changed. 0.6 (2026-10-23) — measured for Spec 1 §5.U (chiral-flag business rule): no effect on `/b`; (2E,4E)-sorbic acid gives `/b3-2+,5-4+` with flag 1 or 0, with or without `-SUCF`. No code change. 0.7 (2026-11-23) — grouped `/b` is read back (`0e26365` on `feature/enh-stereo-hardening`): InChI→InChI reprints it; InChI→structure keeps each bond's E/Z but not its group (public API has no bond groups; user decision). Reviewer feedback (A. Yerin, 2026-11-19) recorded. |
 
 > Normative keywords (MUST/SHOULD/MAY) per [RFC 2119](../README.md#requirement-conventions-normative);
 > shared glossary and conventions in the [README](../README.md).
@@ -109,6 +109,7 @@ Priority is MoSCoW. **Won't (this spec):** allene/atropisomer bonds (those are `
 | EZ-R9 | Classic `/b` unit tests | Should | ✅ Z1, Z2 |
 | EZ-R11 | Canonical order of components differing only in enhanced classes | Must | ✅ §5 |
 | EZ-R12 | Grouped `/b` in fixed-H and isotopic layers | Could | ❌ flat there |
+| EZ-R13 | Read grouped `/b` (main layer) back: InChI→InChI reprints it; InChI→structure keeps E/Z, drops the group | Should | ✅ (0e26365) |
 
 ### Gates
 
@@ -127,6 +128,8 @@ All in `INCHI-1-TEST/tests/test_unit/test_doubleBondEZ.cpp`; molecules and expec
 - Component order: swapped OR/AND collections over two equal components, and swapped drawn
   geometry of their OR/AND bonds → one InChI. ✅
 
+- **Z7** — reading grouped `/b`: 8 InChIs reprint unchanged through `GetINCHIfromINCHI`, 4 malformed ones are rejected (`test_enhancedStereo_roundtrip.cpp`, `Inchi2InchiBTest`); structure round trip `/b3(4-2-,5-3+)` → `/b4-2-,5-3+`. ✅ (`0e26365`)
+
 ## 5. Open issues / risks
 
 - **Resolved — component order (EZ-R11, also Spec 1).** Components identical in every standard
@@ -141,6 +144,16 @@ All in `INCHI-1-TEST/tests/test_unit/test_doubleBondEZ.cpp`; molecules and expec
 - **InChI→structure.** `ichiread.c` rejects grouped `/b` (as it rejects grouped `/s` from Spec 1);
   parsing `1B` grouped layers is out of scope for both specs.
 - **Fixed-H / isotopic `/b`.** Grouped only in the main layer; elsewhere flat (EZ-R12).
+
+- **Grouped `/b` read back (0.7).** `ParseSegmentSp2Enh` checks a main-layer slot against §6,
+  flattens it (block bonds keep their parity, merged ascending) for the standard parser and keeps
+  the slot verbatim (`INChI_Stereo.szEnhB`) for InChI→InChI. InChI→structure returns plain E/Z:
+  `inchi_Input_V3000` has no bond-group lists, and extending the caller-allocated public struct
+  was declined. Before 0.7 every grouped `/b` gave a syntax error (no output).
+- **Reviewer feedback [REVIEW-AY] (A. Yerin, 2026-11-19).** "Good and useful solution to keep both
+  descriptors and indication of enhanced stereo in one layer. 'Absolute' double bond
+  configuration does not need an indication of enhanced stereo type" — as implemented (flat
+  entries for absolute bonds). No issues with the examples.
 
 ## 6. Normative grammar (enhanced `/b` layer)
 
