@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Doc version** | 0.9 |
+| **Doc version** | 0.10 |
 | **Date** | 2026-11-23 |
 | **Status** | draft |
 | **Author** | C. Müller |
@@ -10,7 +10,7 @@
 | **Requirement prefix** | `AL-` |
 | **Readiness** | ready with open points — slide-21 molecule missing, confirmed 2026-11-23 |
 | **Kick-off documents** | [`docs/stereochemistry/`](../docs/stereochemistry/) |
-| **Change history** | 0.1 (2026-07-09) — initial spec; verified against `dev`. 0.2 (2026-07-10) — consolidated: merged normative MUSTs into §2, requirements/gates/NFRs into one table (§4). 0.3 (2026-07-10) — readability pass: added At-a-glance, split requirements from gates, tightened prose. 0.4 (2026-10-08) — implemented on `feature/allenes` (from `feature/enh-stereo-hardening`): AL-R3 single stereobond (under `-EnhancedStereochemistry` only), AL-R7 test suite `test_allenes` (gates A1–A6). AL-R4–R6 measured to work without code change. Fixed: A1 STEABS names the *central* atom; `1B` prefix whenever the option is on; undefined axis is omitted, not `?`; collection membership keys on the central atom; line references replaced by function names. 0.5 (2026-10-09) — `-EnhancedStereochemistry` is now the only switch (`-Atropisomers` removed, Spec 4 0.5). A group on a terminal atom lost `/s` (`/t2-/m0`): fixed with Spec 1 ES-R32 (`072d35c`; on `feature/allenes` as `f6fc3ef`), gated by `group_on_terminal_atom_is_ignored`. 0.6 (2026-10-23) — Spec 1 ES-R33 (a group holding every centre of a meso component is ignored) on `feature/allenes` as `5dcf7f0`. Measured on hepta-3,4-diene-2,6-diol: applies with an allene axis in the component; an undefined axis (`3?`) does not count as a centre. New open question: a defined axis between enantiomorphic ends (§5). 0.7 (2026-10-23) — measured for Spec 1 §5.U (chiral-flag business rule): an allene axis reads the flag like a tetrahedral centre. No code change. 0.8 (2026-11-23) — AL-R8 measured: [4]cumulene enantiomers and [5]cumulene E/Z isomers each get one InChI (standard and enhanced); [3]cumulene E/Z is encoded. [CUMUL] added as background; dataset `cumulenes.sdf`, examples, explain section "Longer chains". No code change. 0.9 (2026-11-23) — reviewer feedback (A. Yerin, 2026-11-19) and AL-R8 implemented: with `-EnhancedStereochemistry` cumulene stereo reaches five double bonds (`f61dbdc`, `TG_FLAG_LONG_CUMULENE`): [4]cumulene `/t` on the central atom, [5]cumulene `/b`; standard InChI unchanged (`MAX_CUMULENE_LEN_STD=2`). Test for two opposite wedges at one end added. Explain section "Longer chains" and examples 132–135 updated. |
+| **Change history** | 0.1 (2026-07-09) — initial spec; verified against `dev`. 0.2 (2026-07-10) — consolidated: merged normative MUSTs into §2, requirements/gates/NFRs into one table (§4). 0.3 (2026-07-10) — readability pass: added At-a-glance, split requirements from gates, tightened prose. 0.4 (2026-10-08) — implemented on `feature/allenes` (from `feature/enh-stereo-hardening`): AL-R3 single stereobond (under `-EnhancedStereochemistry` only), AL-R7 test suite `test_allenes` (gates A1–A6). AL-R4–R6 measured to work without code change. Fixed: A1 STEABS names the *central* atom; `1B` prefix whenever the option is on; undefined axis is omitted, not `?`; collection membership keys on the central atom; line references replaced by function names. 0.5 (2026-10-09) — `-EnhancedStereochemistry` is now the only switch (`-Atropisomers` removed, Spec 4 0.5). A group on a terminal atom lost `/s` (`/t2-/m0`): fixed with Spec 1 ES-R32 (`072d35c`; on `feature/allenes` as `f6fc3ef`), gated by `group_on_terminal_atom_is_ignored`. 0.6 (2026-10-23) — Spec 1 ES-R33 (a group holding every centre of a meso component is ignored) on `feature/allenes` as `5dcf7f0`. Measured on hepta-3,4-diene-2,6-diol: applies with an allene axis in the component; an undefined axis (`3?`) does not count as a centre. New open question: a defined axis between enantiomorphic ends (§5). 0.7 (2026-10-23) — measured for Spec 1 §5.U (chiral-flag business rule): an allene axis reads the flag like a tetrahedral centre. No code change. 0.8 (2026-11-23) — AL-R8 measured: [4]cumulene enantiomers and [5]cumulene E/Z isomers each get one InChI (standard and enhanced); [3]cumulene E/Z is encoded. [CUMUL] added as background; dataset `cumulenes.sdf`, examples, explain section "Longer chains". No code change. 0.9 (2026-11-23) — reviewer feedback (A. Yerin, 2026-11-19) and AL-R8 implemented: with `-EnhancedStereochemistry` cumulene stereo reaches five double bonds (`f61dbdc`, `TG_FLAG_LONG_CUMULENE`): [4]cumulene `/t` on the central atom, [5]cumulene `/b`; standard InChI unchanged (`MAX_CUMULENE_LEN_STD=2`). Test for two opposite wedges at one end added. Explain section "Longer chains" and examples 132–135 updated. 0.10 (2026-11-23) — [REVIEW-AY] item 5 measured: his image is an allene drawn bent at the central atom, not two same-direction wedges. Defined, same InChI as the linear drawing; gate A8 (`bent_drawing_keeps_axis`, `70397f0`). New open issue: the result depends on where the middle atom is drawn. No code change. |
 
 > Normative keywords (MUST/SHOULD/MAY) per [RFC 2119](../README.md#requirement-conventions-normative);
 > shared glossary and conventions in the [README](../README.md).
@@ -118,7 +118,7 @@ Priority is MoSCoW. **Won't (this spec):** spiranes and other axial-chirality cl
 |----|-------------|----------|--------|
 | AL-R1 | Classic allene/odd-cumulene detection + parity | Must | ✅ gated by A1, A2 |
 | AL-R2 | Emit on central atom in `/t`; `/m` inversion | Must | ✅ gated by A1 |
-| AL-R7 | Dedicated allene test suite (parity, rotamer, round-trip) | Must | ✅ `test_allenes.cpp`, 10 tests |
+| AL-R7 | Dedicated allene test suite (parity, rotamer, round-trip) | Must | ✅ `test_allenes.cpp`, 11 tests |
 | AL-R3 | Single-stereobond recognition (shared: atropisomers AT-R9) | Should | ✅ enhanced only, gated by A3 |
 | AL-R4 | Enhanced OR (`/s2`) on allene axis | Should | ✅ gated by A4 |
 | AL-R5 | Enhanced AND (`/s3`) on allene axis | Should | ✅ gated by A5 |
@@ -141,6 +141,7 @@ All in `INCHI-1-TEST/tests/test_unit/test_allenes.cpp`; molecules from [DECK] sl
 - **Terminal-atom group** — `STERAC1`/`STEREL1` on a terminal atom is ignored: `/t2-/m1/s1`, as without it (`group_on_terminal_atom_is_ignored`; `/s` was lost before `072d35c`). ✅
 
 - **A7** — longer cumulenes (`long_cumulenes_enhanced_only`): with the option [4]cumulene pair → `/t7-/m1`/`/m0`, [5]cumulene pair → `/b4-3-`/`+`; standard InChI unchanged; [6]cumulene stays without stereo. Two opposite wedges at one end (`opposite_wedges_at_one_end`) = one wedge there. ✅ (`f61dbdc`)
+- **A8** — allene drawn bent at the central atom, 120° ([REVIEW-AY] image 4; wedge and hash at one end, other end flat) → `InChI=1S/C5H8O2/c1-4(6)3-5(2)7/h6-7H,1-2H3/t3-/m1/s1`, identical to the linear drawing (`bent_drawing_keeps_axis`). ✅ (`70397f0`)
 
 ## 5. Open issues / risks
 
@@ -185,9 +186,26 @@ All in `INCHI-1-TEST/tests/test_unit/test_allenes.cpp`; molecules from [DECK] sl
   opposite wedges at one end, the strictest drawing: works, now tested (A7). (3) example 44
   (AND label on an end atom) was built by hand for the edge case; his MDL Draw 25.1 always puts
   the label on the central atom, which is what InChI reads. (4) longer allenes: done (above).
-  (5) "wrong arrangement" (his image, EMF, not rendered here): if it is two wedges in the same
-  direction at one end, InChI treats the axis as undefined and omits it with a warning — to be
-  confirmed with the drawing.
+  (5) "wrong arrangement", should InChI treat it as undefined? His image (a ChemSketch EMF,
+  rendered here) is HO(CH3)C=C=C(OH)CH3 with the central atom drawn at 120°, wedge and hash at
+  one end. Answer: no. The middle atom carries no stereo, the end wedges define the axis, and
+  the InChI equals the linear drawing's (A8). IUPAC 2006 ST-1.6 draws every cumulene linear
+  but rules out only wedges at both ends and a wedge beside a plain bond at one end; ST-0.1
+  reads 170–190° as linear, so the drawing is poor style, not ambiguous.
+- **Result depends on the middle atom's position (open).** Same molecule, only C2 moved
+  (C1–C2–C3 angle; side relative to the C1···C3 line):
+
+  | C2 drawn | Result | Warning |
+  |---|---|---|
+  | on the line, 180° | `/t3-/m1/s1` | — |
+  | 120°, below (his image) | `/t3-/m1/s1` | — |
+  | 73°, below | `/t3-/m1/s1` | — |
+  | 64°, below | no `/t` | Omitted undefined stereo |
+  | 120°, above | `/t3-/m1/s1` | Ambiguous stereo |
+  | 47°, above | `/t3-/m1/s1` | Ambiguous stereo |
+
+  The end substituents do not move, so the axis should not change. Cause not traced;
+  suspect: the 2D-to-3D wedge reading at each end uses all its neighbours, C2 included.
 - **A-big** (slide 21) not materialised: no molfile available.
 
 ## 6. Assumptions & dependencies
