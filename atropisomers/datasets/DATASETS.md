@@ -46,7 +46,7 @@ InChI=1B/C12H6Br2Cl2/c13-7-3-1-5-9(15)11(7)12-8(14)4-2-6-10(12)16/h1-6H/t11-/m1/
 - [x] **Rotamer invariance:** `gate_t6_rotamers_one_inchi` — generated 3D
       2,2'-dibromo-6,6'-dichlorobiphenyl at 44°, 90°, 120° → one InChI; −44° → the enantiomer.
       Mols 7–14 (eight drawings of 2-M) → one InChI.
-- [ ] **Round-trip:** reparse of the emitted InChI — open (InChI→structure engine).
+- [x] **Round-trip:** `test_atropisomers_roundtrip` — biaryl M/P, mol 27 (C–N), mols 29/30 (N–N), mol 45 (axis + centre) survive InChI → structure → InChI; 0D axis input gives both enantiomers.
 - [x] **Dissymmetry pruning:** `dissymmetry_symmetric_end_pruned` (2,6-dichloro end);
       mol 43 isopropyl branch bonds dropped, central `C13–C14` kept (`/t13-/m1/s1`).
 - [x] **Hindrance:** `unhindered_axis_not_emitted` — mols 34/35 (3,3'-bipyridine, wedge drawn)
