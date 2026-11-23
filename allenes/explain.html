@@ -4951,6 +4951,20 @@ L 47.6 91.5
   </div>
 </article>
 
+<h2 id="cumulenes">Longer chains</h2>
+<p>An allene has two cumulated double bonds. Longer chains alternate: with an even number of
+double bonds the end groups sit in perpendicular planes and the chain is an axis, like an allene;
+with an odd number they share a plane, and the chain has E/Z isomers, like an ordinary double
+bond. InChI follows chains up to three double bonds. Beyond that, both isomers get one InChI.
+Each pair below has a methyl group at both ends:</p>
+<table class="plain">
+<tr><th>Chain</th><th>Stereo</th><th>The two isomers</th></tr>
+<tr><td>[3]cumulene</td><td>E/Z</td><td class="inchi"><span class="layer">/b4-3-</span> / <span class="layer">/b4-3+</span></td></tr><tr><td>[4]cumulene</td><td>axis</td><td class="inchi">no stereo layer for either</td></tr><tr><td>[5]cumulene</td><td>E/Z</td><td class="inchi">no stereo layer for either</td></tr>
+</table>
+<p>Whether longer chains should count is open: their isomers interconvert faster as the chain
+grows (review: Hernández-Camacho &amp; Barquera-Lozada, <i>Beilstein J. Org. Chem.</i> 2026,
+22, 1358).</p>
+
 <h2 id="use">How to use it</h2>
 <p><b>Input.</b> A molfile with a wedge at one or both ends of the allene. To mark the axis
 as <span class="chip c-or">or</span> or <span class="chip c-and">&amp;</span>, put the

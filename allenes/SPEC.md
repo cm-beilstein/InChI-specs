@@ -2,15 +2,15 @@
 
 | | |
 |---|---|
-| **Doc version** | 0.7 |
-| **Date** | 2026-10-23 |
+| **Doc version** | 0.8 |
+| **Date** | 2026-11-23 |
 | **Status** | draft |
 | **Author** | C. Müller |
 | **Reviewers** | TBD (InChI Trust / project 2019-017-2-800 TG) |
 | **Requirement prefix** | `AL-` |
 | **Readiness** | ready with open points — maximum cumulene length (AL-R8) undecided; slide-21 molecule missing, confirmed 2026-10-23 |
 | **Kick-off documents** | [`docs/stereochemistry/`](../docs/stereochemistry/) |
-| **Change history** | 0.1 (2026-07-09) — initial spec; verified against `dev`. 0.2 (2026-07-10) — consolidated: merged normative MUSTs into §2, requirements/gates/NFRs into one table (§4). 0.3 (2026-07-10) — readability pass: added At-a-glance, split requirements from gates, tightened prose. 0.4 (2026-10-08) — implemented on `feature/allenes` (from `feature/enh-stereo-hardening`): AL-R3 single stereobond (under `-EnhancedStereochemistry` only), AL-R7 test suite `test_allenes` (gates A1–A6). AL-R4–R6 measured to work without code change. Fixed: A1 STEABS names the *central* atom; `1B` prefix whenever the option is on; undefined axis is omitted, not `?`; collection membership keys on the central atom; line references replaced by function names. 0.5 (2026-10-09) — `-EnhancedStereochemistry` is now the only switch (`-Atropisomers` removed, Spec 4 0.5). A group on a terminal atom lost `/s` (`/t2-/m0`): fixed with Spec 1 ES-R32 (`072d35c`; on `feature/allenes` as `f6fc3ef`), gated by `group_on_terminal_atom_is_ignored`. 0.6 (2026-10-23) — Spec 1 ES-R33 (a group holding every centre of a meso component is ignored) on `feature/allenes` as `5dcf7f0`. Measured on hepta-3,4-diene-2,6-diol: applies with an allene axis in the component; an undefined axis (`3?`) does not count as a centre. New open question: a defined axis between enantiomorphic ends (§5). 0.7 (2026-10-23) — measured for Spec 1 §5.U (chiral-flag business rule): an allene axis reads the flag like a tetrahedral centre. No code change. |
+| **Change history** | 0.1 (2026-07-09) — initial spec; verified against `dev`. 0.2 (2026-07-10) — consolidated: merged normative MUSTs into §2, requirements/gates/NFRs into one table (§4). 0.3 (2026-07-10) — readability pass: added At-a-glance, split requirements from gates, tightened prose. 0.4 (2026-10-08) — implemented on `feature/allenes` (from `feature/enh-stereo-hardening`): AL-R3 single stereobond (under `-EnhancedStereochemistry` only), AL-R7 test suite `test_allenes` (gates A1–A6). AL-R4–R6 measured to work without code change. Fixed: A1 STEABS names the *central* atom; `1B` prefix whenever the option is on; undefined axis is omitted, not `?`; collection membership keys on the central atom; line references replaced by function names. 0.5 (2026-10-09) — `-EnhancedStereochemistry` is now the only switch (`-Atropisomers` removed, Spec 4 0.5). A group on a terminal atom lost `/s` (`/t2-/m0`): fixed with Spec 1 ES-R32 (`072d35c`; on `feature/allenes` as `f6fc3ef`), gated by `group_on_terminal_atom_is_ignored`. 0.6 (2026-10-23) — Spec 1 ES-R33 (a group holding every centre of a meso component is ignored) on `feature/allenes` as `5dcf7f0`. Measured on hepta-3,4-diene-2,6-diol: applies with an allene axis in the component; an undefined axis (`3?`) does not count as a centre. New open question: a defined axis between enantiomorphic ends (§5). 0.7 (2026-10-23) — measured for Spec 1 §5.U (chiral-flag business rule): an allene axis reads the flag like a tetrahedral centre. No code change. 0.8 (2026-11-23) — AL-R8 measured: [4]cumulene enantiomers and [5]cumulene E/Z isomers each get one InChI (standard and enhanced); [3]cumulene E/Z is encoded. [CUMUL] added as background; dataset `cumulenes.sdf`, examples, explain section "Longer chains". No code change. |
 
 > Normative keywords (MUST/SHOULD/MAY) per [RFC 2119](../README.md#requirement-conventions-normative);
 > shared glossary and conventions in the [README](../README.md).
@@ -26,7 +26,8 @@
 **Feature:** recognise and encode the axial chirality of allenes (`X=C=C=Y`) and odd cumulenes,
 plus two enhancement asks — (a) accept a **single** stereobond, and (b) support **enhanced
 OR/AND** mixtures on the allene axis. · **Branch:** `dev` · **Sources:** [DECK] slides 13–22,
-[ATROP] (allene analogy), [CHARTER] ("support of longer allenes").
+[ATROP] (allene analogy), [CHARTER] ("support of longer allenes"), [CUMUL] (background on
+longer cumulenes).
 
 ---
 
@@ -157,8 +158,25 @@ All in `INCHI-1-TEST/tests/test_unit/test_allenes.cpp`; molecules from [DECK] sl
 - **Chiral flag (Spec 1 §5.U, undecided).** The deck allene with chiral flag 0 and no
   collections: `/t2-/m0/s1` with `-EnhancedStereochemistry` (flag ignored), `/t2-/s2` with
   `-SUCF` added, exactly like a tetrahedral centre. Whatever rule Spec 1 adopts applies here.
-- **Cumulene length.** `MAX_CUMULENE_LEN=2` and a hard loop cap of 20 bound support; confirm
-  the project's intended maximum (AL-R8).
+- **Cumulene length (AL-R8), measured 2026-11-23.** `MAX_CUMULENE_LEN=2` (`extr_ct.h`) stops
+  stereo at three cumulated double bonds. 3D pairs with a methyl at each end
+  ([`datasets/cumulenes.sdf`](datasets/cumulenes.sdf)), standard and `-EnhancedStereochemistry`
+  alike:
+
+  | Chain | Stereo ([CUMUL]: even *n* axis, odd *n* E/Z) | InChI of the two isomers |
+  |---|---|---|
+  | [2] allene | axis | `/t5-/m0/s1`, `/t5-/m1/s1` ✅ |
+  | [3]cumulene | E/Z | `/b4-3-`, `/b4-3+` ✅ |
+  | [4]cumulene | axis | no stereo layer, identical ❌ |
+  | [5]cumulene | E/Z | no stereo layer, identical ❌ |
+
+  [CUMUL] reports rotational barriers falling with chain length for tetraaryl cumulenes
+  (≈19 kcal/mol for [5], ≈14.5 for [7]; values taken from a summary of the review, to be checked
+  against the text), i.e. [5]cumulene isomers interconvert within minutes at room temperature;
+  no barrier is given for [4]cumulene enantiomers. This argues for keeping the cap; at most
+  [4]cumulene axes are a candidate. Raising the cap MUST stay under
+  `-EnhancedStereochemistry`: globally it would change standard InChI for these molecules.
+  Decision for the TG.
 - **A-big** (slide 21) not materialised: no molfile available.
 
 ## 6. Assumptions & dependencies

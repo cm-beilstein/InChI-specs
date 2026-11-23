@@ -23,6 +23,7 @@ ENH_DATA = "../InChI-specs/enhanced-stereo/datasets"
 FIXTURES = "../InChI/INCHI-1-TEST/tests/test_unit/fixtures"
 ATROP_SDF = FIXTURES + "/atropisomers_test_file_1_v2.sdf"
 ATROP_TESTS = "../InChI/INCHI-1-TEST/tests/test_unit/test_atropisomers.cpp"
+CUMULENE_SDF = "../InChI-specs/allenes/datasets/cumulenes.sdf"
 ENH_TESTS = "../InChI/INCHI-1-TEST/tests/test_unit/test_enhancedStereo.cpp"
 
 # Threonine-like skeleton used for the group combinations: centres 1 and 3
@@ -270,6 +271,17 @@ VERSIONING = [
          smiles="CCO.[Na+].[Cl-]"),
 ]
 
+# Longer cumulenes (AL-R8, [CUMUL]): methyl at each end, built in 3D.
+# Odd chains have E/Z, even chains an axis; MAX_CUMULENE_LEN=2 stops at [3].
+CUMULENES = [
+    dict(title="[3]cumulene hexa-2,3,4-triene (Z): E/Z in /b", sdf=(CUMULENE_SDF, 0)),
+    dict(title="[3]cumulene hexa-2,3,4-triene (E)", sdf=(CUMULENE_SDF, 1)),
+    dict(title="limitation: [4]cumulene, axis not encoded (AL-R8)", sdf=(CUMULENE_SDF, 2)),
+    dict(title="limitation: [4]cumulene, mirror image, same InChI", sdf=(CUMULENE_SDF, 3)),
+    dict(title="limitation: [5]cumulene (Z), E/Z not encoded (AL-R8)", sdf=(CUMULENE_SDF, 4)),
+    dict(title="limitation: [5]cumulene (E), same InChI", sdf=(CUMULENE_SDF, 5)),
+]
+
 TABLES = [
     ("enhanced", "Enhanced stereochemistry (ABS / OR / AND)", ENHANCED),
     ("allenes", "Allenes", ALLENES),
@@ -277,6 +289,7 @@ TABLES = [
     ("atropisomers", "Atropisomers", ATROPISOMERS),
     ("meso", "Meso compounds: groups that change nothing", MESO),
     ("versioning", "Version prefix and InChIKey flags", VERSIONING),
+    ("cumulenes", "Longer cumulenes", CUMULENES),
 ]
 
 # Spec folder of each table, and its section on that spec's explain page.
@@ -288,4 +301,5 @@ SPEC_OF = {
     "atropisomers": ("atropisomers", ""),
     "meso": ("enhanced-stereo", "#meso"),
     "versioning": ("inchi-versioning", ""),
+    "cumulenes": ("allenes", "#cumulenes"),
 }

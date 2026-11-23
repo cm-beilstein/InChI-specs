@@ -112,6 +112,11 @@ Kick-off documents live in `docs/<topic>/`, one folder per topic. Stereochemistr
   Princeton, 2018): atropisomer fundamentals, scaffold taxonomy, descriptors (CIP `aR`/`aS` vs
   helical `M`/`P`), rotational barriers. **Background only** — no InChI encoding content, **not
   vendored**. Referenced as **[ATROP-BG]**.
+- J. C. Hernández-Camacho, J. E. Barquera-Lozada, "Properties and applications of
+  [n]cumulenes", *Beilstein J. Org. Chem.* **2026**, 22, 1358–1375,
+  [doi:10.3762/bjoc.22.110](https://doi.org/10.3762/bjoc.22.110) — review: even-*n* cumulenes are
+  axially chiral, odd-*n* show E/Z; rotational barriers fall with chain length. **Background
+  only**, not vendored. Referenced as **[CUMUL]**.
 
 Impossible ring stereo (spec 5), in [`docs/impossible-ring-stereo/`](docs/impossible-ring-stereo/):
 

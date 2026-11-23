@@ -1,5 +1,14 @@
 # Allene dataset gates
 
+## Longer cumulenes (AL-R8) — `cumulenes.sdf`
+
+Six 3D records with a methyl at each chain end, built from coordinates (no wedges): the two
+isomers of [3]cumulene (hexa-2,3,4-triene, Z/E), [4]cumulene (hepta-2,3,4,5-tetraene, mirror
+pair) and [5]cumulene (octa-2,3,4,5,6-pentaene, Z/E). Odd chains keep both end methyls in one
+plane, even chains put them in perpendicular planes. Only the [3] pair gets distinct InChIs;
+see SPEC §5. Used by the examples table "Longer cumulenes" and the explain section
+"Longer chains".
+
 Gates **seeded from [DECK] slides 15–22**, materialised as inline molblocks in
 `INCHI-1-TEST/tests/test_unit/test_allenes.cpp` (no SDF needed). With
 `-EnhancedStereochemistry` every InChI carries the `1B` prefix, including the

@@ -2,7 +2,9 @@
 
 import html
 
+import build
 from explain import cli, inchi, mark, picture, stereo_tail, warning
+from molecules import CUMULENE_SDF
 
 UP, DOWN = 1, 3
 
@@ -192,6 +194,25 @@ def usage():
     return dict(use_cli=with_option, use_std=without)
 
 
+# (record pair in cumulenes.sdf, chain, stereo kind, expected tails of the pair)
+CUMULENE_ROWS = [
+    ((0, 1), "[3]cumulene", "E/Z", ("/b4-3-", "/b4-3+")),
+    ((2, 3), "[4]cumulene", "axis", ("", "")),
+    ((4, 5), "[5]cumulene", "E/Z", ("", "")),
+]
+
+
+def cumulenes():
+    """Chains beyond MAX_CUMULENE_LEN=2: both isomers get one InChI (AL-R8)."""
+    rows = []
+    for (a, b), chain, kind, expected in CUMULENE_ROWS:
+        tails = tuple(stereo_tail(inchi(build.read_sdf_record(CUMULENE_SDF, i))[0]) for i in (a, b))
+        assert tails == expected, (chain, tails)
+        shown = " / ".join(mark(t) for t in tails) if any(tails) else "no stereo layer for either"
+        rows.append(f"<tr><td>{chain}</td><td>{kind}</td><td class=\"inchi\">{shown}</td></tr>")
+    return dict(cumulene_rows="".join(rows))
+
+
 def parts():
-    return dict(**usage(), **hero(), **flow(), gallery=gallery(), ignored=ignored(),
+    return dict(**usage(), **hero(), **flow(), **cumulenes(), gallery=gallery(), ignored=ignored(),
                 vials_or=vials(OR), vials_and=vials(AND))
