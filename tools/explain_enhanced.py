@@ -65,7 +65,7 @@ def gallery(iso_svgs):
   <div class="case-head"><span class="case-n">{n}</span>
     C2 {label_chip(c2)} C3 {label_chip(c3)}</div>
   <div class="case-body">
-    <div class="case-pic">{picture(smiles, numbers=False)}</div>
+    <div class="case-pic">{picture(smiles)}</div>
     <div class="case-text">
       <p>{html.escape(meaning)}</p>
       {sample(keys, how, iso_svgs)}
@@ -88,7 +88,7 @@ def flow():
     enh_rs, _ = inchi(rs)
     assert stereo_tail(enh_rr) == stereo_tail(enh_rs) == "/t3-,4-/m1/s1(4)3(3)", enh_rr
     return dict(flow_draw=picture(rr, numbers=False), flow_numbered=picture(rr),
-                flow_other=picture(rs, numbers=False), flow_result=mark(stereo_tail(enh_rr)),
+                flow_other=picture(rs), flow_result=mark(stereo_tail(enh_rr)),
                 flow_skeleton=html.escape(enh_rr[:enh_rr.index("/t")]))
 
 
@@ -104,7 +104,7 @@ def multi():
     span_std, _ = inchi(span, [])
     assert stereo_tail(span_enh) == stereo_tail(span_std)
     return dict(multi_pic=picture(smiles), multi_tail=mark(tail),
-                span_pic=picture(span, numbers=False), span_warn=html.escape(warning(span)),
+                span_pic=picture(span), span_warn=html.escape(warning(span)),
                 span_tail=html.escape(stereo_tail(span_enh)))
 
 
@@ -172,6 +172,6 @@ def parts():
         hero.append(f'<li><span class="chip c-{word}">{word}</span>'
                     f'<code class="inchi">{mark(stereo_tail(enh))}</code></li>')
     std, _ = inchi(ISOMERS["RR"], [])
-    out.update(hero_pic=picture(ISOMERS["RR"], numbers=False), hero_list="".join(hero),
+    out.update(hero_pic=picture(ISOMERS["RR"]), hero_list="".join(hero),
                hero_std=html.escape(stereo_tail(std)))
     return out

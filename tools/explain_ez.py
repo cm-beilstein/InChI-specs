@@ -113,7 +113,7 @@ def hero():
                     f'<code class="inchi">{mark_ez(got)}</code></li>')
     std = tail(dict(smiles=FUMARIC), [])
     assert std == "/b2-1+", std
-    return dict(hero_pic=picture(FUMARIC, numbers=False), hero_list="".join(rows),
+    return dict(hero_pic=picture(FUMARIC), hero_list="".join(rows),
                 hero_std=html.escape(std))
 
 
@@ -128,8 +128,8 @@ def basics():
     assert (std_f, std_m) == ("/b2-1+", "/b2-1-"), (std_f, std_m)
     return dict(vial_or=sample(["E", "Z"], OR, svgs, names),
                 vial_and=sample(["E", "Z"], AND, svgs, names),
-                fum_pic=picture(dict(smiles=FUMARIC, coll=[("STEBRAC1", [CC])]), numbers=False),
-                mal_pic=picture(dict(smiles=MALEIC, coll=[("STEBRAC1", [CC])]), numbers=False),
+                fum_pic=picture(dict(smiles=FUMARIC, coll=[("STEBRAC1", [CC])])),
+                mal_pic=picture(dict(smiles=MALEIC, coll=[("STEBRAC1", [CC])])),
                 fummal_tail=mark_ez(fum), std_fum=html.escape(std_f), std_mal=html.escape(std_m))
 
 
@@ -144,7 +144,7 @@ def flow():
     assert tail(sorbic("EE"), []) == "/b3-2+,5-4+"
     assert tail(sorbic("ZE"), []) == "/b3-2+,5-4-"
     return dict(flow_draw=picture(ee, numbers=False), flow_numbered=picture(ee),
-                flow_other=picture(ze, numbers=False), flow_result=mark_ez(stereo_tail(full)),
+                flow_other=picture(ze), flow_result=mark_ez(stereo_tail(full)),
                 flow_skeleton=html.escape(full[:full.index("/b")]))
 
 
@@ -174,7 +174,7 @@ def gallery():
   <div class="case-head"><span class="case-n">{n}</span>
     C2=C3 {label_chip(c23)} C4=C5 {label_chip(c45)}</div>
   <div class="case-body">
-    <div class="case-pic">{picture(mol, numbers=False)}</div>
+    <div class="case-pic">{picture(mol)}</div>
     <div class="case-text">
       <p>{html.escape(meaning)}</p>
       {sample(keys, how, svgs, SORBIC_NAME)}
@@ -221,7 +221,7 @@ def multi():
     span_warn = warn(span)
     assert "spans more than one component" in span_warn, span_warn
     return dict(multi_pic=picture(mol), multi_tail=mark_ez(got),
-                span_pic=picture(span, numbers=False), span_warn=html.escape(span_warn),
+                span_pic=picture(span), span_warn=html.escape(span_warn),
                 span_tail=html.escape(span_got))
 
 

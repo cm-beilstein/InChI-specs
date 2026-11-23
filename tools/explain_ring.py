@@ -42,9 +42,9 @@ def bridged():
     warn = warning(block)
     assert "Ambiguous stereo" in warn, warn
 
-    return dict(drawn_pic=picture(block, numbers=False), drawn_tail=mark(drawn_tail),
+    return dict(drawn_pic=picture(block), drawn_tail=mark(drawn_tail),
                 drawn_warn=html.escape(warn),
-                flipped_pic=picture(flipped, numbers=False), flipped_tail=mark(flipped_tail))
+                flipped_pic=picture(flipped), flipped_tail=mark(flipped_tail))
 
 
 def fused():
@@ -53,8 +53,8 @@ def fused():
     assert cis_tail != trans_tail, cis_tail
     assert warning(TRANS) == "", warning(TRANS)
 
-    return dict(cis_pic=picture(CIS, numbers=False), cis_tail=mark(cis_tail),
-                trans_pic=picture(TRANS, numbers=False), trans_tail=mark(trans_tail))
+    return dict(cis_pic=picture(CIS), cis_tail=mark(cis_tail),
+                trans_pic=picture(TRANS), trans_tail=mark(trans_tail))
 
 
 def usage():

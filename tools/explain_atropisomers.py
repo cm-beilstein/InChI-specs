@@ -72,7 +72,7 @@ def hero():
 
     full, _ = inchi(M_DRAWN)
     std, _ = inchi(M_DRAWN, [])
-    return dict(hero_std=html.escape(std), hero_m=picture(M_DRAWN, numbers=False), hero_p=picture(P_DRAWN, numbers=False),
+    return dict(hero_std=html.escape(std), hero_m=picture(M_DRAWN), hero_p=picture(P_DRAWN),
                 hero_new_m=mark(m), hero_new_p=mark(p),
                 hero_skeleton=html.escape(full[:full.index("/t")]))
 
@@ -94,9 +94,9 @@ def flow():
     assert tail(two) == "" and tail(twin) == "", (tail(two), tail(twin))
 
     return dict(flow_draw=picture(M_DRAWN, numbers=False), flow_axis=highlighted(M_DRAWN),
-                flow_numbered=picture(M_DRAWN), flow_one=picture(one, numbers=False),
+                flow_numbered=picture(M_DRAWN), flow_one=picture(one),
                 flow_flat=html.escape(warning(flat)),
-                three_pic=picture(three, numbers=False), three_tail=mark(tail(three)),
+                three_pic=picture(three), three_tail=mark(tail(three)),
                 two_pic=picture(two, numbers=False),
                 twin_pic=picture(twin, numbers=False))
 
