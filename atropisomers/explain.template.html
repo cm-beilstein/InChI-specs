@@ -89,6 +89,8 @@ something InChI computes. InChI decides from the structure alone, with the rules
     must be flat too: next to a C=O, S=O, C=C or in an aromatic ring, not a plain amine.</li>
     <li>The bond is not in a ring of 6 atoms or fewer. A bond with a nitrogen end must not be in
     a ring at all, and its carbon end must be a ring atom.</li>
+    <li>A bond inside a 7- or 8-membered ring counts only when both ends are shared by two
+    rings, as in a bridged biaryl. A ring C=O or C=N end belongs to a ring that flips.</li>
   </ul>
   <p><span class="key axis"></span>axis &nbsp; <span class="key ortho"></span>the four ortho positions</p></div>
   <div class="step-pic">$flow_axis</div>

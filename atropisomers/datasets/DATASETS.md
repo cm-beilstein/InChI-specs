@@ -39,7 +39,7 @@ InChI=1B/C12H6Br2Cl2/c13-7-3-1-5-9(15)11(7)12-8(14)4-2-6-10(12)16/h1-6H/t11-/m1/
 ```
 ([ATROP] shows `1S`; with the beta/enhanced mechanism the prefix is `1B`.)
 
-## Sub-project B invariant gates (`test_atropisomers`, 35/35)
+## Sub-project B invariant gates (`test_atropisomers`, 37/37)
 - [x] **Enantiomer pair (T6):** `gate_t6_enantiomer_flips_m` — wedges mirrored → `/m0` ↔ `/m1`.
       Whole dataset: skeleton 1 (mols 1–6, 39, 40), 2 (7–14, 36–38), 3 (17–21, 41, 42),
       4 (22–26) — every `M` → `/m0`, every `P` → `/m1`, 2D and 3D alike.

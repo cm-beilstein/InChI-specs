@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Doc version** | 0.8 |
+| **Doc version** | 0.9 |
 | **Date** | 2026-11-23 |
 | **Status** | draft |
 | **Author** | C. Müller |
@@ -10,7 +10,7 @@
 | **Requirement prefix** | `AT-` |
 | **Readiness** | ready with open points — reparse round-trip; C–O/C–S and enhanced OR/AND on an axis deferred, confirmed 2026-11-23 |
 | **Kick-off documents** | [`docs/stereochemistry/`](../docs/stereochemistry/) |
-| **Change history** | 0.1 (2026-07-09) — initial; consolidates the former `.planning` design + plan; verified against branch `atropisomers`. 0.2 (2026-07-10) — consolidated: merged normative MUSTs into §2, requirements/gates/NFRs into one table (§4). 0.3 (2026-07-10) — readability pass: added At-a-glance, split requirements from gates, tightened prose. 0.4 (2026-10-08) — Sub-project B implemented on `atropisomers` (commits `6207f72`, `78fe01e`, `687a480`): native stereo-bond registration in `set_stereo_parity`, dissymmetry pruning by the canonical-equivalence pass, `/t`+`/m` emission on the lower-numbered atom, single-wedge axis, [ATROP] hindrance heuristic; placeholder emitter retired; gates T6–T7 pass; `test_dummy_14` root-caused (N–N axis, out of scope). Line references replaced by function names. 0.5 (2026-10-09) — `-Atropisomers` removed; detection runs under `-EnhancedStereochemistry` (`46f62cf`). Cyclic hindrance relaxation removed (`2ea128d`): a ring neighbour always counts as substituted, so ≥2 passed every endocyclic bond in a ring ≥7 (bare bridged biaryls, BIOVIA Appendix B `19?`, zearalenone `17?`); all axes now need ≥3. 0.6 (2026-10-09) — ≥3 also dropped the dataset's 8-ring lignans (mols 22–26, labelled M/P); an axis whose smallest ring has exactly 8 atoms needs only the 2 bridge positions (`844caac`). 0.7 (2026-10-23) — measured for Spec 1 §5.U (chiral-flag business rule): an axis reads the flag like a tetrahedral centre. No code change. 0.8 (2026-11-23) — C–N and N–N axes (AT-R11, `57158c0`): planar neutral N end, aryl C end, acyclic bond only; dataset mols 27–31, 33, 45 and `test_dummy_4/5/14` gain the axis; scope checked against the literature (§5). |
+| **Change history** | 0.1 (2026-07-09) — initial; consolidates the former `.planning` design + plan; verified against branch `atropisomers`. 0.2 (2026-07-10) — consolidated: merged normative MUSTs into §2, requirements/gates/NFRs into one table (§4). 0.3 (2026-07-10) — readability pass: added At-a-glance, split requirements from gates, tightened prose. 0.4 (2026-10-08) — Sub-project B implemented on `atropisomers` (commits `6207f72`, `78fe01e`, `687a480`): native stereo-bond registration in `set_stereo_parity`, dissymmetry pruning by the canonical-equivalence pass, `/t`+`/m` emission on the lower-numbered atom, single-wedge axis, [ATROP] hindrance heuristic; placeholder emitter retired; gates T6–T7 pass; `test_dummy_14` root-caused (N–N axis, out of scope). Line references replaced by function names. 0.5 (2026-10-09) — `-Atropisomers` removed; detection runs under `-EnhancedStereochemistry` (`46f62cf`). Cyclic hindrance relaxation removed (`2ea128d`): a ring neighbour always counts as substituted, so ≥2 passed every endocyclic bond in a ring ≥7 (bare bridged biaryls, BIOVIA Appendix B `19?`, zearalenone `17?`); all axes now need ≥3. 0.6 (2026-10-09) — ≥3 also dropped the dataset's 8-ring lignans (mols 22–26, labelled M/P); an axis whose smallest ring has exactly 8 atoms needs only the 2 bridge positions (`844caac`). 0.7 (2026-10-23) — measured for Spec 1 §5.U (chiral-flag business rule): an axis reads the flag like a tetrahedral centre. No code change. 0.8 (2026-11-23) — C–N and N–N axes (AT-R11, `57158c0`): planar neutral N end, aryl C end, acyclic bond only; dataset mols 27–31, 33, 45 and `test_dummy_4/5/14` gain the axis; scope checked against the literature (§5). 0.9 (2026-11-23) — an axis inside a 7/8-ring needs ring-fusion atoms at both ends (`a960025`): removes ring-flipping bonds with an exocyclic =O/=NR/aryl end (§5); colchicine kept. |
 
 > Normative keywords (MUST/SHOULD/MAY) per [RFC 2119](../README.md#requirement-conventions-normative);
 > shared glossary and conventions in the [README](../README.md).
@@ -24,7 +24,7 @@ Split into two sub-projects:
 - ✅ **Sub-project B — done:** the axis is a *native* stereo element (a chain-length-0 stereo
   bond on a single bond), so canonicalisation prunes non-dissymmetric ends, inverts it for `/m`
   and emits `/t` on the lower-numbered axis atom. Single-wedge drawings and 3D input work.
-  Gates T6–T7 pass; `test_atropisomers` 35/35.
+  Gates T6–T7 pass; `test_atropisomers` 37/37.
 - ✅ **C–N / N–N axes** (AT-R11, `57158c0`): anilides, N-aryl imides/lactams/sulfonamides,
   N-aryl indoles/pyrroles, bi-indoles.
 - ❌ **Missing:** AT-R15 (C–O / C–S axes, enhanced OR/AND on an axis), InChI→structure
@@ -150,6 +150,7 @@ Call site: the detector runs on `inp_ATOM` (`out_at`) in `CreateOneStructureINCh
 | Placeholder `set_Atropisomer_t_m_layers` and its `ichiprt1.c` call removed | `strutil.c/.h`, `ichiprt1.c` | ✅ |
 | Hindrance heuristic (`ATROP_MIN_HINDERED` = 3, acyclic and cyclic) | `ichister.c` `count_hindered_ortho` | ✅ |
 | C–N / N–N ends: planar neutral N, aryl C, acyclic bond; the 8-ring exemption stays C–C (`57158c0`) | `ichister.c` `is_atrop_axis_end`, `is_atrop_axis_bond` | ✅ |
+| Axis inside a 7/8-ring: both ends ring-fusion atoms (`a960025`) | `ichister.c` `is_fused_atom`, `is_atrop_axis_bond` | ✅ |
 
 Why chain length 0 and not a pseudo-allene chain: every cumulene walker (`ichimap1.c`,
 `Copy2StereoBondOrAllene`, `MarkAmbiguousStereo`) expects `chain_length` middle atoms of
@@ -175,7 +176,7 @@ uses parity, not CIP names).
 | AT-R8 | Enantiomer/rotamer/round-trip invariants | Must | B | ✅ enantiomer + rotamer (687a480); ❌ reparse round-trip (needs `ichirvr*`) |
 | AT-R13 | Re-bake baseline expected-InChI strings once layer lands | Must | B | ✅ (687a480) |
 | AT-R9 | Single-stereobond axis (shared with allenes AL-R3) | Should | B | ✅ `allene_one_wedge_z` under `-EnhancedStereochemistry` (6207f72) |
-| AT-R10 | Cyclic-axis handling (ring ≥7 vs ≤6) end-to-end | Should | B | ✅ ≤6 rings locked; 8-ring lignans mols 22–26 → `/t19-` (844caac); bare 7-ring `test_dummy_12` → no axis (2ea128d) |
+| AT-R10 | Cyclic-axis handling (ring ≥7 vs ≤6) end-to-end | Should | B | ✅ ≤6 rings locked; 7/8-ring axes need fused ends (a960025); 8-ring lignans mols 22–26 → `/t19-` (844caac); bare 7-ring `test_dummy_12` → no axis (2ea128d) |
 | AT-R11 | C–N and N–N axes | Could | B | ✅ (57158c0) |
 | AT-R15 | Enhanced OR/AND on an axis; C–O/C–S, Si/N⁺/P⁺ and acyclic enamide axes | Could | — | ❌ deferred |
 | AT-R14 | [ATROP] hindrance heuristic (≥3 substituted ortho positions; 2 in an 8-ring) | Should | B | ✅ (78fe01e, 2ea128d, 844caac) |
@@ -183,7 +184,7 @@ uses parity, not CIP names).
 ### Gates
 
 Dataset: `atropisomers_test_file_1_v2.sdf` (+ `_orig.sdf`); see
-[datasets/DATASETS.md](datasets/DATASETS.md). Test run: **35/35 pass**. `test_dummy_14`
+[datasets/DATASETS.md](datasets/DATASETS.md). Test run: **37/37 pass**. `test_dummy_14`
 is an N–N axis (2,2'-diethyl-1,1'-biindole) → `/t21-/m0/s1` since 0.8.
 
 - **T1** detection recall — every true axis (mol 1–4, 13, 14, 43 acyclic, 44 amide) is a candidate; the bare 7-ring bridged biaryl `test_dummy_12` is no longer an axis (2ea128d). ✅ (A)
@@ -195,6 +196,7 @@ is an N–N axis (2,2'-diethyl-1,1'-biindole) → `/t21-/m0/s1` since 0.8.
 - **T7** encoding — `C12H6Br2Cl2` biaryl → `…/t11-/m0/s1` and enantiomer `…/t11-/m1/s1` ([ATROP] §3). ✅ (B)
 - **T8** dissymmetry / hindrance — 2,6-dichloro end → no layer; 3,3'-bipyridine → no layer; symmetric amide `C7–N8` never an axis (C–N). ✅ (B)
 - **T10** C–N / N–N — dataset mols 27/28 → `/t19-/m0`, 29 → `/t21-/m0`, 30 → `/t21-/m1`, 33 → `/t13-/m1` (labels M → `/m0`, P → `/m1` as for C–C); sp³ pyrroline N (mol 32) → no axis; `test_dummy_4_cn_axis_anilide` → `/t18-/m0`; flat `test_dummy_5_cn_axis_flat_omitted` → omitted with warning. ✅ (`57158c0`)
+- **T11** ring axes — a 7/8-ring axis needs fused ends: thieno-benzothiepinone C–C(=O) → no axis (`ring_axis_with_exocyclic_end_not_emitted`); colchicine → `/t14-,16+/m1/s1` (`ring_axis_with_fused_ends_emitted`). ✅ (`a960025`)
 - **T9** single wedge — one-wedge draw equals the two-wedge draw; flat draw → omitted with warning. ✅ (B)
 
 ## 5. Open issues / risks
@@ -231,8 +233,14 @@ is an N–N axis (2,2'-diethyl-1,1'-biindole) → `/t21-/m0/s1` since 0.8.
   2020). N-methyl anilides with a single ortho tBu score 2 and are missed. Same ceiling as C–C.
 - **Measured (0.8).** mcule 20k: 76 C–N/N–N candidates before pruning, 0 InChI strings
   changed (flat 2D), 29 more "Omitted undefined stereo" warnings. Without the acyclic rule 11
-  bonds inside benzodiazepinone-type 7-rings passed. 12 C–C candidates in 7-rings predate 0.8,
-  unchecked. Allenes, E/Z and enhanced-stereo fixtures and examples: no diff.
+  bonds inside benzodiazepinone-type 7-rings passed.
+- **Resolved in 0.9 — C–C bonds inside 7/8-rings.** Of 13 mcule candidates, 5 are bridged
+  biaryls (BINOL chlorophosphite #2054, binaphthyl azepine #6660, thiepine-fused furans
+  #19993 ×2, dibenzodioxocine #14245, the last uncertain); 8 are bonds of the flexible ring with
+  an exocyclic =O/=NR/aryl end (#4262, #11769 ×2, #11957, #14978, #18212 ×2, #19701 tropone),
+  which ring-flip. Rule (`is_fused_atom`): both ends must be ring-fusion atoms. Effect: mcule
+  −8 candidates, #14978 loses a false `?`; `InChI_TestSet_ext` #1865 (C18H8) loses a spurious
+  `/b18-17-` and now equals standard InChI; fixtures and spec examples unchanged. Allenes, E/Z and enhanced-stereo fixtures and examples: no diff.
 - **Reuse discipline** — parity must come from InChI's allene machinery, not new vector code
   (already honoured in A).
 - **Enhanced-stereo collections name the lower axis atom only.** `lookup_stereo_centre` finds
