@@ -155,8 +155,9 @@ rules for stereocentres apply, including the enhanced labels:</p>
     <code class="inchi"><span class="c-abs">/m0</span>/s<span class="c-abs">1(5)</span><span class="c-and">3(2)</span></code></div>
   <div class="rule"><h3>Undefined axis is left out</h3>
     <p>No wedge, or contradicting wedges: nothing is written for the axis.</p></div>
-  <div class="rule"><h3>Allenes only</h3>
-    <p>C=C=C only. C=C=C=C=C (four double bonds) is axial too but not supported yet; C=C=C=C (three) is E/Z.</p></div>
+  <div class="rule"><h3>Chain length</h3>
+    <p>Standard InChI: up to three double bonds (C=C=C=C is E/Z). With the option: up to five, so
+    C=C=C=C=C is an axis too. <a href="#cumulenes">Longer chains</a>.</p></div>
 </div>
 
 <h2 id="gallery">Examples</h2>
@@ -178,6 +179,7 @@ layer. Each pair below has a methyl group at both ends:</p>
 <tr><th>Chain</th><th>Stereo</th><th>Standard InChI</th><th>New InChI</th></tr>
 $cumulene_rows
 </table>
+$chain_gallery
 <p>Longer chains interconvert faster, but a chemist may still need to name one isomer
 (review: Hernández-Camacho &amp; Barquera-Lozada, <i>Beilstein J. Org. Chem.</i> 2026, 22, 1358).
 Six or more double bonds get no stereo.</p>

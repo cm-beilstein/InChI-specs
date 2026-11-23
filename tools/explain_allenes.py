@@ -203,6 +203,47 @@ CUMULENE_ROWS = [
 ]
 
 
+CHAIN_BOND = 1.3
+
+
+def chain(n, right_up=True, wedge=0):
+    """2D molblock of CH3-CH(=C)n-1=CH-CH3, chain drawn straight. The left
+    methyl points up, the right one up or down; 'wedge' (1 up, 6 down) sits
+    on the right methyl bond."""
+    atoms = [(i * CHAIN_BOND, 0.0) for i in range(n + 1)]
+    atoms += [(-0.75, 1.1), (n * CHAIN_BOND + 0.75, 1.1 if right_up else -1.1)]
+    bonds = [(i + 1, i + 2, 2, 0) for i in range(n)] + [(1, n + 2, 1, 0), (n + 1, n + 3, 1, wedge)]
+    s = f"\n  2D\n\n{len(atoms):3d}{len(bonds):3d}  0  0  0  0  0  0  0  0999 V2000\n"
+    s += "".join(f"{x:10.4f}{y:10.4f}{0:10.4f} C   0  0  0  0  0  0  0  0  0  0  0  0\n"
+                 for x, y in atoms)
+    s += "".join(f"{a:3d}{b:3d}{o:3d}{c:3d}\n" for a, b, o, c in bonds)
+    return s + "M  END\n"
+
+
+# (title, molecule, what it means, expected enhanced tail)
+CHAIN_CASES = [
+    ("[3]cumulene, Z", chain(3),
+     "Three double bonds: the end groups share a plane. Methyls on the same side: Z, "
+     "written in /b like a double bond. Standard InChI already does this.", "/b4-3-"),
+    ("[3]cumulene, E", chain(3, right_up=False),
+     "Methyls on opposite sides: E.", "/b4-3+"),
+    ("[4]cumulene, wedge (new)", chain(4, wedge=1),
+     "Four double bonds: the ends are perpendicular, an axis like an allene. "
+     "One wedge gives the handedness; /t names the central carbon.", "/t7-/m1/s1"),
+    ("[4]cumulene, hash (new)", chain(4, wedge=6),
+     "The mirror image: only /m changes. Drawn flat, the axis is undefined and left out.",
+     "/t7-/m0/s1"),
+    ("[5]cumulene, Z (new)", chain(5),
+     "Five double bonds: coplanar ends again, so E/Z.", "/b4-3-"),
+    ("[5]cumulene, E (new)", chain(5, right_up=False),
+     "The E isomer. Standard InChI gives both the same string.", "/b4-3+"),
+]
+
+
+def chain_gallery():
+    return "".join(case(n, t, m, w, e) for n, (t, m, w, e) in enumerate(CHAIN_CASES, 1))
+
+
 def cumulenes():
     """Longer chains (AL-R8): standard InChI stops at three double bonds,
     -EnhancedStereochemistry at five."""
@@ -217,7 +258,7 @@ def cumulenes():
             return " / ".join(mark(t) for t in tails) if any(tails) else "no stereo, same InChI"
         rows.append(f"<tr><td>{chain}</td><td>{kind}</td><td class=\"inchi\">{shown(std)}</td>"
                     f"<td class=\"inchi\">{shown(new)}</td></tr>")
-    return dict(cumulene_rows="".join(rows))
+    return dict(cumulene_rows="".join(rows), chain_gallery=chain_gallery())
 
 
 def parts():
