@@ -108,7 +108,7 @@ def vials(how):
             '<span class="joiner">+</span><figure>' + b + '</figure></div></div>')
 
 
-def case(n, title, mol, meaning, expected, extra=""):
+def case(n, title, mol, meaning, expected, extra="", numbers=False):
     old, _ = inchi(mol, [])
     new, _ = inchi(mol)
     assert stereo_tail(new) == expected, (title, new)
@@ -118,7 +118,7 @@ def case(n, title, mol, meaning, expected, extra=""):
 <article class="case">
   <div class="case-head"><span class="case-n">{n}</span>{html.escape(title)}</div>
   <div class="case-body">
-    <div class="case-pic">{picture(mol, numbers=False)}</div>
+    <div class="case-pic">{picture(mol, numbers=numbers)}</div>
     <div class="case-text">
       <p>{html.escape(meaning)}</p>
       {extra}
@@ -241,7 +241,7 @@ CHAIN_CASES = [
 
 
 def chain_gallery():
-    return "".join(case(n, t, m, w, e) for n, (t, m, w, e) in enumerate(CHAIN_CASES, 1))
+    return "".join(case(n, t, m, w, e, numbers=True) for n, (t, m, w, e) in enumerate(CHAIN_CASES, 1))
 
 
 def cumulenes():
