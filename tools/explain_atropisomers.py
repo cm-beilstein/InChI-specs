@@ -104,9 +104,13 @@ def flow():
 # (title in molecules.py, caption, expected tail, note)
 GALLERY = [
     ("3D input (projection), 44° torsion", "3D coordinates, torsion +44°",
-     "/t11-/m1/s1", "No wedges needed: the 3D geometry fixes the axis. +44° is P."),
+     "/t11-/m1/s1", "No wedges needed: the 3D geometry fixes the axis. +44° is P. "
+     "The picture is a flat projection: the z axis is not shown, so it looks the same "
+     "as the −44° structure below."),
     ("3D input (projection), -44° torsion", "3D coordinates, torsion −44°",
-     "/t11-/m0/s1", "The mirror image, M."),
+     "/t11-/m0/s1",
+     "The mirror image, M. Only the z coordinates differ, and the z axis is not shown, "
+     "so the picture looks the same as the +44° structure above."),
     ("(M)-BINOL", "(M)-BINOL", "/t19-/m0/s1",
      "Fused rings count as ortho substituents: each naphthyl end has two."),
     ("(P)-BINOL", "(P)-BINOL", "/t19-/m1/s1", "Its enantiomer: only /m changes."),
